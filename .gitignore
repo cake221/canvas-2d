@@ -1,0 +1,9 @@
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+tmp
+mochawesome-report
+tsconfig.tsbuildinfo
+yarn-error.log

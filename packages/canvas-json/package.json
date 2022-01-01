@@ -1,0 +1,19 @@
+{
+  "name": "@canvas-2d/canvas-json",
+  "version": "0.0.0",
+  "description": "加载json数据",
+  "author": "wenyufei <wenyufei@aliyun.com>",
+  "homepage": "https://github.com/wenyufei2018/canvas-2d#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
+  "directories": {
+    "src": "src",
+    "test": "__tests__"
+  },
+  "files": [
+    "dist/"
+  ],
+  "dependencies": {}
+}

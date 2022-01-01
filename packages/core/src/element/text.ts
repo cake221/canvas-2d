@@ -1,0 +1,194 @@
+import { genTextLine, TextBox, countTextBoxByTextMetrics, addTextLineBox } from "@canvas-2d/shared"
+
+import { Element } from "./_element"
+import { TextType, D_TEXT, D_FONT, D_TEXT_BOX, D_TEXT_BASE } from "../type"
+import { Attribute } from "../attr"
+import { D_SHAPE } from "../type"
+import { Shape } from "./shape"
+
+export abstract class TextBase extends Element implements D_TEXT_BASE {
+  public type: TextType = "text"
+
+  ATTRIBUTE_NAMES: (keyof D_TEXT)[] = [
+    "font",
+    "text",
+    "textAlign",
+    "textBaseline",
+    "direction",
+    "border",
+    "background"
+  ]
+
+  constructor() {
+    super()
+    this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
+  }
+
+  textBox?: TextBox
+
+  font!: Font
+
+  text: string = ""
+
+  border?: string
+
+  background?: string
+
+  textAlign: CanvasTextAlign = "left"
+  textBaseline: CanvasTextBaseline = "top"
+  direction: CanvasDirection = "inherit"
+
+  abstract renderText(ctx: CanvasRenderingContext2D): void
+  abstract countTextBox(ctx: CanvasRenderingContext2D): void
+
+  setTextStyles(ctx: CanvasRenderingContext2D) {
+    const { font, textBaseline, textAlign, direction } = this
+    ctx.textBaseline = textBaseline
+    ctx.textAlign = textAlign
+    if (typeof font === "string") {
+      ctx.font = font
+    } else {
+      ctx.font = font.genFontValue()
+    }
+    ctx.direction = direction
+  }
+
+  fromJSON(json: D_TEXT): void {
+    super.fromJSON(json)
+    const { font } = json
+    this.font = Font.createObj(Font, font || {})
+  }
+
+  render(ctx: CanvasRenderingContext2D): void {
+    if (!this.text) return
+    this.setContextParam(ctx)
+    this.setTextStyles(ctx)
+    this.countTextBox(ctx)
+    this.renderBorderAndBackground(ctx)
+    this.renderText(ctx)
+  }
+
+  renderBorderAndBackground(ctx: CanvasRenderingContext2D) {
+    const { textBox, border, background } = this
+    if (!textBox || (!border && !background)) return
+    const { boxX, boxY, boxWidth, boxHeight } = textBox
+    ctx.save()
+    const shapeData: D_SHAPE = {
+      type: "shape",
+      d_path: {
+        type: "rect",
+        width: boxWidth,
+        height: boxHeight,
+        x: boxX,
+        y: boxY
+      },
+      stroke: border || "rgba(0, 0, 0, 0)",
+      fill: background || "rgba(0, 0, 0, 0)",
+      strokeParam: {
+        lineWidth: 1,
+        lineCap: "square",
+        lineJoin: "round",
+        lineDashOffset: 0,
+        lineDash: []
+      }
+    }
+    ;(Shape.createObj(Shape, shapeData) as Shape).render(ctx)
+    ctx.restore()
+  }
+}
+
+export class Text extends TextBase implements D_TEXT {
+  public readonly type = "text"
+
+  countTextBox(ctx: CanvasRenderingContext2D) {
+    const textMetrics = ctx.measureText(this.text)
+    this.textBox = countTextBoxByTextMetrics(
+      textMetrics,
+      this.origin,
+      this.font.fontSize,
+      this.text
+    )
+  }
+
+  renderText(ctx: CanvasRenderingContext2D) {
+    ctx.strokeText(this.text, this.origin.x, this.origin.y)
+    ctx.fillText(this.text, this.origin.x, this.origin.y)
+  }
+}
+
+export class Paragraph extends TextBase implements D_TEXT_BOX {
+  public readonly type = "paragraph"
+
+  get textLine() {
+    return genTextLine(this.text)
+  }
+
+  textLineBox: TextBox[] = []
+
+  renderText(ctx: CanvasRenderingContext2D): void {
+    const { textLine, textLineBox } = this
+    for (let i = 0; i < textLineBox.length; i++) {
+      const text = textLine[i]
+      if (!text) return
+      const box = textLineBox[i]
+      const { x, y } = box
+
+      ctx.strokeText(text, x, y)
+      ctx.fillText(text, x, y)
+    }
+  }
+
+  countTextBox(ctx: CanvasRenderingContext2D) {
+    const { textLine, origin, textLineBox } = this
+    let { x, y } = origin
+    for (let i = 0; i < textLine.length; i++) {
+      const box = countTextBoxByTextMetrics(
+        ctx.measureText(textLine[i]),
+        { x, y },
+        this.font.fontSize,
+        textLine[i]
+      )
+      textLineBox[i] = box
+      y += box.boxHeight
+    }
+
+    this.textBox = addTextLineBox(textLineBox)
+  }
+}
+
+export class Font extends Attribute implements D_FONT {
+  public type: string = "attr_font"
+
+  ATTRIBUTE_NAMES: (keyof D_FONT)[] = [
+    "fontFamily",
+    "fontStyle",
+    "fontVariant",
+    "fontWeight",
+    "fontSize",
+    "lineHeight"
+  ]
+
+  fontFamily: string = "sans-serif"
+  fontSize: number = 40
+  fontStyle: string = "normal"
+  fontVariant: string = "normal"
+  fontWeight: string = "normal"
+  lineHeight: number = 1.16
+
+  /**
+   * 字体样式
+   *
+   * font 构造规则:
+   * 1. 必须包含 font-size 和 font-family
+   * 2. font-family 必须最后指定
+   * 3. font-style, font-variant 和 font-weight 必须在 font-size 之前
+   * 4. 可以选择性包含 font-style font-variant font-weight line-height
+   * 5. line-height 必须跟在 font-size 后面，由 "/" 分隔，例如 "16px/3"
+   */
+  genFontValue() {
+    const { fontSize, fontFamily, fontStyle, fontVariant, fontWeight, lineHeight } = this
+    return `${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px${
+      lineHeight ? `/${lineHeight}` : ""
+    } ${fontFamily}`
+  }
+}

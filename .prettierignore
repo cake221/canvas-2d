@@ -1,0 +1,8 @@
+build/
+dist/
+node_modules/
+package.json
+.vscode
+.mocharc.js
+.eslintrc.js
+.markdownlint.json

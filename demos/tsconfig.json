@@ -1,0 +1,14 @@
+{
+  "extends": "../config/typescript/tsconfig.json",
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "jsx": "react"
+  },
+  "references": [
+    { "path": "../packages/shared" },
+    { "path": "../packages/core" },
+    { "path": "../packages/canvas-json" },
+    { "path": "../packages/canvas-input" }
+  ]
+}

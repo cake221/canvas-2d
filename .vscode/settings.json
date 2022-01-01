@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.trimTrailingWhitespace": true,
+  "pasteImage.path": "${projectRoot}/doc/images/",
+  "pasteImage.forceUnixStyleSeparator": true,
+  "pasteImage.prefix": "",
+  "prettier.configPath": ".prettierrc.js",
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

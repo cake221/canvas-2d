@@ -1,0 +1,12 @@
+{
+  "default": true,
+  "header-increment": false,
+  "line-length": {
+    "line_length": 100,
+    "code_blocks": false,
+    "tables": false
+  },
+  "no-blanks-blockquote": false,
+  "no-inline-html": false,
+  "line_length": false
+}

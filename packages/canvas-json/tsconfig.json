@@ -1,0 +1,9 @@
+{
+  "extends": "../../config/typescript/tsconfig.json",
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "composite": true
+  },
+  "references": [{ "path": "../shared" }, { "path": "../core" }]
+}
