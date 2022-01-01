@@ -1,0 +1,43 @@
+{
+  "name": "root",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "serve": "vite preview",
+    "e2e": "cypress open",
+    "test": "mocha"
+  },
+  "mocha": {
+    "colors": true,
+    "spec": [
+      "**/*.test.ts"
+    ],
+    "reporter": [
+      "mochawesome"
+    ],
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ]
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "@types/mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "cypress": "^9.1.1",
+    "cypress-plugin-snapshots": "^1.4.4",
+    "cypress-skip-and-only-ui": "^1.2.12",
+    "js-base64": "2.5.2",
+    "lerna": "^3.19.0",
+    "mocha": "^9.1.3",
+    "mochawesome": "^7.0.1",
+    "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.12.0",
+    "typescript": "^4.3.2",
+    "vite": "^2.3.7"
+  }
+}
