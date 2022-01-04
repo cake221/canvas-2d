@@ -2,10 +2,9 @@ import React, { useCallback, useState } from "react"
 import { Menu } from "antd"
 import CanvasJson, { JsonTypes } from "./canvas-json"
 import CanvasInput from "./canvas-input"
+import CanvasShared from "./canvas-shared"
 
 const { SubMenu } = Menu
-
-function renderModule() {}
 
 export default function App() {
   const [module, setModule] = useState("canvas-input")
@@ -16,6 +15,19 @@ export default function App() {
     setModule(keys[0])
     setSubModule(keys[1])
   }, [])
+
+  const renderModule = () => {
+    switch (module) {
+      case "canvas-json":
+        return <CanvasJson subModule={subModule as JsonTypes} />
+      case "canvas-input":
+        return <CanvasInput />
+      case "canvas-common":
+        return <CanvasShared />
+      default:
+        return <div />
+    }
+  }
 
   return (
     <div style={{ background: "antiquewhite", height: "100vh" }}>
@@ -28,6 +40,9 @@ export default function App() {
           <Menu.Item key="canvas-json:gradient-pattern">渐变模型</Menu.Item>
         </SubMenu>
         <Menu.Item key="canvas-input">文本输入</Menu.Item>
+        <SubMenu key="canvas-common" title="公共方法">
+          <Menu.Item key="canvas-common:transparent">透明度</Menu.Item>
+        </SubMenu>
       </Menu>
       <div
         style={{
@@ -35,11 +50,7 @@ export default function App() {
           justifyContent: "center"
         }}
       >
-        {module === "canvas-json" ? (
-          <CanvasJson subModule={subModule as JsonTypes} />
-        ) : (
-          <CanvasInput />
-        )}
+        {renderModule()}
       </div>
     </div>
   )
