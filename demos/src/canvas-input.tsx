@@ -1,0 +1,21 @@
+import React, { useEffect, useRef, useState } from "react"
+import { CanvasInput } from "@canvas-2d/canvas-input"
+
+export default function CanvasJson() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    new CanvasInput({ canvas: canvasRef.current!, width: 600, height: 600 })
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        width: "80vw",
+        height: "80vw",
+        border: "1px solid red"
+      }}
+    />
+  )
+}

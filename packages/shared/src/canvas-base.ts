@@ -113,9 +113,7 @@ export class CanvasBase {
     ctx.restore()
   }
 
-  onPoint(p: Point) {
-    throw new Error("方法没有实现")
-  }
+  onPoint(p: Point) {}
 
   drawPoint(x: number, y: number, fill = "rgba(255, 0, 255, 0.2)") {
     const { ctx } = this
