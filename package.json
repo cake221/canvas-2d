@@ -4,6 +4,7 @@
   "workspaces": [
     "packages/*"
   ],
+  "homepage": "https://wenyufei2018.github.io/canvas-2d",
   "scripts": {
     "dev": "vite",
     "build": "yarn build:rollup && yarn build:demos",
