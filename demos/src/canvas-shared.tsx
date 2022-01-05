@@ -24,8 +24,8 @@ export default function CanvasJson() {
     <img
       ref={canvasRef}
       style={{
-        width: "80vw",
-        height: "80vw",
+        width: "600px",
+        height: "600px",
         border: "1px solid red"
       }}
     />

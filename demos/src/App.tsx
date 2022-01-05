@@ -46,6 +46,7 @@ export default function App() {
       </Menu>
       <div
         style={{
+          marginTop: "50px",
           display: "flex",
           justifyContent: "center"
         }}

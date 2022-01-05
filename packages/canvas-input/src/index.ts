@@ -159,6 +159,7 @@ export class CanvasInput extends CanvasBase {
     if (!this.text) return
     console.log("数据提交", this.text)
     this.text = ""
+    this.lenAfterCaret = 0
     this.render()
   }
 
