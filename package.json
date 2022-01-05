@@ -6,7 +6,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "yarn build:rollup",
+    "build": "yarn build:rollup && yarn build:demos",
     "build:rollup": "rollup --config ./config/rollup/rollup.config.js",
     "build:demos": "tsc && vite build",
     "clean": "rimraf './packages/*/{dist,node_modules}'",
