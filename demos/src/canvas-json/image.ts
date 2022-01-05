@@ -4,7 +4,7 @@ export const imageJson: JSON_DATA = {
   assets: [
     {
       type: "asset_image",
-      data: "/static/images/logo.png",
+      data: "/images/logo.png",
       id: 0
     }
   ],

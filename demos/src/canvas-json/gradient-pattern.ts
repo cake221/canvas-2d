@@ -3,12 +3,12 @@ import { JSON_DATA } from "@canvas-2d/canvas-json"
 export const gradientPatternJson: JSON_DATA = {
   assets: [
     {
-      data: "/static/images/redball.png",
+      data: "/images/redball.png",
       id: 0,
       type: "asset_image"
     },
     {
-      data: "/static/images/cloth.png",
+      data: "/images/cloth.png",
       id: 1,
       type: "asset_image"
     }
