@@ -1,4 +1,4 @@
-import { CanvasBase } from "@canvas-2d/shared"
+import { CanvasBase, cloneJson } from "@canvas-2d/shared"
 import { D_ASSET, D_ELEMENT, Element, genElement, genAsset } from "@canvas-2d/core"
 
 export type JSON_DATA = {
@@ -64,7 +64,7 @@ export class CanvasJSON extends CanvasBase {
 }
 
 export async function loadJson(json: JSON_DATA) {
-  const staticCanvas2D = new CanvasJSON(json)
+  const staticCanvas2D = new CanvasJSON(cloneJson(json))
   await staticCanvas2D.loadAssets()
   staticCanvas2D.loadElements()
   staticCanvas2D.render()

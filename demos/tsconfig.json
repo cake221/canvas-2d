@@ -1,9 +1,10 @@
 {
   "extends": "../config/typescript/tsconfig.json",
-  "include": ["src/**/*", "main.tsx", "vite-env.d.ts"],
+  "include": ["src/**/*", "main.tsx", "vite-env.d.ts", "shared.ts"],
   "compilerOptions": {
     "jsx": "react",
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": ["vite/client"]
   },
   "references": [
     { "path": "../packages/shared" },

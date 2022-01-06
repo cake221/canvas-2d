@@ -29,3 +29,12 @@ export function onImageLoad(
   img.onload = () => onload(img)
   img.onerror = onerror
 }
+
+export function cloneJson(json: any) {
+  try {
+    return JSON.parse(JSON.stringify(json))
+  } catch {
+    console.error(json, "不是一个JSON数据")
+    return {}
+  }
+}

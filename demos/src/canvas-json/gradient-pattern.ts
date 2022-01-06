@@ -1,14 +1,15 @@
 import { JSON_DATA } from "@canvas-2d/canvas-json"
+import { wrapStaticUrl } from "../../shared"
 
 export const gradientPatternJson: JSON_DATA = {
   assets: [
     {
-      data: "/images/redball.png",
+      data: wrapStaticUrl("images/redball.png"),
       id: 0,
       type: "asset_image"
     },
     {
-      data: "/images/cloth.png",
+      data: wrapStaticUrl("images/cloth.png"),
       id: 1,
       type: "asset_image"
     }

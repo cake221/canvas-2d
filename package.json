@@ -19,7 +19,9 @@
     "lint": "yarn lint:typescript && yarn lint:eslint && yarn lint:prettier",
     "lint:eslint": "eslint \"./{packages,demos}/**/*.{js,jsx,ts,tsx}\"",
     "lint:prettier": "prettier --check \"**/*.{css,md,js,jsx,json,ts,tsx}\"",
-    "lint:typescript": "tsc --build ./ --force"
+    "lint:typescript": "tsc --build ./ --force",
+    "bootstrap": "lerna bootstrap",
+    "link": "lerna link"
   },
   "dependencies": {
     "antd": "^4.18.2",
