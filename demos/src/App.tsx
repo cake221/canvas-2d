@@ -3,6 +3,7 @@ import { Menu } from "antd"
 import CanvasJson, { JsonTypes } from "./canvas-json"
 import CanvasInput from "./canvas-input"
 import CanvasShared from "./canvas-shared"
+import CanvasTransform from "./canvas-transform"
 
 const { SubMenu } = Menu
 
@@ -24,6 +25,8 @@ export default function App() {
         return <CanvasInput />
       case "canvas-common":
         return <CanvasShared />
+      case "canvas-transform":
+        return <CanvasTransform />
       default:
         return <div />
     }
@@ -39,6 +42,7 @@ export default function App() {
           <Menu.Item key="canvas-json:clip">裁剪</Menu.Item>
           <Menu.Item key="canvas-json:gradient-pattern">渐变模型</Menu.Item>
         </SubMenu>
+        <Menu.Item key="canvas-transform">元素变换</Menu.Item>
         <Menu.Item key="canvas-input">文本输入</Menu.Item>
         <SubMenu key="canvas-common" title="公共方法">
           <Menu.Item key="canvas-common:transparent">透明度</Menu.Item>

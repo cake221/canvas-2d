@@ -13,6 +13,7 @@ import Core from "../../packages/core/package.json"
 import Shared from "../../packages/shared/package.json"
 import CanvasJson from "../../packages/canvas-json/package.json"
 import CanvasInput from "../../packages/canvas-input/package.json"
+import CanvasTransform from "../../packages/canvas-transform/package.json"
 
 /**
  * Return a Rollup configuration for a `pkg` with `env` and `target`.
@@ -205,5 +206,6 @@ export default [
   ...factory(Shared),
   ...factory(Core),
   ...factory(CanvasJson),
-  ...factory(CanvasInput)
+  ...factory(CanvasInput),
+  ...factory(CanvasTransform)
 ]
