@@ -1,3 +1,5 @@
+import { Frame } from "@canvas-2d/shared"
+
 import { D_PATH_ELLIPSE } from "../type"
 
 import { Path } from "./_path"
@@ -39,6 +41,8 @@ export class Ellipse extends Path implements D_PATH_ELLIPSE {
     y += this.origin.y
 
     ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
+
+    this.path_Frame = new Frame(x - radiusX, y - radiusY, x + radiusX, y + radiusY)
 
     ctx.closePath()
   }

@@ -31,6 +31,8 @@ export class Polygon extends Path implements D_PATH_POLYGON {
       ctx.lineTo(points[i].x, points[i].y)
     }
 
+    // TODO: 计算 path_Frame
+
     ctx.closePath()
   }
 

@@ -8,7 +8,7 @@ import CanvasTransform from "./canvas-transform"
 const { SubMenu } = Menu
 
 export default function App() {
-  const [module, setModule] = useState("canvas-input")
+  const [module, setModule] = useState("canvas-transform")
   const [subModule, setSubModule] = useState("")
 
   const handleClick = useCallback((e) => {

@@ -1,16 +1,16 @@
-import { Point } from "@canvas-2d/shared"
+import { Point, TRANSFORM_MATRIX } from "@canvas-2d/shared"
 
 import { D_PATH } from "./path.type"
 
 export interface D_ATTR_BASE {}
-
-export type TRANSFORM_MATRIX = [number, number, number, number, number, number]
 
 export interface D_TRANSFORM {
   transformMatrix?: TRANSFORM_MATRIX
   scaleX?: number
   scaleY?: number
   angle?: number
+  offsetX?: number
+  offsetY?: number
 }
 
 export interface D_STROKE_PARAM

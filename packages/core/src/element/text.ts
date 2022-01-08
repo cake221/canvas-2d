@@ -61,11 +61,13 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
 
   render(ctx: CanvasRenderingContext2D): void {
     if (!this.text) return
+    this.renderBefore(ctx)
     this.setContextParam(ctx)
     this.setTextStyles(ctx)
     this.countTextBox(ctx)
     this.renderBorderAndBackground(ctx)
     this.renderText(ctx)
+    this.renderAfter(ctx)
   }
 
   renderBorderAndBackground(ctx: CanvasRenderingContext2D) {
@@ -98,6 +100,9 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
 }
 
 export class Text extends TextBase implements D_TEXT {
+  public countFrameElement(ctx: CanvasRenderingContext2D): void {
+    throw new Error("Method not implemented.")
+  }
   public readonly type = "text"
 
   countTextBox(ctx: CanvasRenderingContext2D) {
@@ -117,6 +122,9 @@ export class Text extends TextBase implements D_TEXT {
 }
 
 export class Paragraph extends TextBase implements D_TEXT_BOX {
+  public countFrameElement(ctx: CanvasRenderingContext2D): void {
+    throw new Error("Method not implemented.")
+  }
   public readonly type = "paragraph"
 
   get textLine() {

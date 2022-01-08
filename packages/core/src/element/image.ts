@@ -3,6 +3,9 @@ import { ImageType, D_IMAGE } from "../type"
 import { AssetImage } from "../asset"
 
 export class Image extends Element implements D_IMAGE {
+  public countFrameElement(ctx: CanvasRenderingContext2D): void {
+    throw new Error("Method not implemented.")
+  }
   public readonly type: ImageType = "image"
 
   public ATTRIBUTE_NAMES: (keyof D_IMAGE)[] = [
@@ -50,10 +53,12 @@ export class Image extends Element implements D_IMAGE {
   public render(ctx: CanvasRenderingContext2D): void {
     const { assetImage, width, height } = this
     if (!assetImage || !width || !height) return
+    this.renderBefore(ctx)
     this.setImageSmoothing(ctx)
     this.setContextParam(ctx)
     this.setImageSmoothing(ctx)
     this.renderImage(ctx)
+    this.renderAfter(ctx)
   }
 
   public renderImage(ctx: CanvasRenderingContext2D) {

@@ -1,4 +1,4 @@
-import { point_add } from "@canvas-2d/shared"
+import { point_add, Frame, TRANSFORM_MATRIX } from "@canvas-2d/shared"
 
 import { Base } from "../base"
 import { Attribute, Origin } from "../attr"
@@ -11,8 +11,7 @@ import {
   D_STROKE_PARAM,
   D_GRADIENT,
   D_CLIP,
-  D_PATH,
-  TRANSFORM_MATRIX
+  D_PATH
 } from "../type"
 import { AssetImage } from "../asset"
 import { genPath, Path, Path_Path } from "../path"
@@ -20,6 +19,7 @@ import { genPath, Path, Path_Path } from "../path"
 export abstract class Element extends Base implements D_ELEMENT_BASE {
   public abstract readonly type: ElementType
   public abstract render(ctx: CanvasRenderingContext2D): void
+  public abstract countFrameElement(ctx: CanvasRenderingContext2D): void
 
   static ELEMENT_ATTRIBUTES: (keyof D_ELEMENT_BASE)[] = [
     "fill",
@@ -51,6 +51,8 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   clip?: Clip
 
+  elementFrame = new Frame()
+
   setShadow(ctx: CanvasRenderingContext2D) {
     this.shadow?.takeEffect(ctx)
   }
@@ -59,13 +61,20 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     this.transform?.takeEffect(ctx)
   }
 
+  renderBefore(ctx: CanvasRenderingContext2D) {
+    this.setTransform(ctx)
+  }
+
+  renderAfter(ctx: CanvasRenderingContext2D) {
+    this.countFrameElement(ctx)
+  }
+
   setContextParam(ctx: CanvasRenderingContext2D): void {
     this.setClip(ctx)
     this.setShadow(ctx)
     this.setFilter(ctx)
     this.setFill(ctx)
     this.setStroke(ctx)
-    this.setTransform(ctx)
   }
 
   setStroke(ctx: CanvasRenderingContext2D) {
@@ -151,6 +160,9 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 }
 
 export class FalseElement extends Element {
+  public countFrameElement(ctx: CanvasRenderingContext2D): void {
+    throw new Error("Method not implemented.")
+  }
   public ATTRIBUTE_NAMES: any[] = Element.ELEMENT_ATTRIBUTES
   public readonly type = "element_false"
   public render(): void {
@@ -176,15 +188,35 @@ export class Shadow extends Attribute implements D_SHADOW {
 export class Transform extends Attribute implements D_TRANSFORM {
   public type: string = "attr_transform"
 
-  public ATTRIBUTE_NAMES: (keyof D_TRANSFORM)[] = ["transformMatrix", "angle", "scaleX", "scaleY"]
+  public ATTRIBUTE_NAMES: (keyof D_TRANSFORM)[] = [
+    "transformMatrix",
+    "angle",
+    "scaleX",
+    "scaleY",
+    "offsetX",
+    "offsetY"
+  ]
 
   transformMatrix?: TRANSFORM_MATRIX
+  offsetX?: number
+  offsetY?: number
   scaleX?: number
   scaleY?: number
   angle?: number
 
+  applyTransform(trans: Transform) {
+    const { offsetX, offsetY, scaleX, scaleY, angle } = trans
+
+    offsetX && (this.offsetX = (this.offsetX ?? 0) + offsetX)
+    offsetY && (this.offsetY = (this.offsetY ?? 0) + offsetY)
+    scaleX && (this.scaleX = (this.scaleX ?? 1) * scaleX)
+    scaleY && (this.scaleY = (this.scaleY ?? 1) * scaleY)
+    angle && (this.angle = (this.angle ?? 0) + angle)
+  }
+
   takeEffect(ctx: CanvasRenderingContext2D): void {
-    const { scaleX, scaleY, angle, transformMatrix } = this
+    const { scaleX, scaleY, angle, transformMatrix, offsetX, offsetY } = this
+    ctx.translate(offsetX ?? 0, offsetY ?? 0)
     ctx.scale(scaleX ? scaleX : 1, scaleY ? scaleY : 1)
     ctx.rotate(angle ? angle : 0)
     transformMatrix && ctx.transform(...transformMatrix) // 在上一次变换的基础上叠加变换

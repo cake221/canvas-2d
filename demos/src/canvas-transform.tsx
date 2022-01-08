@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react"
-import { CanvasTransform } from "@canvas-2d/canvas-transform"
+import { CanvasTransform } from "./transform"
 
 export default function CanvasJson() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
