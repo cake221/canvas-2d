@@ -35,13 +35,9 @@ export class CanvasTransform extends CanvasBase {
   onPointerdown = (ev: PointerEvent) => {
     const { ctx, controlFrame } = this
     const { boundingBox, controlPoints } = controlFrame
-    ctx.resetTransform()
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
     this.firstPoint = p
-    this.shape.setTransform(ctx)
-    this.shape.path.genPath(ctx) // 生成路径
-    this.isDrag = ctx.isPointInPath(p.x, p.y)
-    console.log(boundingBox.isPointInFrame(p, this.shape.transform))
+    this.isDrag = boundingBox.isPointInFrame(p, this.shape.transform)
   }
 
   onPointermove = (ev: PointerEvent) => {

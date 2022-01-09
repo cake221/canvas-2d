@@ -238,7 +238,7 @@ export class Transform extends Attribute implements D_TRANSFORM {
     this.scaleX = 1
     this.scaleY = 1
     this.angle = 0
-    this.transformMatrix = [1, 0, 0, 0, 1, 0]
+    this.transformMatrix = [1, 0, 0, 1, 0, 0]
   }
 
   takeEffect(ctx: CanvasRenderingContext2D): void {
