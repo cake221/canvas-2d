@@ -1,5 +1,4 @@
-import { Frame } from "@canvas-2d/shared"
-
+import { Frame } from "../frame"
 import { D_PATH_RECTANGLE } from "../type"
 import { Path } from "./_path"
 

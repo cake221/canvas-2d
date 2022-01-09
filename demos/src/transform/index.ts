@@ -1,5 +1,20 @@
-import { CanvasBase, CanvasBaseParam, Point } from "@canvas-2d/shared"
+import { CanvasBase, CanvasBaseParam, Point, renderPoints, translatePoint } from "@canvas-2d/shared"
 import { Shape, D_SHAPE, Transform } from "@canvas-2d/core"
+
+import { ControlFrame } from "./frame"
+
+export function renderPoints1(ctx: CanvasRenderingContext2D, points: Point[], isClose = true) {
+  ctx.save()
+  ctx.beginPath()
+
+  ctx.strokeStyle = "black"
+
+  ctx.moveTo(points[0].x, points[0].y)
+  points.slice(1).forEach((p) => ctx.lineTo(p.x, p.y))
+  isClose && ctx.closePath()
+  ctx.stroke()
+  ctx.restore()
+}
 
 interface CanvasTransformParam extends CanvasBaseParam {}
 
@@ -10,7 +25,9 @@ export class CanvasTransform extends CanvasBase {
 
   transform: Transform = Transform.createObj(Transform, {})
 
-  origin = new Point(0, 0)
+  firstPoint = new Point(0, 0)
+
+  controlFrame = new ControlFrame()
 
   constructor(params: CanvasTransformParam) {
     super(params)
@@ -28,7 +45,7 @@ export class CanvasTransform extends CanvasBase {
     const { ctx } = this
     ctx.resetTransform()
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
-    this.origin = p
+    this.firstPoint = p
     this.shape.setTransform(ctx)
     this.shape.path.genPath(ctx) // 生成路径
     this.isDrag = ctx.isPointInPath(p.x, p.y)
@@ -36,11 +53,11 @@ export class CanvasTransform extends CanvasBase {
 
   onPointermove = (ev: PointerEvent) => {
     if (!this.isDrag) return
-    const { origin, ctx } = this
+    const { firstPoint, ctx } = this
     ctx.resetTransform()
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
-    this.transform.offsetX = p.x - origin.x
-    this.transform.offsetY = p.y - origin.y
+    this.transform.offsetX = p.x - firstPoint.x
+    this.transform.offsetY = p.y - firstPoint.y
     this.transform.takeEffect(ctx)
     this.renderElement()
   }
@@ -68,7 +85,10 @@ export class CanvasTransform extends CanvasBase {
         y: 100
       },
       stroke: "red",
-      fill: "yellow"
+      fill: "yellow",
+      transform: {
+        offsetX: 50
+      }
     }
 
     this.shape = Shape.createObj(Shape, shapeData)
@@ -79,5 +99,6 @@ export class CanvasTransform extends CanvasBase {
     const { ctx } = this
     this.clear()
     this.shape?.render(ctx)
+    this.controlFrame.render(ctx, this.shape)
   }
 }

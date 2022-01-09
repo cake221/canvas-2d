@@ -1,6 +1,15 @@
-import { point_add, Frame, TRANSFORM_MATRIX } from "@canvas-2d/shared"
+import {
+  point_add,
+  TRANSFORM_MATRIX,
+  Point,
+  transformPoint,
+  scalePoint,
+  translatePoint,
+  rotatePoint
+} from "@canvas-2d/shared"
 
 import { Base } from "../base"
+import { Frame } from "../frame"
 import { Attribute, Origin } from "../attr"
 import {
   D_ELEMENT_BASE,
@@ -212,6 +221,15 @@ export class Transform extends Attribute implements D_TRANSFORM {
     scaleX && (this.scaleX = (this.scaleX ?? 1) * scaleX)
     scaleY && (this.scaleY = (this.scaleY ?? 1) * scaleY)
     angle && (this.angle = (this.angle ?? 0) + angle)
+  }
+
+  transformPoint(p: Point) {
+    const { offsetX, offsetY, scaleX, scaleY, angle, transformMatrix } = this
+    const p1 = translatePoint(p, offsetX, offsetY)
+    const p2 = scalePoint(p1, scaleX, scaleY)
+    const p3 = rotatePoint(p2, angle)
+    const p4 = transformPoint(p3, transformMatrix)
+    return p4
   }
 
   takeEffect(ctx: CanvasRenderingContext2D): void {

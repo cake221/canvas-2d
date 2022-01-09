@@ -1,5 +1,4 @@
-import { Frame } from "@canvas-2d/shared"
-
+import { Frame } from "../frame"
 import { Attribute, Origin } from "../attr"
 import { D_PATH } from "../type"
 
