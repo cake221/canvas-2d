@@ -226,8 +226,8 @@ export class Transform extends Attribute implements D_TRANSFORM {
   transformPoint(p: Point) {
     const { offsetX, offsetY, scaleX, scaleY, angle, transformMatrix } = this
     const p1 = translatePoint(p, offsetX, offsetY)
-    // const p2 = scalePoint(p1, scaleX, scaleY)
-    // const p3 = rotatePoint(p2, angle)
+    const p2 = rotatePoint(p1, angle)
+    // const p3 = scalePoint(p2, scaleX, scaleY)
     // const p4 = transformPoint(p3, transformMatrix)
     return p1
   }

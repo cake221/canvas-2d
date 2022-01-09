@@ -5,8 +5,14 @@ import { ControlFrame } from "./control-frame"
 
 interface CanvasTransformParam extends CanvasBaseParam {}
 
+enum CONTROL_ACTION {
+  None,
+  Drag,
+  Rotate
+}
+
 export class CanvasTransform extends CanvasBase {
-  isDrag = false
+  controlAction = CONTROL_ACTION.None
 
   shape!: Shape
 
@@ -33,32 +39,46 @@ export class CanvasTransform extends CanvasBase {
   }
 
   onPointerdown = (ev: PointerEvent) => {
-    const { ctx, controlFrame } = this
-    const { boundingBox, controlPoints } = controlFrame
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
     this.firstPoint = p
-    this.isDrag = boundingBox.isPointInFrame(p, this.shape.transform)
+    this.countControlAction()
+  }
+
+  countControlAction() {
+    const { firstPoint, controlFrame, shape } = this
+    const { boundingBox, rotateControl } = controlFrame
+
+    if (rotateControl.isPointInFrame(firstPoint, shape.transform)) {
+      this.controlAction = CONTROL_ACTION.Rotate
+    }
+    if (boundingBox.isPointInFrame(firstPoint, shape.transform)) {
+      this.controlAction = CONTROL_ACTION.Drag
+    }
   }
 
   onPointermove = (ev: PointerEvent) => {
-    if (!this.isDrag) return
+    if (this.controlAction === CONTROL_ACTION.None) return
     const { firstPoint, ctx } = this
     ctx.resetTransform()
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
-    this.transform.offsetX = p.x - firstPoint.x
-    this.transform.offsetY = p.y - firstPoint.y
+    if (this.controlAction === CONTROL_ACTION.Drag) {
+      this.transform.offsetX = p.x - firstPoint.x
+      this.transform.offsetY = p.y - firstPoint.y
+    } else if (this.controlAction === CONTROL_ACTION.Rotate) {
+      this.transform.angle = this.controlFrame.countRotateAngle(firstPoint, p)
+    }
     this.transform.takeEffect(ctx)
     this.renderElement()
   }
 
   onPointerup = () => {
-    if (!this.isDrag) return
+    if (this.controlAction === CONTROL_ACTION.None) return
     const { ctx, shape, transform } = this
     ctx.resetTransform()
     shape.transform!.applyTransform(transform)
     this.transform.reset()
     this.renderElement()
-    this.isDrag = false
+    this.controlAction = CONTROL_ACTION.None
   }
 
   createShape() {
