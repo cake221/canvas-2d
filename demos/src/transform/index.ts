@@ -1,20 +1,7 @@
-import { CanvasBase, CanvasBaseParam, Point, renderPoints, translatePoint } from "@canvas-2d/shared"
-import { Shape, D_SHAPE, Transform } from "@canvas-2d/core"
+import { CanvasBase, CanvasBaseParam, Point } from "@canvas-2d/shared"
+import { Shape, D_SHAPE, Transform, Frame } from "@canvas-2d/core"
 
-import { ControlFrame } from "./frame"
-
-export function renderPoints1(ctx: CanvasRenderingContext2D, points: Point[], isClose = true) {
-  ctx.save()
-  ctx.beginPath()
-
-  ctx.strokeStyle = "black"
-
-  ctx.moveTo(points[0].x, points[0].y)
-  points.slice(1).forEach((p) => ctx.lineTo(p.x, p.y))
-  isClose && ctx.closePath()
-  ctx.stroke()
-  ctx.restore()
-}
+import { ControlFrame } from "./control-frame"
 
 interface CanvasTransformParam extends CanvasBaseParam {}
 
@@ -27,7 +14,7 @@ export class CanvasTransform extends CanvasBase {
 
   firstPoint = new Point(0, 0)
 
-  controlFrame = new ControlFrame()
+  controlFrame = new ControlFrame(new Frame())
 
   constructor(params: CanvasTransformParam) {
     super(params)
@@ -39,16 +26,22 @@ export class CanvasTransform extends CanvasBase {
     this.canvas.addEventListener("pointerup", this.onPointerup)
 
     this.createShape()
+
+    if (!this.shape.transform) {
+      this.shape.transform = Transform.createObj(Transform, {})
+    }
   }
 
   onPointerdown = (ev: PointerEvent) => {
-    const { ctx } = this
+    const { ctx, controlFrame } = this
+    const { boundingBox, controlPoints } = controlFrame
     ctx.resetTransform()
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
     this.firstPoint = p
     this.shape.setTransform(ctx)
     this.shape.path.genPath(ctx) // 生成路径
     this.isDrag = ctx.isPointInPath(p.x, p.y)
+    console.log(boundingBox.isPointInFrame(p, this.shape.transform))
   }
 
   onPointermove = (ev: PointerEvent) => {
@@ -66,10 +59,8 @@ export class CanvasTransform extends CanvasBase {
     if (!this.isDrag) return
     const { ctx, shape, transform } = this
     ctx.resetTransform()
-    if (!shape.transform) {
-      shape.transform = Transform.createObj(Transform, {})
-    }
     shape.transform!.applyTransform(transform)
+    this.transform.reset()
     this.renderElement()
     this.isDrag = false
   }
@@ -80,7 +71,7 @@ export class CanvasTransform extends CanvasBase {
       d_path: {
         type: "rect",
         width: 100,
-        height: 100,
+        height: 200,
         x: 100,
         y: 100
       },
@@ -99,6 +90,6 @@ export class CanvasTransform extends CanvasBase {
     const { ctx } = this
     this.clear()
     this.shape?.render(ctx)
-    this.controlFrame.render(ctx, this.shape)
+    this.controlFrame.render(ctx, this.shape.elementFrame)
   }
 }

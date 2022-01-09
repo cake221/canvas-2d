@@ -1,62 +1,47 @@
 import { Point } from "@canvas-2d/shared"
-import { Frame, Shape, D_SHAPE, Element } from "@canvas-2d/core"
+import { Frame } from "@canvas-2d/core"
 
-export class ControlFrame extends Frame {
+export class ControlFrame {
   controlSize = 20
 
-  get boundingBox(): Shape {
-    const { x, y, width, height, controlSize } = this
-    const boundingBoxData: D_SHAPE = {
-      type: "shape",
-      d_path: {
-        type: "rect",
-        x: x - controlSize,
-        y: y - controlSize,
-        width: width + 2 * controlSize,
-        height: height + 2 * controlSize
-      },
-      stroke: "black"
+  boundingBox = new Frame()
+
+  controlPoints: Frame[] = new Array(9)
+    .fill(0)
+    .map(() => new Frame(0, 0, this.controlSize, this.controlSize))
+
+  constructor(public eleFrame: Frame) {}
+
+  render(ctx: CanvasRenderingContext2D, eleFrame: Frame) {
+    this.eleFrame = eleFrame
+    this.updateBoundingBox(ctx)
+    this.updateControlPoints(ctx)
+  }
+
+  updateBoundingBox(ctx: CanvasRenderingContext2D) {
+    const { boundingBox, eleFrame, controlSize } = this
+    const { x, y, width, height } = eleFrame
+    boundingBox.x = x - controlSize
+    boundingBox.y = y - controlSize
+    boundingBox.width = width + 2 * controlSize
+    boundingBox.height = height + 2 * controlSize
+    boundingBox.render(ctx, "rgba(0, 0, 0, 0)", "black")
+  }
+
+  updateControlPoints(ctx: CanvasRenderingContext2D) {
+    const { controlSize, controlPoints } = this
+    const { x, y, width, height } = this.boundingBox
+    const wStep = width / 2
+    const hStep = height / 2
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        controlPoints[i * 3 + j].x = x + wStep * i - controlSize / 2
+        controlPoints[i * 3 + j].y = y + hStep * j - controlSize / 2
+      }
     }
-    return Shape.createObj(Shape, boundingBoxData)
+    controlPoints[4].y = controlPoints[4].y - hStep - controlSize * 2
+    controlPoints.forEach((box) => box.render(ctx, "red"))
   }
-
-  constructor(x?: number, y?: number, width?: number, height?: number) {
-    super(x, y, width, height)
-  }
-
-  render(ctx: CanvasRenderingContext2D, ele?: Element) {
-    if (!ele) return
-    const { x, y, width, height } = ele.elementFrame
-    this.x = x
-    this.y = y
-    this.width = width
-    this.height = height
-    this.boundingBox.render(ctx)
-  }
-}
-
-// https://harmonyos.51cto.com/posts/89
-/**
- * 判断落点是否在长方形内
- */
-export function isPointInRect(point: Point, rect: Frame) {
-  const [x, y] = [point.x, point.y]
-
-  const [p1, p2, p3, p4] = rect.framePoints()
-  // 四个向量
-  const v1 = [p1.x - x, p1.y - y]
-  const v2 = [p2.x - x, p2.y - y]
-  const v3 = [p3.x - x, p3.y - y]
-  const v4 = [p4.x - x, p4.y - y]
-  if (
-    v1[0] * v2[1] - v2[0] * v1[1] > 0 &&
-    v2[0] * v3[1] - v3[0] * v2[1] > 0 &&
-    v3[0] * v4[1] - v4[0] * v3[1] > 0 &&
-    v4[0] * v1[1] - v1[0] * v4[1] > 0
-  ) {
-    return true
-  }
-  return false
 }
 
 /**

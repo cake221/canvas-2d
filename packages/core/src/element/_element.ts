@@ -226,10 +226,19 @@ export class Transform extends Attribute implements D_TRANSFORM {
   transformPoint(p: Point) {
     const { offsetX, offsetY, scaleX, scaleY, angle, transformMatrix } = this
     const p1 = translatePoint(p, offsetX, offsetY)
-    const p2 = scalePoint(p1, scaleX, scaleY)
-    const p3 = rotatePoint(p2, angle)
-    const p4 = transformPoint(p3, transformMatrix)
-    return p4
+    // const p2 = scalePoint(p1, scaleX, scaleY)
+    // const p3 = rotatePoint(p2, angle)
+    // const p4 = transformPoint(p3, transformMatrix)
+    return p1
+  }
+
+  reset() {
+    this.offsetX = 0
+    this.offsetY = 0
+    this.scaleX = 1
+    this.scaleY = 1
+    this.angle = 0
+    this.transformMatrix = [1, 0, 0, 0, 1, 0]
   }
 
   takeEffect(ctx: CanvasRenderingContext2D): void {
