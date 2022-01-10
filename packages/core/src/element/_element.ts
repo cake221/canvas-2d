@@ -25,6 +25,10 @@ import {
 import { AssetImage } from "../asset"
 import { genPath, Path, Path_Path } from "../path"
 
+export interface RenderParam {
+  trans?: Transform[]
+}
+
 export abstract class Element extends Base implements D_ELEMENT_BASE {
   public abstract readonly type: ElementType
   public abstract render(ctx: CanvasRenderingContext2D): void
@@ -41,6 +45,8 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     "filter",
     "clip"
   ]
+
+  renderParam?: RenderParam
 
   fill: string | Gradient | Pattern = "rgba(0, 0, 0, 0)"
 
@@ -67,7 +73,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
   }
 
   setTransform(ctx: CanvasRenderingContext2D) {
-    this.transform?.takeEffect(ctx)
+    this.transform?.takeEffect(ctx, this.renderParam?.trans)
   }
 
   renderBefore(ctx: CanvasRenderingContext2D) {
@@ -195,10 +201,14 @@ export class Shadow extends Attribute implements D_SHADOW {
 }
 
 export class Transform extends Attribute implements D_TRANSFORM {
+  static IdentityMatrix: TRANSFORM_MATRIX = [1, 0, 0, 1, 0, 0]
+
   public type: string = "attr_transform"
 
   public ATTRIBUTE_NAMES: (keyof D_TRANSFORM)[] = [
     "transformMatrix",
+    "angleCenterX",
+    "angleCenterY",
     "angle",
     "scaleX",
     "scaleY",
@@ -212,6 +222,13 @@ export class Transform extends Attribute implements D_TRANSFORM {
   scaleX?: number
   scaleY?: number
   angle?: number
+  angleCenterX?: number
+  angleCenterY?: number
+
+  setAngleCenter(p: Point) {
+    this.angleCenterX = p.x
+    this.angleCenterY = p.y
+  }
 
   applyTransform(trans: Transform) {
     const { offsetX, offsetY, scaleX, scaleY, angle } = trans
@@ -224,12 +241,28 @@ export class Transform extends Attribute implements D_TRANSFORM {
   }
 
   transformPoint(p: Point) {
-    const { offsetX, offsetY, scaleX, scaleY, angle, transformMatrix } = this
-    const p1 = translatePoint(p, offsetX, offsetY)
-    const p2 = rotatePoint(p1, angle)
-    // const p3 = scalePoint(p2, scaleX, scaleY)
-    // const p4 = transformPoint(p3, transformMatrix)
-    return p1
+    const {
+      scaleX,
+      scaleY,
+      angle,
+      transformMatrix,
+      offsetX,
+      offsetY,
+      angleCenterY,
+      angleCenterX
+    } = this
+
+    if (angle) {
+      p = translatePoint(p, angleCenterX, angleCenterY)
+      p = rotatePoint(p, angle)
+      p = translatePoint(p, -(angleCenterX ?? 0), -(angleCenterY ?? 0))
+    }
+
+    ;(offsetX || offsetY) && (p = translatePoint(p, offsetX, offsetY))
+    // ;(scaleX || scaleY) && (p = scalePoint(p, scaleX, scaleY))
+    // p = transformPoint(p, transformMatrix)
+
+    return p
   }
 
   reset() {
@@ -238,15 +271,42 @@ export class Transform extends Attribute implements D_TRANSFORM {
     this.scaleX = 1
     this.scaleY = 1
     this.angle = 0
-    this.transformMatrix = [1, 0, 0, 1, 0, 0]
+    this.transformMatrix = Transform.IdentityMatrix
   }
 
-  takeEffect(ctx: CanvasRenderingContext2D): void {
-    const { scaleX, scaleY, angle, transformMatrix, offsetX, offsetY } = this
-    ctx.translate(offsetX ?? 0, offsetY ?? 0)
-    ctx.scale(scaleX ? scaleX : 1, scaleY ? scaleY : 1)
-    ctx.rotate(angle ? angle : 0)
-    transformMatrix && ctx.transform(...transformMatrix) // 在上一次变换的基础上叠加变换
+  // 一个元素，只能有一次变换
+  takeEffect(ctx: CanvasRenderingContext2D, transform?: Transform[]): void {
+    const {
+      scaleX,
+      scaleY,
+      angle,
+      transformMatrix,
+      offsetX,
+      offsetY,
+      angleCenterY,
+      angleCenterX
+    } = this
+    if (transform) {
+      const transGroup = new Transform()
+      transform.forEach((trans) => transGroup.applyTransform(trans))
+      transGroup.applyTransform(this)
+      transGroup.takeEffect(ctx)
+      return
+    }
+
+    ctx.resetTransform()
+    if (transformMatrix) {
+      ctx.transform(...transformMatrix)
+      return
+    }
+    if (angle) {
+      ctx.translate(angleCenterX ?? 0, angleCenterY ?? 0)
+      ctx.rotate(angle)
+      ctx.translate(-(angleCenterX ?? 0), -(angleCenterY ?? 0))
+    }
+
+    ;(offsetX || offsetY) && ctx.translate(offsetX ?? 0, offsetY ?? 0)
+    ;(scaleX || scaleY) && ctx.scale(scaleX ?? 1, scaleY ?? 1)
   }
 }
 

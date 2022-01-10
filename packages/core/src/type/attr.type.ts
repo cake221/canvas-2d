@@ -8,6 +8,8 @@ export interface D_TRANSFORM {
   transformMatrix?: TRANSFORM_MATRIX
   scaleX?: number
   scaleY?: number
+  angleCenterX?: number
+  angleCenterY?: number
   angle?: number
   offsetX?: number
   offsetY?: number

@@ -1,6 +1,6 @@
 import { point_add } from "@canvas-2d/shared"
 
-import { Element } from "./_element"
+import { Element, RenderParam } from "./_element"
 import { D_PATH, D_SHAPE } from "../type"
 import { genPath, Path, Path_Path } from "../path"
 
@@ -23,8 +23,9 @@ export class Shape extends Element implements D_SHAPE {
     this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
   }
 
-  public render(ctx: CanvasRenderingContext2D): void {
+  public render(ctx: CanvasRenderingContext2D, param?: RenderParam): void {
     if (!this.path) return
+    this.renderParam = param
     this.renderBefore(ctx)
     this.path.takeEffect(ctx)
     this.renderFillStroke(ctx)

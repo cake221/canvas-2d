@@ -8,6 +8,12 @@ export class ControlFrame {
 
   boundingBox = new Frame()
 
+  centerBox = new Frame(0, 0, this.controlSize, this.controlSize)
+
+  get centerPoint() {
+    return this.centerBox.centerPoint
+  }
+
   controlPoints: Frame[] = new Array(9)
     .fill(0)
     .map(() => new Frame(0, 0, this.controlSize, this.controlSize))
@@ -45,14 +51,14 @@ export class ControlFrame {
         controlPoints[i * 3 + j].y = y + hStep * j - controlSize / 2
       }
     }
+    this.centerBox.x = controlPoints[4].x
+    this.centerBox.y = controlPoints[4].y
     controlPoints[4].y = controlPoints[4].y - hStep - controlSize * 2
     controlPoints.forEach((box) => box.render(ctx, "red"))
+    this.centerBox.render(ctx, "blue")
   }
 
   countRotateAngle(startPoint: Point, endPoint: Point) {
-    const { eleFrame } = this
-    const { x, y, width, height } = eleFrame
-    const centerPoint = new Point(x + width / 2, y + height / 2)
-    return getRotateAngle(centerPoint, startPoint, endPoint)
+    return getRotateAngle(this.centerPoint, startPoint, endPoint)
   }
 }

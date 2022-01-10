@@ -8,7 +8,8 @@ interface CanvasTransformParam extends CanvasBaseParam {}
 enum CONTROL_ACTION {
   None,
   Drag,
-  Rotate
+  Rotate,
+  Resize
 }
 
 export class CanvasTransform extends CanvasBase {
@@ -67,7 +68,6 @@ export class CanvasTransform extends CanvasBase {
     } else if (this.controlAction === CONTROL_ACTION.Rotate) {
       this.transform.angle = this.controlFrame.countRotateAngle(firstPoint, p)
     }
-    this.transform.takeEffect(ctx)
     this.renderElement()
   }
 
@@ -79,6 +79,7 @@ export class CanvasTransform extends CanvasBase {
     this.transform.reset()
     this.renderElement()
     this.controlAction = CONTROL_ACTION.None
+    console.log(this.shape)
   }
 
   createShape() {
@@ -91,10 +92,14 @@ export class CanvasTransform extends CanvasBase {
         x: 100,
         y: 100
       },
+      origin: {
+        x: 200,
+        y: 100
+      },
       stroke: "red",
       fill: "yellow",
       transform: {
-        offsetX: 50
+        // offsetX: 50
       }
     }
 
@@ -105,7 +110,10 @@ export class CanvasTransform extends CanvasBase {
   renderElement() {
     const { ctx } = this
     this.clear()
-    this.shape?.render(ctx)
+    this.shape.transform!.setAngleCenter(this.controlFrame.centerPoint)
+    this.shape?.render(ctx, {
+      trans: [this.transform]
+    })
     this.controlFrame.render(ctx, this.shape.elementFrame)
   }
 }
