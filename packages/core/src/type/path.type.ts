@@ -1,8 +1,6 @@
 import { D_ORIGIN } from "./attr.type"
 
-export interface D_PATH_BASE {
-  origin?: D_ORIGIN
-}
+export interface D_PATH_BASE {}
 
 // 矩形
 export interface D_PATH_RECTANGLE extends D_PATH_BASE {

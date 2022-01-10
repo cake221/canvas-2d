@@ -1,33 +1,17 @@
-import {
-  point_add,
-  TRANSFORM_MATRIX,
-  Point,
-  transformPoint,
-  scalePoint,
-  translatePoint,
-  rotatePoint
-} from "@canvas-2d/shared"
-
 import { Base } from "../base"
 import { Frame } from "../frame"
-import { Attribute, Origin } from "../attr"
+import { Attribute, Origin, Rotate, Clip } from "../attr"
 import {
   D_ELEMENT_BASE,
   ElementType,
-  D_TRANSFORM,
   D_SHADOW,
   D_PATTER,
   D_STROKE_PARAM,
-  D_GRADIENT,
-  D_CLIP,
-  D_PATH
+  D_GRADIENT
 } from "../type"
 import { AssetImage } from "../asset"
-import { genPath, Path, Path_Path } from "../path"
 
-export interface RenderParam {
-  trans?: Transform[]
-}
+export interface RenderParam {}
 
 export abstract class Element extends Base implements D_ELEMENT_BASE {
   public abstract readonly type: ElementType
@@ -39,7 +23,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     "stroke",
     "fillRule",
     "strokeParam",
-    "transform",
+    "rotate",
     "origin",
     "shadow",
     "filter",
@@ -58,7 +42,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   shadow?: Shadow
 
-  transform?: Transform
+  rotate?: Rotate
 
   filter?: string
 
@@ -72,12 +56,12 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     this.shadow?.takeEffect(ctx)
   }
 
-  setTransform(ctx: CanvasRenderingContext2D) {
-    this.transform?.takeEffect(ctx, this.renderParam?.trans)
+  setRotate(ctx: CanvasRenderingContext2D) {
+    this.rotate?.takeEffect(ctx)
   }
 
   renderBefore(ctx: CanvasRenderingContext2D) {
-    this.setTransform(ctx)
+    this.setRotate(ctx)
   }
 
   renderAfter(ctx: CanvasRenderingContext2D) {
@@ -129,12 +113,13 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
   }
 
   setClip(ctx: CanvasRenderingContext2D) {
-    this.clip?.takeEffect(ctx, this.fillRule)
+    const { fillRule, origin } = this
+    this.clip?.takeEffect(ctx, { fillRule, origin })
   }
 
   fromJSON(json: D_ELEMENT_BASE): void {
     super.fromJSON(json)
-    const { strokeParam, shadow, transform, fill, stroke, clip } = json
+    const { strokeParam, shadow, rotate, fill, stroke, clip } = json
 
     this.origin = Origin.createObj(Origin, json.origin!)
 
@@ -162,8 +147,8 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
       this.shadow = Shadow.createObj(Shadow, shadow)
     }
 
-    if (transform) {
-      this.transform = Transform.createObj(Transform, transform)
+    if (rotate) {
+      this.rotate = Rotate.createObj(Rotate, rotate)
     }
 
     if (clip) {
@@ -198,116 +183,6 @@ export class Shadow extends Attribute implements D_SHADOW {
   shadowColor?: string
   shadowOffsetX?: number
   shadowOffsetY?: number
-}
-
-export class Transform extends Attribute implements D_TRANSFORM {
-  static IdentityMatrix: TRANSFORM_MATRIX = [1, 0, 0, 1, 0, 0]
-
-  public type: string = "attr_transform"
-
-  public ATTRIBUTE_NAMES: (keyof D_TRANSFORM)[] = [
-    "transformMatrix",
-    "angleCenterX",
-    "angleCenterY",
-    "angle",
-    "scaleX",
-    "scaleY",
-    "offsetX",
-    "offsetY"
-  ]
-
-  transformMatrix?: TRANSFORM_MATRIX
-  offsetX?: number
-  offsetY?: number
-  scaleX?: number
-  scaleY?: number
-  angle?: number
-  angleCenterX?: number
-  angleCenterY?: number
-
-  setAngleCenter(p: Point) {
-    this.angleCenterX = p.x
-    this.angleCenterY = p.y
-  }
-
-  applyTransform(trans: Transform) {
-    const { offsetX, offsetY, scaleX, scaleY, angle } = trans
-
-    offsetX && (this.offsetX = (this.offsetX ?? 0) + offsetX)
-    offsetY && (this.offsetY = (this.offsetY ?? 0) + offsetY)
-    scaleX && (this.scaleX = (this.scaleX ?? 1) * scaleX)
-    scaleY && (this.scaleY = (this.scaleY ?? 1) * scaleY)
-    angle && (this.angle = (this.angle ?? 0) + angle)
-  }
-
-  transformPoint(p: Point) {
-    const {
-      scaleX,
-      scaleY,
-      angle,
-      transformMatrix,
-      offsetX,
-      offsetY,
-      angleCenterY,
-      angleCenterX
-    } = this
-
-    if (angle) {
-      p = translatePoint(p, angleCenterX, angleCenterY)
-      p = rotatePoint(p, angle)
-      p = translatePoint(p, -(angleCenterX ?? 0), -(angleCenterY ?? 0))
-    }
-
-    ;(offsetX || offsetY) && (p = translatePoint(p, offsetX, offsetY))
-    // ;(scaleX || scaleY) && (p = scalePoint(p, scaleX, scaleY))
-    // p = transformPoint(p, transformMatrix)
-
-    return p
-  }
-
-  reset() {
-    this.offsetX = 0
-    this.offsetY = 0
-    this.scaleX = 1
-    this.scaleY = 1
-    this.angle = 0
-    this.transformMatrix = Transform.IdentityMatrix
-  }
-
-  // 一个元素，只能有一次变换
-  takeEffect(ctx: CanvasRenderingContext2D, transform?: Transform[]): void {
-    const {
-      scaleX,
-      scaleY,
-      angle,
-      transformMatrix,
-      offsetX,
-      offsetY,
-      angleCenterY,
-      angleCenterX
-    } = this
-    if (transform) {
-      const transGroup = new Transform()
-      transform.forEach((trans) => transGroup.applyTransform(trans))
-      transGroup.applyTransform(this)
-      transGroup.takeEffect(ctx)
-      return
-    }
-
-    ctx.resetTransform()
-    if (transformMatrix) {
-      ctx.transform(...transformMatrix)
-      return
-    }
-    if (angle) {
-      ctx.translate(angleCenterX ?? 0, angleCenterY ?? 0)
-      ctx.rotate(angle)
-      ctx.translate(-(angleCenterX ?? 0), -(angleCenterY ?? 0))
-    }
-
-    ;(offsetX || offsetY) && ctx.translate(offsetX ?? 0, offsetY ?? 0)
-    ;(scaleX || scaleY) && ctx.scale(scaleX ?? 1, scaleY ?? 1)
-  }
 }
 
 class Pattern extends Attribute implements D_PATTER {
@@ -356,42 +231,6 @@ export class Gradient extends Attribute implements D_GRADIENT {
       gradient.addColorStop(...colorStop)
     }
     return gradient
-  }
-}
-
-export class Clip extends Attribute implements D_CLIP {
-  public type: string = "attr_clip"
-
-  public ATTRIBUTE_NAMES: (keyof D_CLIP)[] = ["d_path"]
-
-  path!: Path
-
-  d_path!: D_PATH
-
-  takeEffect(ctx: CanvasRenderingContext2D, fillRule?: CanvasFillRule): void {
-    this.path.genPath(ctx)
-    const { path } = this
-    if (path instanceof Path_Path) {
-      const path2d = new Path2D(path.path)
-      if (fillRule === "evenodd") {
-        ctx.clip(path2d, fillRule)
-      } else {
-        ctx.clip(path2d)
-      }
-    } else {
-      if (fillRule === "evenodd") {
-        ctx.clip(fillRule)
-      } else {
-        ctx.clip()
-      }
-    }
-  }
-
-  fromJSON(json: D_CLIP, parent?: D_ELEMENT_BASE): void {
-    super.fromJSON(json)
-    const { d_path } = json
-    d_path.origin = point_add(parent?.origin, d_path.origin)
-    this.path = genPath(d_path)
   }
 }
 

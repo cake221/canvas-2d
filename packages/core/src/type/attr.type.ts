@@ -1,18 +1,13 @@
-import { Point, TRANSFORM_MATRIX } from "@canvas-2d/shared"
+import { Point } from "@canvas-2d/shared"
 
 import { D_PATH } from "./path.type"
 
 export interface D_ATTR_BASE {}
 
-export interface D_TRANSFORM {
-  transformMatrix?: TRANSFORM_MATRIX
-  scaleX?: number
-  scaleY?: number
+export interface D_ROTATE {
   angleCenterX?: number
   angleCenterY?: number
   angle?: number
-  offsetX?: number
-  offsetY?: number
 }
 
 export interface D_STROKE_PARAM
@@ -52,4 +47,4 @@ export interface D_FONT extends D_ATTR_BASE {
   lineHeight?: number
 }
 
-export type D_ATTR = D_FONT | D_TRANSFORM | D_ORIGIN
+export type D_ATTR = D_FONT | D_ROTATE | D_ORIGIN

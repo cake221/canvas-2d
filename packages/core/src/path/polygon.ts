@@ -1,7 +1,8 @@
 import { Point } from "@canvas-2d/shared"
 
+import { Origin } from "../attr"
 import { D_PATH_POLYGON } from "../type"
-import { Path } from "./_path"
+import { Path, PathParam } from "./_path"
 
 export class Polygon extends Path implements D_PATH_POLYGON {
   readonly type = "polygon"
@@ -20,8 +21,8 @@ export class Polygon extends Path implements D_PATH_POLYGON {
   sides!: number
   startAngle?: number
 
-  genPath(ctx: CanvasRenderingContext2D): void {
-    const points = this.getPoints()
+  genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void {
+    const points = this.getPoints(pathParam.origin)
 
     ctx.beginPath()
 
@@ -36,12 +37,12 @@ export class Polygon extends Path implements D_PATH_POLYGON {
     ctx.closePath()
   }
 
-  getPoints(): Point[] {
+  getPoints(origin: Origin): Point[] {
     let { startAngle, centerX, centerY } = this
     const points = []
     let angle = startAngle || 0
-    centerX = this.origin.x + centerX
-    centerY = this.origin.y + centerY
+    centerX = origin.x + centerX
+    centerY = origin.y + centerY
 
     for (let i = 0; i < this.sides; ++i) {
       points.push(

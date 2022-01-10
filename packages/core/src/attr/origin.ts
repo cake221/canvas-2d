@@ -1,3 +1,5 @@
+import { Point } from "@canvas-2d/shared"
+
 import { Attribute } from "./_attr"
 import { D_ORIGIN } from "../type"
 
@@ -7,4 +9,8 @@ export class Origin extends Attribute implements D_ORIGIN {
 
   x: number = 0
   y: number = 0
+
+  toPoint() {
+    return new Point(this.x, this.y)
+  }
 }

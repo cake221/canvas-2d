@@ -40,8 +40,8 @@ export class Caret {
     this.caretImageX = x
     this.caretImageY = y
     this.caretImageData = ctx.getImageData(this.caretImageX, this.caretImageY, width, height)
-    caretShape.path.origin.x = x
-    caretShape.path.origin.y = y
+    caretShape.origin.x = x
+    caretShape.origin.y = y
     ;(caretShape.path as Rect).width = width
     ;(caretShape.path as Rect).height = height
 

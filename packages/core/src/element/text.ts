@@ -1,4 +1,10 @@
-import { genTextLine, TextBox, countTextBoxByTextMetrics, addTextLineBox } from "@canvas-2d/shared"
+import {
+  genTextLine,
+  TextBox,
+  countTextBoxByTextMetrics,
+  addTextLineBox,
+  Point
+} from "@canvas-2d/shared"
 
 import { Element } from "./_element"
 import { TextType, D_TEXT, D_FONT, D_TEXT_BOX, D_TEXT_BASE } from "../type"
@@ -109,7 +115,7 @@ export class Text extends TextBase implements D_TEXT {
     const textMetrics = ctx.measureText(this.text)
     this.textBox = countTextBoxByTextMetrics(
       textMetrics,
-      this.origin,
+      this.origin.toPoint(),
       this.font.fontSize,
       this.text
     )
@@ -152,7 +158,7 @@ export class Paragraph extends TextBase implements D_TEXT_BOX {
     for (let i = 0; i < textLine.length; i++) {
       const box = countTextBoxByTextMetrics(
         ctx.measureText(textLine[i]),
-        { x, y },
+        new Point(x, y),
         this.font.fontSize,
         textLine[i]
       )

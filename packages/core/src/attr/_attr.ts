@@ -2,7 +2,7 @@ import { D_ATTR_BASE } from "../type"
 import { Base } from "../base"
 
 export abstract class Attribute extends Base implements D_ATTR_BASE {
-  takeEffect(ctx: CanvasRenderingContext2D) {
+  takeEffect(ctx: CanvasRenderingContext2D, ...other: any) {
     const ctxAttr = this.ATTRIBUTE_NAMES
     for (const key of ctxAttr) {
       // @ts-ignore

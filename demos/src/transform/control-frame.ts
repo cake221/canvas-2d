@@ -1,8 +1,6 @@
 import { Point } from "@canvas-2d/shared"
 import { Frame } from "@canvas-2d/core"
 
-import { getRotateAngle } from "./util"
-
 export class ControlFrame {
   controlSize = 20
 
@@ -58,7 +56,21 @@ export class ControlFrame {
     this.centerBox.render(ctx, "blue")
   }
 
+  // https://harmonyos.51cto.com/posts/89
   countRotateAngle(startPoint: Point, endPoint: Point) {
-    return getRotateAngle(this.centerPoint, startPoint, endPoint)
+    const { x, y } = this.centerPoint
+    const [rotateStartX, rotateStartY] = [startPoint.x, startPoint.y]
+    const [touchX, touchY] = [endPoint.x, endPoint.y]
+    // 两个向量
+    const v1 = [rotateStartX - x, rotateStartY - y]
+    const v2 = [touchX - x, touchY - y]
+    // 公式的分子
+    const numerator = v1[0] * v2[1] - v1[1] * v2[0]
+    // 公式的分母
+    const denominator =
+      Math.sqrt(Math.pow(v1[0], 2) + Math.pow(v1[1], 2)) *
+      Math.sqrt(Math.pow(v2[0], 2) + Math.pow(v2[1], 2))
+    const sin = numerator / denominator
+    return Math.asin(sin)
   }
 }

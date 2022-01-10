@@ -3,7 +3,7 @@ import {
   D_GRADIENT,
   D_PATTER,
   D_STROKE_PARAM,
-  D_TRANSFORM,
+  D_ROTATE,
   D_SHADOW,
   D_CLIP,
   D_FONT
@@ -21,7 +21,7 @@ export interface D_ELEMENT_BASE {
   strokeParam?: D_STROKE_PARAM
   fillRule?: CanvasFillRule
   filter?: string
-  transform?: D_TRANSFORM
+  rotate?: D_ROTATE
   shadow?: D_SHADOW
 
   clip?: D_CLIP

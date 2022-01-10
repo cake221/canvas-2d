@@ -274,7 +274,7 @@ export class CanvasInput extends CanvasBase {
         const char = line[j]
         const box = countTextBoxByTextMetrics(
           ctx.measureText(char),
-          { x, y },
+          new Point(x, y),
           defaultBoxHeight,
           char
         )

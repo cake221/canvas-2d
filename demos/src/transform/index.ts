@@ -1,5 +1,5 @@
-import { CanvasBase, CanvasBaseParam, Point } from "@canvas-2d/shared"
-import { Shape, D_SHAPE, Transform, Frame } from "@canvas-2d/core"
+import { CanvasBase, CanvasBaseParam, Point, rotatePoint, translatePoint } from "@canvas-2d/shared"
+import { Shape, D_SHAPE, Frame, Element, Rotate } from "@canvas-2d/core"
 
 import { ControlFrame } from "./control-frame"
 
@@ -15,11 +15,9 @@ enum CONTROL_ACTION {
 export class CanvasTransform extends CanvasBase {
   controlAction = CONTROL_ACTION.None
 
-  shape!: Shape
+  element!: Element
 
-  transform: Transform = Transform.createObj(Transform, {})
-
-  firstPoint = new Point(0, 0)
+  lastPoint = new Point(0, 0)
 
   controlFrame = new ControlFrame(new Frame())
 
@@ -33,53 +31,47 @@ export class CanvasTransform extends CanvasBase {
     this.canvas.addEventListener("pointerup", this.onPointerup)
 
     this.createShape()
-
-    if (!this.shape.transform) {
-      this.shape.transform = Transform.createObj(Transform, {})
-    }
   }
 
   onPointerdown = (ev: PointerEvent) => {
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
-    this.firstPoint = p
+    this.lastPoint = p
     this.countControlAction()
   }
 
   countControlAction() {
-    const { firstPoint, controlFrame, shape } = this
+    const { lastPoint, controlFrame, element } = this
     const { boundingBox, rotateControl } = controlFrame
+    const { rotate } = element
 
-    if (rotateControl.isPointInFrame(firstPoint, shape.transform)) {
+    // 旋转后，计算的点不对
+    if (rotateControl.isPointInFrame(lastPoint, rotate)) {
       this.controlAction = CONTROL_ACTION.Rotate
     }
-    if (boundingBox.isPointInFrame(firstPoint, shape.transform)) {
+    if (boundingBox.isPointInFrame(lastPoint, rotate)) {
       this.controlAction = CONTROL_ACTION.Drag
     }
   }
 
   onPointermove = (ev: PointerEvent) => {
-    if (this.controlAction === CONTROL_ACTION.None) return
-    const { firstPoint, ctx } = this
-    ctx.resetTransform()
+    const { controlAction, lastPoint, element } = this
+    if (controlAction === CONTROL_ACTION.None) return
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
-    if (this.controlAction === CONTROL_ACTION.Drag) {
-      this.transform.offsetX = p.x - firstPoint.x
-      this.transform.offsetY = p.y - firstPoint.y
-    } else if (this.controlAction === CONTROL_ACTION.Rotate) {
-      this.transform.angle = this.controlFrame.countRotateAngle(firstPoint, p)
+    if (controlAction === CONTROL_ACTION.Drag) {
+      element.origin.x += p.x - lastPoint.x
+      element.origin.y += p.y - lastPoint.y
+    } else if (controlAction === CONTROL_ACTION.Rotate) {
+      element.rotate?.setAngleCenter(this.controlFrame.centerPoint)
+      element.rotate!.angle! += this.controlFrame.countRotateAngle(lastPoint, p)
     }
     this.renderElement()
+    this.lastPoint = p
   }
 
   onPointerup = () => {
     if (this.controlAction === CONTROL_ACTION.None) return
-    const { ctx, shape, transform } = this
-    ctx.resetTransform()
-    shape.transform!.applyTransform(transform)
-    this.transform.reset()
     this.renderElement()
     this.controlAction = CONTROL_ACTION.None
-    console.log(this.shape)
   }
 
   createShape() {
@@ -89,31 +81,30 @@ export class CanvasTransform extends CanvasBase {
         type: "rect",
         width: 100,
         height: 200,
-        x: 100,
-        y: 100
+        x: 0,
+        y: 0
       },
       origin: {
         x: 200,
         y: 100
       },
       stroke: "red",
-      fill: "yellow",
-      transform: {
-        // offsetX: 50
-      }
+      fill: "yellow"
     }
 
-    this.shape = Shape.createObj(Shape, shapeData)
+    this.element = Shape.createObj(Shape, shapeData)
+    if (!this.element.rotate) {
+      this.element.rotate = new Rotate()
+      this.element.rotate.angle = 0
+    }
     this.renderElement()
   }
 
   renderElement() {
     const { ctx } = this
     this.clear()
-    this.shape.transform!.setAngleCenter(this.controlFrame.centerPoint)
-    this.shape?.render(ctx, {
-      trans: [this.transform]
-    })
-    this.controlFrame.render(ctx, this.shape.elementFrame)
+
+    this.element?.render(ctx)
+    this.controlFrame.render(ctx, this.element.elementFrame)
   }
 }

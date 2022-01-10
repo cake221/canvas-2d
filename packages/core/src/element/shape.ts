@@ -1,5 +1,3 @@
-import { point_add } from "@canvas-2d/shared"
-
 import { Element, RenderParam } from "./_element"
 import { D_PATH, D_SHAPE } from "../type"
 import { genPath, Path, Path_Path } from "../path"
@@ -25,9 +23,12 @@ export class Shape extends Element implements D_SHAPE {
 
   public render(ctx: CanvasRenderingContext2D, param?: RenderParam): void {
     if (!this.path) return
+    const { origin } = this
     this.renderParam = param
     this.renderBefore(ctx)
-    this.path.takeEffect(ctx)
+    this.path.takeEffect(ctx, {
+      origin
+    })
     this.renderFillStroke(ctx)
     this.renderAfter(ctx)
   }
@@ -73,7 +74,6 @@ export class Shape extends Element implements D_SHAPE {
   fromJSON(json: D_SHAPE): void {
     super.fromJSON(json)
     const { d_path } = json
-    d_path.origin = point_add(d_path.origin, this.origin)
     this.path = genPath(d_path)
   }
 }

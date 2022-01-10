@@ -1,7 +1,7 @@
 import { Frame } from "../frame"
 import { D_PATH_ELLIPSE } from "../type"
 
-import { Path } from "./_path"
+import { Path, PathParam } from "./_path"
 
 export class Ellipse extends Path implements D_PATH_ELLIPSE {
   /**
@@ -29,15 +29,16 @@ export class Ellipse extends Path implements D_PATH_ELLIPSE {
   endAngle?: number
   anticlockwise?: boolean
 
-  genPath(ctx: CanvasRenderingContext2D): void {
+  genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void {
     let { x = 0, y = 0, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise } = this
+    const { origin } = pathParam
     ctx.beginPath()
 
     rotation = rotation ? rotation : 0
     startAngle = startAngle ? startAngle : 0
     endAngle = endAngle ? endAngle : 2 * Math.PI
-    x += this.origin.x
-    y += this.origin.y
+    x += origin.x
+    y += origin.y
 
     ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
 

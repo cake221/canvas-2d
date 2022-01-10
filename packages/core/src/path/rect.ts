@@ -1,6 +1,6 @@
 import { Frame } from "../frame"
 import { D_PATH_RECTANGLE } from "../type"
-import { Path } from "./_path"
+import { Path, PathParam } from "./_path"
 
 export class Rect extends Path implements D_PATH_RECTANGLE {
   /**
@@ -27,10 +27,11 @@ export class Rect extends Path implements D_PATH_RECTANGLE {
   x = 0
   y = 0
 
-  genPath(ctx: CanvasRenderingContext2D): void {
+  genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void {
     const rx = this.rx ? Math.min(this.rx, this.width / 2) : 0,
       ry = this.ry ? Math.min(this.ry, this.height / 2) : 0
-    let { width: w, height: h, x, y, origin } = this
+    let { width: w, height: h, x, y } = this
+    const { origin } = pathParam
     x += origin.x
     y += origin.y
     const isRounded = rx !== 0 || ry !== 0,

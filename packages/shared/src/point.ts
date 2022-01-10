@@ -1,5 +1,23 @@
 export class Point {
   constructor(public x: number = 0, public y: number = 0) {}
+
+  clone() {
+    return new Point(this.x, this.y)
+  }
+
+  static Zero() {
+    return new Point(0, 0)
+  }
+
+  // https://harmonyos.51cto.com/posts/89
+  countEndPointByRotate(centerPoint: Point = Point.Zero(), angle: number = 0) {
+    const { x, y } = this
+    const [centerX, centerY] = [centerPoint.x, centerPoint.y]
+    const [x1, y1] = [x - centerX, y - centerY]
+    const x2 = x1 * Math.cos(angle) - y1 * Math.sin(angle)
+    const y2 = x1 * Math.sin(angle) + y1 * Math.cos(angle)
+    return new Point(x2 + centerX, y2 + centerY)
+  }
 }
 
 export function point_add(
@@ -34,15 +52,5 @@ export function scalePoint(p: Point, x: number = 1, y: number = 1) {
 }
 
 export function rotatePoint(p: Point, a: number = 0) {
-  return new Point(p.x * Math.cos(a) - p.y + Math.sin(a), p.x * Math.sin(a) + p.y + Math.cos(a))
-}
-
-export function renderPoints(ctx: CanvasRenderingContext2D, points: Point[], isClose = true) {
-  ctx.save()
-  ctx.beginPath()
-
-  ctx.moveTo(points[0].x, points[0].y)
-  points.slice(1).forEach((p) => ctx.lineTo(p.x, p.y))
-  isClose && ctx.closePath()
-  ctx.restore()
+  return new Point(p.x * Math.cos(a) - p.y * Math.sin(a), p.x * Math.sin(a) + p.y * Math.cos(a))
 }

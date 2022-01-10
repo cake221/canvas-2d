@@ -1,7 +1,8 @@
 import { Point } from "@canvas-2d/shared"
 
 import { D_SHAPE } from "./type"
-import { Shape, Transform } from "./element"
+import { Shape } from "./element"
+import { Rotate } from "./attr"
 
 export class Frame {
   constructor(public x = 0, public y = 0, public width = 0, public height = 0) {}
@@ -22,13 +23,12 @@ export class Frame {
     ]
   }
 
-  isPointInFrame(point: Point, transform?: Transform) {
+  isPointInFrame(point: Point, rotate?: Rotate) {
     const { x, y } = point
-    const framePoints = this.framePoints()
-    const [p1, p2, p3, p4] = transform
-      ? framePoints.map((p) => transform.transformPoint(p))
-      : framePoints
-
+    const points = this.framePoints()
+    const [p1, p2, p3, p4] = rotate
+      ? points.map((p) => p.countEndPointByRotate(rotate.angleCenter, rotate.angle))
+      : points
     // 四个向量
     const v1 = [p1.x - x, p1.y - y]
     const v2 = [p2.x - x, p2.y - y]

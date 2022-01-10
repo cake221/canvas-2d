@@ -89,26 +89,22 @@ export function countCaretPositionByCoord(
 ): Point {
   assertCaretCoord(textCharBoxs, { caretRow, caretColumn })
   if (!coordIsEnd(textCharBoxs, caretRow, caretColumn)) {
-    return {
-      x: textCharBoxs[caretRow][caretColumn].boxX,
-      y: textCharBoxs[caretRow][caretColumn].boxY
-    }
+    return new Point(
+      textCharBoxs[caretRow][caretColumn].boxX,
+      textCharBoxs[caretRow][caretColumn].boxY
+    )
   }
 
   const finalBox = textCharBoxs[caretRow]?.[caretColumn - 1] // 尾行是否为空
   if (finalBox) {
     // 尾行不为空，根据最后一个box计算
-    return {
-      x: finalBox.boxX + finalBox.boxWidth,
-      y: finalBox.boxY
-    }
+    return new Point(finalBox.boxX + finalBox.boxWidth, finalBox.boxY)
   } else {
     // 尾行为空，根据上一行计算
-    return {
-      x: origin.x,
-      y:
-        textCharBoxs[caretRow - 1]?.[0].boxY + textCharBoxs[caretRow - 1]?.[0].boxHeight || origin.y
-    }
+    return new Point(
+      origin.x,
+      textCharBoxs[caretRow - 1]?.[0].boxY + textCharBoxs[caretRow - 1]?.[0].boxHeight || origin.y
+    )
   }
 }
 

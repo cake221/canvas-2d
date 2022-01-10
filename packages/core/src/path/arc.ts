@@ -1,7 +1,7 @@
 import { Frame } from "../frame"
 import { D_PATH_ARC } from "../type"
 
-import { Path } from "./_path"
+import { Path, PathParam } from "./_path"
 
 export class Arc extends Path implements D_PATH_ARC {
   /**
@@ -30,13 +30,14 @@ export class Arc extends Path implements D_PATH_ARC {
 
   anticlockwise?: boolean
 
-  genPath(ctx: CanvasRenderingContext2D): void {
+  genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void {
     let { x = 0, y = 0, radius, startAngle, endAngle, anticlockwise } = this
+    const { origin } = pathParam
     ctx.beginPath()
     startAngle = startAngle ? startAngle : 0
     endAngle = endAngle ? endAngle : 2 * Math.PI
-    x = x + this.origin.x
-    y = y + this.origin.y
+    x = x + origin.x
+    y = y + origin.y
     ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise)
     this.path_Frame = new Frame(x - radius, y - radius, x + radius, y + radius)
     ctx.closePath()
