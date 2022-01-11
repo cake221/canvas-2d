@@ -43,6 +43,39 @@ export class Point {
     const { x, y } = this
     return new Point(x * scaleX, y * scaleY)
   }
+
+  countPointBaseTransform(trans: Transform) {
+    return trans.transFormPoint(this)
+  }
 }
 
 export type TRANSFORM_MATRIX = [number, number, number, number, number, number]
+
+export class Transform {
+  offsetX = 0
+  offsetY = 0
+  angle = 0
+  angleCenter = Point.Zero()
+  scaleX = 1
+  scaleY = 1
+
+  takeEffect(ctx: CanvasRenderingContext2D) {
+    const { offsetX, offsetY, angle, angleCenter, scaleX, scaleY } = this
+    ctx.resetTransform()
+    ctx.translate(offsetX, offsetY)
+    ctx.translate(angleCenter.x, angleCenter.y)
+    angle && ctx.rotate(angle)
+    ctx.translate(-angleCenter.x, -angleCenter.y)
+    ctx.scale(scaleX, scaleY)
+  }
+
+  transFormPoint(p: Point) {
+    const { offsetX, offsetY, angleCenter, angle, scaleX, scaleY } = this
+    p = p.translatePoint(-offsetX, -offsetY)
+    p = p.translatePoint(-angleCenter.x, -angleCenter.y)
+    p = p.rotatePointOnZero(-angle)
+    p = p.translatePoint(angleCenter.x, angleCenter.y)
+    p = p.scalePoint(1 / scaleX, 1 / scaleY)
+    return p
+  }
+}

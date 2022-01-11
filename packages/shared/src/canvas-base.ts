@@ -115,11 +115,11 @@ export class CanvasBase {
 
   onPoint(p: Point) {}
 
-  drawPoint(x: number, y: number, fill = "rgba(255, 0, 255, 0.2)") {
+  drawPoint(x: number, y: number, fill = "rgba(255, 0, 255, 0.2)", size = 5) {
     const { ctx } = this
     ctx.save()
     ctx.fillStyle = fill
-    ctx.fillRect(x, y, 5, 5)
+    ctx.fillRect(x - size / 2, y - size / 2, size, size)
     ctx.restore()
   }
 }

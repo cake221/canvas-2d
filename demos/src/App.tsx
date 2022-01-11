@@ -4,6 +4,7 @@ import CanvasJson, { JsonTypes } from "./canvas-json"
 import CanvasInput from "./canvas-input"
 import CanvasShared from "./canvas-shared"
 import CanvasTransform from "./canvas-transform"
+import PointTransform from "./point-transform"
 
 const { SubMenu } = Menu
 
@@ -27,6 +28,8 @@ export default function App() {
         return <CanvasShared />
       case "canvas-transform":
         return <CanvasTransform />
+      case "point-transform":
+        return <PointTransform />
       default:
         return <div />
     }
@@ -46,6 +49,7 @@ export default function App() {
         <Menu.Item key="canvas-input">文本输入</Menu.Item>
         <SubMenu key="canvas-common" title="公共方法">
           <Menu.Item key="canvas-common:transparent">透明度</Menu.Item>
+          <Menu.Item key="point-transform">点变化</Menu.Item>
         </SubMenu>
       </Menu>
       <div
