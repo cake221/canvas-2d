@@ -2,7 +2,7 @@ import { Point } from "@canvas-2d/shared"
 import { Frame } from "@canvas-2d/core"
 
 export class ControlFrame {
-  controlSize = 20
+  controlSize = 10
 
   boundingBox = new Frame()
 

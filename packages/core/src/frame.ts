@@ -27,7 +27,7 @@ export class Frame {
     const { x, y } = point
     const points = this.framePoints()
     const [p1, p2, p3, p4] = rotate
-      ? points.map((p) => p.countEndPointByRotate(rotate.angleCenter, rotate.angle))
+      ? points.map((p) => p.countEndPointByRotate(rotate.angleCenter, -(rotate.angle ?? 0)))
       : points
     // 四个向量
     const v1 = [p1.x - x, p1.y - y]

@@ -9,6 +9,11 @@ export class Point {
     return new Point(0, 0)
   }
 
+  point_add(p: Point): Point {
+    const { x, y } = this
+    return new Point(x + p.x, y + p.y)
+  }
+
   // https://harmonyos.51cto.com/posts/89
   countEndPointByRotate(centerPoint: Point = Point.Zero(), angle: number = 0) {
     const { x, y } = this
@@ -18,39 +23,26 @@ export class Point {
     const y2 = x1 * Math.sin(angle) + y1 * Math.cos(angle)
     return new Point(x2 + centerX, y2 + centerY)
   }
-}
 
-export function point_add(
-  a: Partial<Point> = { x: 0, y: 0 },
-  b: Partial<Point> = { x: 0, y: 0 }
-): Point {
-  a = {
-    x: a.x || 0,
-    y: a.y || 0
+  rotatePointOnZero(a: number = 0) {
+    const { x, y } = this
+    return new Point(x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a))
   }
 
-  b = {
-    x: b.x || 0,
-    y: b.y || 0
+  transformPoint(t: TRANSFORM_MATRIX = [1, 0, 0, 0, 1, 0]) {
+    const { x, y } = this
+    return new Point(t[0] * x + t[2] * y + t[4], t[1] * x + t[3] * y + t[5])
   }
 
-  return new Point(a.x! + b.x!, a.y! + b.y!)
+  translatePoint(offsetX: number = 0, offsetY: number = 0) {
+    const { x, y } = this
+    return new Point(x + offsetX, y + offsetY)
+  }
+
+  scalePoint(scaleX: number = 1, scaleY: number = 1) {
+    const { x, y } = this
+    return new Point(x * scaleX, y * scaleY)
+  }
 }
 
 export type TRANSFORM_MATRIX = [number, number, number, number, number, number]
-
-export function transformPoint(p: Point, t: TRANSFORM_MATRIX = [1, 0, 0, 0, 1, 0]) {
-  return new Point(t[0] * p.x + t[2] * p.y + t[4], t[1] * p.x + t[3] * p.y + t[5])
-}
-
-export function translatePoint(p: Point, x: number = 0, y: number = 0) {
-  return new Point(p.x + x, p.y + y)
-}
-
-export function scalePoint(p: Point, x: number = 1, y: number = 1) {
-  return new Point(p.x * x, p.y * y)
-}
-
-export function rotatePoint(p: Point, a: number = 0) {
-  return new Point(p.x * Math.cos(a) - p.y * Math.sin(a), p.x * Math.sin(a) + p.y * Math.cos(a))
-}

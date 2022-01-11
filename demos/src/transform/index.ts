@@ -1,4 +1,4 @@
-import { CanvasBase, CanvasBaseParam, Point, rotatePoint, translatePoint } from "@canvas-2d/shared"
+import { CanvasBase, CanvasBaseParam, Point } from "@canvas-2d/shared"
 import { Shape, D_SHAPE, Frame, Element, Rotate } from "@canvas-2d/core"
 
 import { ControlFrame } from "./control-frame"
@@ -19,7 +19,11 @@ export class CanvasTransform extends CanvasBase {
 
   lastPoint = new Point(0, 0)
 
+  lastPointOnTrans = new Point(0, 0)
+
   controlFrame = new ControlFrame(new Frame())
+
+  resizeIndex = 0
 
   constructor(params: CanvasTransformParam) {
     super(params)
@@ -34,38 +38,66 @@ export class CanvasTransform extends CanvasBase {
   }
 
   onPointerdown = (ev: PointerEvent) => {
-    const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
+    const { element } = this
+    const p = this.dom2CanvasPoint(ev.x, ev.y)
     this.lastPoint = p
+    this.lastPointOnTrans = p.countEndPointByRotate(
+      element.rotate?.angleCenter,
+      -element.rotate?.angle!
+    )
     this.countControlAction()
   }
 
   countControlAction() {
-    const { lastPoint, controlFrame, element } = this
-    const { boundingBox, rotateControl } = controlFrame
-    const { rotate } = element
+    const { lastPointOnTrans, controlFrame } = this
+    const { boundingBox, rotateControl, controlPoints } = controlFrame
 
-    // 旋转后，计算的点不对
-    if (rotateControl.isPointInFrame(lastPoint, rotate)) {
+    if (rotateControl.isPointInFrame(lastPointOnTrans)) {
       this.controlAction = CONTROL_ACTION.Rotate
+      return
     }
-    if (boundingBox.isPointInFrame(lastPoint, rotate)) {
+
+    for (let i = 0; i < controlPoints.length; i++) {
+      if (controlPoints[i].isPointInFrame(lastPointOnTrans)) {
+        this.controlAction = CONTROL_ACTION.Resize
+        this.resizeIndex = i
+        return
+      }
+    }
+
+    if (boundingBox.isPointInFrame(lastPointOnTrans)) {
       this.controlAction = CONTROL_ACTION.Drag
+      return
     }
   }
 
   onPointermove = (ev: PointerEvent) => {
-    const { controlAction, lastPoint, element } = this
+    const { controlAction, lastPoint, lastPointOnTrans, element } = this
     if (controlAction === CONTROL_ACTION.None) return
-    const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
+    const p = this.dom2CanvasPoint(ev.x, ev.y)
+    const pOnTrans = p.countEndPointByRotate(element.rotate?.angleCenter, -element.rotate?.angle!)
+    const xGap = pOnTrans.x - lastPointOnTrans.x
+    const yGap = pOnTrans.y - lastPointOnTrans.y
     if (controlAction === CONTROL_ACTION.Drag) {
-      element.origin.x += p.x - lastPoint.x
-      element.origin.y += p.y - lastPoint.y
+      element.origin.x += xGap
+      element.origin.y += yGap
     } else if (controlAction === CONTROL_ACTION.Rotate) {
-      element.rotate?.setAngleCenter(this.controlFrame.centerPoint)
+      // 角度计算的值不对
       element.rotate!.angle! += this.controlFrame.countRotateAngle(lastPoint, p)
+    } else if (controlAction === CONTROL_ACTION.Resize) {
+      if (this.resizeIndex === 0) {
+        element.origin.x += xGap
+        element.origin.y += yGap
+        // @ts-ignore
+        ;(element as Shape).path!.width -= xGap
+
+        // @ts-ignore
+        ;(element as Shape).path!.height -= yGap
+      }
     }
     this.renderElement()
     this.lastPoint = p
+    this.lastPointOnTrans = pOnTrans
   }
 
   onPointerup = () => {
@@ -93,6 +125,7 @@ export class CanvasTransform extends CanvasBase {
     }
 
     this.element = Shape.createObj(Shape, shapeData)
+    this.element.coordStroke = "black"
     if (!this.element.rotate) {
       this.element.rotate = new Rotate()
       this.element.rotate.angle = 0
@@ -101,10 +134,13 @@ export class CanvasTransform extends CanvasBase {
   }
 
   renderElement() {
-    const { ctx } = this
+    const { ctx, element } = this
+    ctx.save()
     this.clear()
 
     this.element?.render(ctx)
     this.controlFrame.render(ctx, this.element.elementFrame)
+    element.rotate?.setAngleCenter(this.controlFrame.centerPoint)
+    ctx.restore()
   }
 }

@@ -44,6 +44,8 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   rotate?: Rotate
 
+  coordStroke: string = ""
+
   filter?: string
 
   origin: Origin = new Origin()
@@ -64,8 +66,22 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     this.setRotate(ctx)
   }
 
+  renderCoord(ctx: CanvasRenderingContext2D) {
+    const { coordStroke, origin } = this
+    const { x, y } = origin
+    if (coordStroke) {
+      ctx.beginPath()
+      ctx.moveTo(x + 20, y)
+      ctx.lineTo(x, y)
+      ctx.lineTo(x, 20 + y)
+      ctx.strokeStyle = coordStroke
+      ctx.stroke()
+    }
+  }
+
   renderAfter(ctx: CanvasRenderingContext2D) {
     this.countFrameElement(ctx)
+    this.renderCoord(ctx)
   }
 
   setContextParam(ctx: CanvasRenderingContext2D): void {

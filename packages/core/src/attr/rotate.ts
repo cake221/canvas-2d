@@ -16,11 +16,9 @@ export class Rotate extends Attribute implements D_ROTATE {
   }
 
   // 一个元素，只能有一次变换
-  takeEffect(ctx: CanvasRenderingContext2D, angleIncr: number = 0): void {
-    let { angle = 0, angleCenter = Point.Zero() } = this
+  takeEffect(ctx: CanvasRenderingContext2D): void {
+    const { angle = 0, angleCenter = Point.Zero() } = this
     const { x, y } = angleCenter
-    angle += angleIncr
-
     ctx.resetTransform()
 
     if (angle) {
