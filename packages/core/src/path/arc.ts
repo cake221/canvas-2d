@@ -1,4 +1,5 @@
-import { Frame } from "../frame"
+import { Box } from "@canvas-2d/shared"
+
 import { D_PATH_ARC } from "../type"
 
 import { Path, PathParam } from "./_path"
@@ -39,7 +40,7 @@ export class Arc extends Path implements D_PATH_ARC {
     x = x + origin.x
     y = y + origin.y
     ctx.arc(x, y, radius, startAngle, endAngle, anticlockwise)
-    this.path_Frame = new Frame(x - radius, y - radius, x + radius, y + radius)
+    this.path_Frame = new Box(x - radius, y - radius, x + radius, y + radius)
     ctx.closePath()
   }
 }

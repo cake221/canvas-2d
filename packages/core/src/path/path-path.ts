@@ -1,4 +1,4 @@
-import { Frame } from "../frame"
+import { Box } from "@canvas-2d/shared"
 import { D_PATH_PATH } from "../type"
 import { Path } from "./_path"
 

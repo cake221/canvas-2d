@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react"
-import { CanvasBase, CanvasBaseParam, Point, Transform } from "@canvas-2d/shared"
+import { CanvasBase, CanvasBaseParam, Point, Transform, Box } from "@canvas-2d/shared"
 import { Slider, Row, Col } from "antd"
 
 interface PointTransformParam extends CanvasBaseParam {}
@@ -44,9 +44,12 @@ class PointTrans extends CanvasBase {
   }
 
   renderTransPoint() {
-    const pTrans = this.p.countPointBaseTransform(this.trans)
+    const { p, ctx, trans } = this
+    const pTrans = p.countPointBaseTransform(trans)
+    const { scaleX, scaleY } = trans
+    Box.fromPoint(pTrans).render(ctx, { fill: "red" })
+    Box.fromPoint(pTrans, 5 / scaleX, 5 / scaleY).render(ctx, { fill: "black" })
     console.log("转换后", pTrans)
-    this.drawPoint(pTrans.x, pTrans.y, "red")
   }
 
   renderCoord() {

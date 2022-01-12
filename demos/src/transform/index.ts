@@ -1,5 +1,5 @@
-import { CanvasBase, CanvasBaseParam, Point } from "@canvas-2d/shared"
-import { Shape, D_SHAPE, Frame, Element, Rotate } from "@canvas-2d/core"
+import { CanvasBase, CanvasBaseParam, Point, Box } from "@canvas-2d/shared"
+import { Shape, D_SHAPE, Element, Rotate } from "@canvas-2d/core"
 
 import { ControlFrame } from "./control-frame"
 
@@ -21,7 +21,7 @@ export class CanvasTransform extends CanvasBase {
 
   lastPointOnTrans = new Point(0, 0)
 
-  controlFrame = new ControlFrame(new Frame())
+  controlFrame = new ControlFrame(new Box())
 
   resizeIndex = 0
 

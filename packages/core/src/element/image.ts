@@ -52,7 +52,7 @@ export class Image extends Element implements D_IMAGE {
 
   public render(ctx: CanvasRenderingContext2D): void {
     const { assetImage, width, height } = this
-    if (!assetImage || !width || !height) return
+    if (!assetImage || !assetImage.element || !width || !height) return
     this.renderBefore(ctx)
     this.setImageSmoothing(ctx)
     this.setContextParam(ctx)
@@ -64,7 +64,7 @@ export class Image extends Element implements D_IMAGE {
   public renderImage(ctx: CanvasRenderingContext2D) {
     const { x, y } = this.origin
     const { width, height } = this
-    ctx.drawImage(this!.assetImage?.element!, x, y, width, height)
+    ctx.drawImage(this.assetImage!.element!, x, y, width, height)
   }
 
   public fromJSON(json: D_IMAGE): void {

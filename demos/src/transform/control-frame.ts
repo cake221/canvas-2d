@@ -1,28 +1,27 @@
-import { Point } from "@canvas-2d/shared"
-import { Frame } from "@canvas-2d/core"
+import { Point, Box } from "@canvas-2d/shared"
 
 export class ControlFrame {
   controlSize = 10
 
-  boundingBox = new Frame()
+  boundingBox = new Box()
 
-  centerBox = new Frame(0, 0, this.controlSize, this.controlSize)
+  centerBox = new Box(0, 0, this.controlSize, this.controlSize)
 
   get centerPoint() {
     return this.centerBox.centerPoint
   }
 
-  controlPoints: Frame[] = new Array(9)
+  controlPoints: Box[] = new Array(9)
     .fill(0)
-    .map(() => new Frame(0, 0, this.controlSize, this.controlSize))
+    .map(() => new Box(0, 0, this.controlSize, this.controlSize))
 
   get rotateControl() {
     return this.controlPoints[4]
   }
 
-  constructor(public eleFrame: Frame) {}
+  constructor(public eleFrame: Box) {}
 
-  render(ctx: CanvasRenderingContext2D, eleFrame: Frame) {
+  render(ctx: CanvasRenderingContext2D, eleFrame: Box) {
     this.eleFrame = eleFrame
     this.updateBoundingBox(ctx)
     this.updateControlPoints(ctx)
@@ -30,30 +29,30 @@ export class ControlFrame {
 
   updateBoundingBox(ctx: CanvasRenderingContext2D) {
     const { boundingBox, eleFrame, controlSize } = this
-    const { x, y, width, height } = eleFrame
-    boundingBox.x = x - controlSize
-    boundingBox.y = y - controlSize
-    boundingBox.width = width + 2 * controlSize
-    boundingBox.height = height + 2 * controlSize
-    boundingBox.render(ctx, "rgba(0, 0, 0, 0)", "black")
+    const { boxX, boxY, boxWidth, boxHeight } = eleFrame
+    boundingBox.boxX = boxX - controlSize
+    boundingBox.boxY = boxY - controlSize
+    boundingBox.boxWidth = boxWidth + 2 * controlSize
+    boundingBox.boxHeight = boxHeight + 2 * controlSize
+    boundingBox.render(ctx, { stroke: "black" })
   }
 
   updateControlPoints(ctx: CanvasRenderingContext2D) {
     const { controlSize, controlPoints } = this
-    const { x, y, width, height } = this.boundingBox
-    const wStep = width / 2
-    const hStep = height / 2
+    const { boxX, boxY, boxWidth, boxHeight } = this.boundingBox
+    const wStep = boxWidth / 2
+    const hStep = boxHeight / 2
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
-        controlPoints[i * 3 + j].x = x + wStep * i - controlSize / 2
-        controlPoints[i * 3 + j].y = y + hStep * j - controlSize / 2
+        controlPoints[i * 3 + j].boxX = boxX + wStep * i - controlSize / 2
+        controlPoints[i * 3 + j].boxY = boxY + hStep * j - controlSize / 2
       }
     }
-    this.centerBox.x = controlPoints[4].x
-    this.centerBox.y = controlPoints[4].y
-    controlPoints[4].y = controlPoints[4].y - hStep - controlSize * 2
-    controlPoints.forEach((box) => box.render(ctx, "red"))
-    this.centerBox.render(ctx, "blue")
+    this.centerBox.boxX = controlPoints[4].boxX
+    this.centerBox.boxY = controlPoints[4].boxY
+    controlPoints[4].boxY = controlPoints[4].boxY - hStep - controlSize * 2
+    controlPoints.forEach((box) => box.render(ctx, { fill: "red" }))
+    this.centerBox.render(ctx, { fill: "blue" })
   }
 
   // https://harmonyos.51cto.com/posts/89

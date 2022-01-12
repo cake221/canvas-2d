@@ -1,5 +1,5 @@
+import { Box } from "@canvas-2d/shared"
 import { Base } from "../base"
-import { Frame } from "../frame"
 import { Attribute, Origin, Rotate, Clip } from "../attr"
 import {
   D_ELEMENT_BASE,
@@ -52,7 +52,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   clip?: Clip
 
-  elementFrame = new Frame()
+  elementFrame = new Box()
 
   setShadow(ctx: CanvasRenderingContext2D) {
     this.shadow?.takeEffect(ctx)

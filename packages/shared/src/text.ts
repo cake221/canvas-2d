@@ -1,4 +1,4 @@
-import { Point } from "./point"
+import { Point, Box } from "./point"
 
 export function genTextLine(text: string) {
   const textLine = text.split(/\n/).map((str) => str + "\n")
@@ -37,14 +37,15 @@ export function textCharFromTextBox(textCharBoxs: TextBox[][]): string[][] {
   return textChar
 }
 
-export class TextBox {
+export class TextBox extends Box {
   x: number = 0
   y: number = 0
-  boxX: number = 0
-  boxY: number = 0
-  boxWidth: number = 0
-  boxHeight: number = 0
+
   char: string = ""
+
+  static from(json: Partial<TextBox>): TextBox {
+    return super.from(json) as TextBox
+  }
 }
 
 // TODO: boxX 和 boxY 计算的值不准确。暂时用 x,y 代替
@@ -56,7 +57,7 @@ export function countTextBoxByTextMetrics(
 ): TextBox {
   const height = fontSize * 1.23 // 高度修正
   const { width } = textMetrics
-  return {
+  return TextBox.from({
     x: origin.x,
     y: origin.y,
     boxX: origin.x, // origin.x + actualBoundingBoxLeft,
@@ -64,7 +65,7 @@ export function countTextBoxByTextMetrics(
     boxWidth: width,
     boxHeight: height, // Math.max(height, actualBoundingBoxDescent - actualBoundingBoxAscent)
     char
-  }
+  })
 }
 
 export function addTextLineBox(textLineBoxs: TextBox[]): TextBox {
@@ -78,10 +79,10 @@ export function addTextLineBox(textLineBoxs: TextBox[]): TextBox {
     boxWidth = Math.max(boxWidth, textLineBoxs[i].boxWidth)
   }
 
-  return {
+  return TextBox.from({
     ...textLineBoxs[0],
     boxX,
     boxWidth,
     boxHeight
-  }
+  })
 }

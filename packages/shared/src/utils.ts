@@ -38,3 +38,24 @@ export function cloneJson(json: any) {
     return {}
   }
 }
+
+export function parseJsonData(obj: any, json: any, attrs?: any[]) {
+  if (!json) return
+  for (const [k, v] of Object.entries(json)) {
+    if (!attrs || attrs.includes(k)) {
+      obj[k] = v
+    }
+  }
+}
+
+export function toJsonData(obj: any, attrs: string[]): any {
+  const json: any = {}
+  for (const k of attrs) {
+    const v = obj[k]
+    if (v !== undefined) {
+      json[k] = v
+    }
+  }
+  json.type = obj.type
+  return json
+}

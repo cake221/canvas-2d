@@ -1,3 +1,5 @@
+import { parseJsonData } from "./utils"
+
 export class Point {
   constructor(public x: number = 0, public y: number = 0) {}
 
@@ -44,12 +46,19 @@ export class Point {
     return new Point(x * scaleX, y * scaleY)
   }
 
-  countPointBaseTransform(trans: Transform) {
-    return trans.transFormPoint(this)
+  countPointBaseTransform(trans: Transform, transParams?: TransformParams) {
+    return trans.transFormPoint(this, transParams)
   }
 }
 
 export type TRANSFORM_MATRIX = [number, number, number, number, number, number]
+
+interface TransformParams {
+  isScale?: boolean
+  isTranslate?: boolean
+  isRotate?: boolean
+  isReset?: boolean
+}
 
 export class Transform {
   offsetX = 0
@@ -59,23 +68,118 @@ export class Transform {
   scaleX = 1
   scaleY = 1
 
-  takeEffect(ctx: CanvasRenderingContext2D) {
+  takeEffect(ctx: CanvasRenderingContext2D, params: TransformParams = {}) {
     const { offsetX, offsetY, angle, angleCenter, scaleX, scaleY } = this
-    ctx.resetTransform()
-    ctx.translate(offsetX, offsetY)
-    ctx.translate(angleCenter.x, angleCenter.y)
-    angle && ctx.rotate(angle)
-    ctx.translate(-angleCenter.x, -angleCenter.y)
-    ctx.scale(scaleX, scaleY)
+    const { isReset = true, isScale = true, isTranslate = true, isRotate = true } = params
+    isReset && ctx.resetTransform()
+
+    isTranslate && ctx.translate(offsetX, offsetY)
+
+    if (isRotate && angle) {
+      ctx.translate(angleCenter.x, angleCenter.y)
+      ctx.rotate(angle)
+      ctx.translate(-angleCenter.x, -angleCenter.y)
+    }
+
+    isScale && ctx.scale(scaleX, scaleY)
   }
 
-  transFormPoint(p: Point) {
+  transFormPoint(p: Point, params: TransformParams = {}) {
     const { offsetX, offsetY, angleCenter, angle, scaleX, scaleY } = this
-    p = p.translatePoint(-offsetX, -offsetY)
-    p = p.translatePoint(-angleCenter.x, -angleCenter.y)
-    p = p.rotatePointOnZero(-angle)
-    p = p.translatePoint(angleCenter.x, angleCenter.y)
-    p = p.scalePoint(1 / scaleX, 1 / scaleY)
+    const { isReset = true, isScale = true, isTranslate = true, isRotate = true } = params
+    isTranslate && (p = p.translatePoint(-offsetX, -offsetY))
+
+    if (isRotate && angle) {
+      p = p.translatePoint(-angleCenter.x, -angleCenter.y)
+      p = p.rotatePointOnZero(-angle)
+      p = p.translatePoint(angleCenter.x, angleCenter.y)
+    }
+
+    isScale && (p = p.scalePoint(1 / scaleX, 1 / scaleY))
     return p
+  }
+}
+
+interface BoxRenderParam {
+  fill?: string
+  stroke?: string
+}
+
+export class Box {
+  constructor(
+    public boxX: number = 0,
+    public boxY: number = 0,
+    public boxWidth: number = 0,
+    public boxHeight: number = 0
+  ) {}
+
+  static from(json: Partial<Box>): Box {
+    const box = new Box()
+    parseJsonData(box, json)
+    return box
+  }
+
+  get centerPoint(): Point {
+    const { boxX, boxY, boxWidth, boxHeight } = this
+    return new Point(boxX + boxWidth / 2, boxY + boxHeight / 2)
+  }
+
+  static fromPoint(p: Point, width = 5, height = 5): Box {
+    return Box.from({
+      boxX: p.x - width / 2,
+      boxY: p.y - height / 2,
+      boxHeight: height,
+      boxWidth: width
+    })
+  }
+
+  // 边框的四个点的坐标: 左上、右上、右下、左下
+  get boxPoints(): [Point, Point, Point, Point] {
+    const { boxX, boxY, boxWidth, boxHeight } = this
+    return [
+      new Point(boxX, boxY),
+      new Point(boxX + boxWidth, boxY),
+      new Point(boxX + boxWidth, boxY + boxHeight),
+      new Point(boxX, boxY + boxHeight)
+    ]
+  }
+
+  isPointInFrame(point: Point, trans?: Transform, transParams?: TransformParams) {
+    const { x, y } = point
+    const points = this.boxPoints
+    const [p1, p2, p3, p4] = trans
+      ? points.map((p) => trans.transFormPoint(p, transParams))
+      : points
+    // 四个向量
+    const v1 = [p1.x - x, p1.y - y]
+    const v2 = [p2.x - x, p2.y - y]
+    const v3 = [p3.x - x, p3.y - y]
+    const v4 = [p4.x - x, p4.y - y]
+    if (
+      v1[0] * v2[1] - v2[0] * v1[1] > 0 &&
+      v2[0] * v3[1] - v3[0] * v2[1] > 0 &&
+      v3[0] * v4[1] - v4[0] * v3[1] > 0 &&
+      v4[0] * v1[1] - v1[0] * v4[1] > 0
+    ) {
+      return true
+    }
+    return false
+  }
+
+  render(ctx: CanvasRenderingContext2D, params: BoxRenderParam = {}) {
+    const [p1, p2, p3, p4] = this.boxPoints
+    const { fill = "rgba(0, 0, 0, 0)", stroke = "rgba(0, 0, 0, 0)" } = params
+    ctx.save()
+    ctx.fillStyle = fill
+    ctx.strokeStyle = stroke
+    ctx.beginPath()
+    ctx.moveTo(p1.x, p1.y)
+    ctx.lineTo(p2.x, p2.y)
+    ctx.lineTo(p3.x, p3.y)
+    ctx.lineTo(p4.x, p4.y)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+    ctx.restore()
   }
 }

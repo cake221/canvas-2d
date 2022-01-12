@@ -1,4 +1,4 @@
-import { Frame } from "../frame"
+import { Box } from "@canvas-2d/shared"
 import { D_PATH_RECTANGLE } from "../type"
 import { Path, PathParam } from "./_path"
 
@@ -53,7 +53,7 @@ export class Rect extends Path implements D_PATH_RECTANGLE {
     ctx.lineTo(x, y + ry)
     isRounded && ctx.bezierCurveTo(x, y + k * ry, x + k * rx, y, x + rx, y)
 
-    this.path_Frame = new Frame(x, y, w, h)
+    this.path_Frame = new Box(x, y, w, h)
 
     ctx.closePath()
   }

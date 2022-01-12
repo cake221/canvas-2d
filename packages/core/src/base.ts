@@ -1,11 +1,11 @@
-import { parseJsonData, toJsonData } from "./type"
+import { parseJsonData, toJsonData } from "@canvas-2d/shared"
 
 export abstract class Base {
   public abstract readonly type: string
   public abstract ATTRIBUTE_NAMES: any[]
 
   public fromJSON(json: any) {
-    parseJsonData(this.ATTRIBUTE_NAMES, this, json)
+    parseJsonData(this, json, this.ATTRIBUTE_NAMES)
   }
 
   public toJSON() {
