@@ -5,10 +5,10 @@ export class ControlFrame {
 
   boundingBox = new Box()
 
-  centerBox = new Box(0, 0, this.controlSize, this.controlSize)
+  angleCenterBox = new Box(0, 0, this.controlSize, this.controlSize)
 
   get centerPoint() {
-    return this.centerBox.centerPoint
+    return this.angleCenterBox.centerPoint
   }
 
   controlPoints: Box[] = new Array(9)
@@ -48,11 +48,9 @@ export class ControlFrame {
         controlPoints[i * 3 + j].boxY = boxY + hStep * j - controlSize / 2
       }
     }
-    this.centerBox.boxX = controlPoints[4].boxX
-    this.centerBox.boxY = controlPoints[4].boxY
     controlPoints[4].boxY = controlPoints[4].boxY - hStep - controlSize * 2
     controlPoints.forEach((box) => box.render(ctx, { fill: "red" }))
-    this.centerBox.render(ctx, { fill: "blue" })
+    this.angleCenterBox.render(ctx, { fill: "blue" })
   }
 
   // https://harmonyos.51cto.com/posts/89

@@ -122,4 +122,16 @@ export class CanvasBase {
     ctx.fillRect(x - size / 2, y - size / 2, size, size)
     ctx.restore()
   }
+
+  drawLine(p1: Point, p2: Point, stroke = "rgba(255, 0, 255, 0.2)", firstPointFill = "orange") {
+    const { ctx } = this
+    ctx.save()
+    ctx.strokeStyle = stroke
+    ctx.beginPath()
+    ctx.moveTo(p1.x, p1.y)
+    ctx.lineTo(p2.x, p2.y)
+    ctx.stroke()
+    this.drawPoint(p1.x, p1.y, firstPointFill)
+    ctx.restore()
+  }
 }

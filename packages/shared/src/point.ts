@@ -1,5 +1,3 @@
-import { parseJsonData } from "./utils"
-
 export class Point {
   constructor(public x: number = 0, public y: number = 0) {}
 
@@ -113,24 +111,13 @@ export class Box {
     public boxHeight: number = 0
   ) {}
 
-  static from(json: Partial<Box>): Box {
-    const box = new Box()
-    parseJsonData(box, json)
-    return box
-  }
-
   get centerPoint(): Point {
     const { boxX, boxY, boxWidth, boxHeight } = this
     return new Point(boxX + boxWidth / 2, boxY + boxHeight / 2)
   }
 
   static fromPoint(p: Point, width = 5, height = 5): Box {
-    return Box.from({
-      boxX: p.x - width / 2,
-      boxY: p.y - height / 2,
-      boxHeight: height,
-      boxWidth: width
-    })
+    return new Box(p.x - width / 2, p.y - height / 2, height, width)
   }
 
   // 边框的四个点的坐标: 左上、右上、右下、左下
@@ -144,12 +131,10 @@ export class Box {
     ]
   }
 
-  isPointInFrame(point: Point, trans?: Transform, transParams?: TransformParams) {
+  isPointInFrame(point: Point) {
     const { x, y } = point
     const points = this.boxPoints
-    const [p1, p2, p3, p4] = trans
-      ? points.map((p) => trans.transFormPoint(p, transParams))
-      : points
+    const [p1, p2, p3, p4] = points
     // 四个向量
     const v1 = [p1.x - x, p1.y - y]
     const v2 = [p2.x - x, p2.y - y]

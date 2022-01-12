@@ -1,5 +1,4 @@
-import { CanvasBase, CanvasBaseParam, Point, Box } from "@canvas-2d/shared"
-import { Shape, D_SHAPE, Element, Rotate } from "@canvas-2d/core"
+import { CanvasBase, CanvasBaseParam, Point, Box, Transform } from "@canvas-2d/shared"
 
 import { ControlFrame } from "./control-frame"
 
@@ -8,6 +7,7 @@ interface CanvasTransformParam extends CanvasBaseParam {}
 enum CONTROL_ACTION {
   None,
   Drag,
+  angleCenterDrag,
   Rotate,
   Resize
 }
@@ -15,13 +15,19 @@ enum CONTROL_ACTION {
 export class CanvasTransform extends CanvasBase {
   controlAction = CONTROL_ACTION.None
 
-  element!: Element
+  firstP = new Point(0, 0)
 
-  lastPoint = new Point(0, 0)
+  firstPBaseTrans = new Point(0, 0)
 
-  lastPointOnTrans = new Point(0, 0)
+  p = new Point(0, 0)
 
-  controlFrame = new ControlFrame(new Box())
+  pBaseTrans = new Point(0, 0)
+
+  box = new Box(50, 50, 100, 110)
+
+  controlFrame = new ControlFrame(this.box)
+
+  trans = new Transform()
 
   resizeIndex = 0
 
@@ -34,70 +40,85 @@ export class CanvasTransform extends CanvasBase {
 
     this.canvas.addEventListener("pointerup", this.onPointerup)
 
-    this.createShape()
+    this.init()
   }
 
   onPointerdown = (ev: PointerEvent) => {
-    const { element } = this
+    const { trans } = this
     const p = this.dom2CanvasPoint(ev.x, ev.y)
-    this.lastPoint = p
-    this.lastPointOnTrans = p.countEndPointByRotate(
-      element.rotate?.angleCenter,
-      -element.rotate?.angle!
-    )
+    this.p = p
+    this.pBaseTrans = p.countPointBaseTransform(trans)
+    this.firstP = p
+    this.firstPBaseTrans = this.pBaseTrans
     this.countControlAction()
   }
 
   countControlAction() {
-    const { lastPointOnTrans, controlFrame } = this
-    const { boundingBox, rotateControl, controlPoints } = controlFrame
+    const { pBaseTrans, controlFrame, p } = this
+    const { boundingBox, rotateControl, controlPoints, angleCenterBox } = controlFrame
 
-    if (rotateControl.isPointInFrame(lastPointOnTrans)) {
+    if (angleCenterBox.isPointInFrame(p)) {
+      this.controlAction = CONTROL_ACTION.angleCenterDrag
+      return
+    }
+
+    if (rotateControl.isPointInFrame(pBaseTrans)) {
       this.controlAction = CONTROL_ACTION.Rotate
       return
     }
 
     for (let i = 0; i < controlPoints.length; i++) {
-      if (controlPoints[i].isPointInFrame(lastPointOnTrans)) {
+      if (controlPoints[i].isPointInFrame(pBaseTrans)) {
         this.controlAction = CONTROL_ACTION.Resize
         this.resizeIndex = i
         return
       }
     }
 
-    if (boundingBox.isPointInFrame(lastPointOnTrans)) {
+    if (boundingBox.isPointInFrame(pBaseTrans)) {
       this.controlAction = CONTROL_ACTION.Drag
       return
     }
   }
 
   onPointermove = (ev: PointerEvent) => {
-    const { controlAction, lastPoint, lastPointOnTrans, element } = this
-    if (controlAction === CONTROL_ACTION.None) return
-    const p = this.dom2CanvasPoint(ev.x, ev.y)
-    const pOnTrans = p.countEndPointByRotate(element.rotate?.angleCenter, -element.rotate?.angle!)
-    const xGap = pOnTrans.x - lastPointOnTrans.x
-    const yGap = pOnTrans.y - lastPointOnTrans.y
-    if (controlAction === CONTROL_ACTION.Drag) {
-      element.origin.x += xGap
-      element.origin.y += yGap
-    } else if (controlAction === CONTROL_ACTION.Rotate) {
-      // 角度计算的值不对
-      element.rotate!.angle! += this.controlFrame.countRotateAngle(lastPoint, p)
-    } else if (controlAction === CONTROL_ACTION.Resize) {
-      if (this.resizeIndex === 0) {
-        element.origin.x += xGap
-        element.origin.y += yGap
-        // @ts-ignore
-        ;(element as Shape).path!.width -= xGap
+    const { controlAction, p, pBaseTrans, trans, box, controlFrame } = this
 
-        // @ts-ignore
-        ;(element as Shape).path!.height -= yGap
+    if (controlAction === CONTROL_ACTION.None) return
+    const nextPoint = this.dom2CanvasPoint(ev.x, ev.y)
+    const nextPointOnTrans = nextPoint.countPointBaseTransform(trans)
+    const xGap = nextPointOnTrans.x - pBaseTrans.x
+    const yGap = nextPointOnTrans.y - pBaseTrans.y
+    if (controlAction === CONTROL_ACTION.Drag) {
+      box.boxX += xGap
+      box.boxY += yGap
+    } else if (controlAction === CONTROL_ACTION.Rotate) {
+      trans.angle += this.controlFrame.countRotateAngle(p, nextPoint)
+    } else if (controlAction === CONTROL_ACTION.Resize) {
+      const { resizeIndex } = this
+      if (resizeIndex % 3 === 0) {
+        box.boxY += yGap
+        box.boxHeight -= yGap
+      } else if (resizeIndex % 3 === 2) {
+        box.boxHeight += yGap
       }
+
+      if (Math.floor(resizeIndex / 3) === 0) {
+        box.boxX += xGap
+        box.boxWidth -= xGap
+      } else if (Math.floor(resizeIndex / 3) === 2) {
+        box.boxWidth += xGap
+      }
+    } else if (this.controlAction === CONTROL_ACTION.angleCenterDrag) {
+      controlFrame.angleCenterBox.boxX = nextPoint.x
+      controlFrame.angleCenterBox.boxY = nextPoint.y
+
+      trans.angleCenter = this.controlFrame.centerPoint.countPointBaseTransform(trans)
     }
+
     this.renderElement()
-    this.lastPoint = p
-    this.lastPointOnTrans = pOnTrans
+    this.p = nextPoint
+    this.pBaseTrans = nextPointOnTrans
   }
 
   onPointerup = () => {
@@ -106,41 +127,17 @@ export class CanvasTransform extends CanvasBase {
     this.controlAction = CONTROL_ACTION.None
   }
 
-  createShape() {
-    const shapeData: D_SHAPE = {
-      type: "shape",
-      d_path: {
-        type: "rect",
-        width: 100,
-        height: 200,
-        x: 0,
-        y: 0
-      },
-      origin: {
-        x: 200,
-        y: 100
-      },
-      stroke: "red",
-      fill: "yellow"
-    }
-
-    this.element = Shape.createObj(Shape, shapeData)
-    this.element.coordStroke = "black"
-    if (!this.element.rotate) {
-      this.element.rotate = new Rotate()
-      this.element.rotate.angle = 0
-    }
+  init() {
     this.renderElement()
   }
 
   renderElement() {
-    const { ctx, element } = this
+    const { ctx, box, trans } = this
     ctx.save()
     this.clear()
-
-    this.element?.render(ctx)
-    this.controlFrame.render(ctx, this.element.elementFrame)
-    element.rotate?.setAngleCenter(this.controlFrame.centerPoint)
+    trans.takeEffect(ctx)
+    this.box?.render(ctx, { fill: "yellow", stroke: "red" })
+    this.controlFrame.render(ctx, box)
     ctx.restore()
   }
 }

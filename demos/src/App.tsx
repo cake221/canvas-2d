@@ -9,7 +9,7 @@ import PointTransform from "./point-transform"
 const { SubMenu } = Menu
 
 export default function App() {
-  const [module, setModule] = useState("point-transform")
+  const [module, setModule] = useState("canvas-transform")
   const [subModule, setSubModule] = useState("")
 
   const handleClick = useCallback((e) => {
