@@ -90,7 +90,7 @@ const CanvasStyle: React.HTMLAttributes<HTMLElement>["style"] = {
   position: "absolute"
 }
 
-export default function CanvasJson() {
+export function CanvasPointTrans() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const pointTransRef = useRef<PointTrans | null>(null)
 

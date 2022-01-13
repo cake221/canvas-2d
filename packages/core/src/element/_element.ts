@@ -16,7 +16,7 @@ export interface RenderParam {}
 export abstract class Element extends Base implements D_ELEMENT_BASE {
   public abstract readonly type: ElementType
   public abstract render(ctx: CanvasRenderingContext2D): void
-  public abstract countFrameElement(ctx: CanvasRenderingContext2D): void
+  public abstract countElementBox(ctx: CanvasRenderingContext2D): void
 
   static ELEMENT_ATTRIBUTES: (keyof D_ELEMENT_BASE)[] = [
     "fill",
@@ -52,7 +52,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   clip?: Clip
 
-  elementFrame = new Box()
+  elementBox = new Box()
 
   setShadow(ctx: CanvasRenderingContext2D) {
     this.shadow?.takeEffect(ctx)
@@ -80,7 +80,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
   }
 
   renderAfter(ctx: CanvasRenderingContext2D) {
-    this.countFrameElement(ctx)
+    this.countElementBox(ctx)
     this.renderCoord(ctx)
   }
 
@@ -176,7 +176,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 }
 
 export class FalseElement extends Element {
-  public countFrameElement(ctx: CanvasRenderingContext2D): void {
+  public countElementBox(ctx: CanvasRenderingContext2D): void {
     throw new Error("Method not implemented.")
   }
   public ATTRIBUTE_NAMES: any[] = Element.ELEMENT_ATTRIBUTES

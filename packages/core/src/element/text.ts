@@ -30,7 +30,7 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
     this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
   }
 
-  textBox?: TextBox
+  textBox: TextBox = new TextBox()
 
   font!: Font
 
@@ -103,12 +103,13 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
     ;(Shape.createObj(Shape, shapeData) as Shape).render(ctx)
     ctx.restore()
   }
+
+  public countElementBox(ctx: CanvasRenderingContext2D): void {
+    this.elementBox = this.textBox
+  }
 }
 
 export class Text extends TextBase implements D_TEXT {
-  public countFrameElement(ctx: CanvasRenderingContext2D): void {
-    throw new Error("Method not implemented.")
-  }
   public readonly type = "text"
 
   countTextBox(ctx: CanvasRenderingContext2D) {
@@ -128,9 +129,6 @@ export class Text extends TextBase implements D_TEXT {
 }
 
 export class Paragraph extends TextBase implements D_TEXT_BOX {
-  public countFrameElement(ctx: CanvasRenderingContext2D): void {
-    throw new Error("Method not implemented.")
-  }
   public readonly type = "paragraph"
 
   get textLine() {

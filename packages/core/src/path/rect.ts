@@ -53,7 +53,7 @@ export class Rect extends Path implements D_PATH_RECTANGLE {
     ctx.lineTo(x, y + ry)
     isRounded && ctx.bezierCurveTo(x, y + k * ry, x + k * rx, y, x + rx, y)
 
-    this.path_Frame = new Box(x, y, w, h)
+    this.pathBox = new Box(x, y, w, h)
 
     ctx.closePath()
   }

@@ -78,7 +78,9 @@ $$
 
 ### QA
 
+1. 旋转中心变化 => 重新计算角度
+
 1. 变化会导致缩放出问题
-2. 测试 origin/clip/文本
-3. path 有必要有 origin 属性么
-4. 调整 rotate 到 shared
+1. 测试 origin/clip/文本
+1. path 有必要有 origin 属性么
+1. 调整 rotate 到 shared

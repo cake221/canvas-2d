@@ -33,8 +33,8 @@ export class Shape extends Element implements D_SHAPE {
     this.renderAfter(ctx)
   }
 
-  public countFrameElement(ctx: CanvasRenderingContext2D): void {
-    this.elementFrame = this.path.path_Frame
+  public countElementBox(ctx: CanvasRenderingContext2D): void {
+    this.elementBox = this.path.pathBox
   }
 
   renderFillStroke(ctx: CanvasRenderingContext2D): void {
