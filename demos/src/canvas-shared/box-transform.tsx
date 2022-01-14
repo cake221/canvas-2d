@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react"
 import { CanvasBackGround, Box, RotateImp, Rotate } from "@canvas-2d/shared"
-
-import { CanvasTransform, BoxElement } from "../transform"
+import { CanvasTransform, BoxElement } from "@canvas-2d/canvas-transform"
 
 class Element implements BoxElement {
   rotate: Rotate = new RotateImp()
