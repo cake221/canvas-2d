@@ -2,9 +2,11 @@ import { CanvasBase, CanvasBaseParam, Point, Box, Rotate } from "@canvas-2d/shar
 
 import { ControlFrame } from "./control-frame"
 
+type BoxAttr = Pick<Box, "boxX" | "boxHeight" | "boxWidth" | "boxY">
+
 export interface BoxElement {
   elementBox: Box
-  updateElementBox(box: Partial<Box>): void
+  updateElementBox(box: BoxAttr): void
   render(ctx: CanvasRenderingContext2D): void
   rotate: Rotate
 }
@@ -105,8 +107,8 @@ export class CanvasTransform extends CanvasBase {
   onPointermove = (ev: PointerEvent) => {
     const { controlAction, p, pBaseTrans, controlElement } = this
     const { controlFrame, boxElement } = controlElement
-    const { rotate } = boxElement
-    const { boxX, boxY, boxWidth, boxHeight } = boxElement.elementBox
+    const { rotate, elementBox } = boxElement
+    const { boxX, boxY, boxWidth, boxHeight } = elementBox
 
     if (controlAction === CONTROL_ACTION.None) return
     const nextPoint = this.dom2CanvasPoint(ev.x, ev.y)
@@ -114,21 +116,33 @@ export class CanvasTransform extends CanvasBase {
     const xGap = nextPointOnTrans.x - pBaseTrans.x
     const yGap = nextPointOnTrans.y - pBaseTrans.y
     if (controlAction === CONTROL_ACTION.Drag) {
-      boxElement.updateElementBox({ boxX: boxX + xGap, boxY: boxY + yGap })
+      boxElement.updateElementBox({
+        ...elementBox,
+        boxX: boxX + xGap,
+        boxY: boxY + yGap
+      })
     } else if (controlAction === CONTROL_ACTION.Rotate) {
       rotate.angle += controlFrame.countRotateAngle(p, nextPoint)
     } else if (controlAction === CONTROL_ACTION.Resize) {
       const { resizeIndex } = this
+      let newBox: any = {}
       if (resizeIndex % 3 === 0) {
-        boxElement.updateElementBox({ boxHeight: boxHeight - yGap, boxY: boxY + yGap })
+        newBox = {
+          ...newBox,
+          boxHeight: boxHeight - yGap,
+          boxY: boxY + yGap
+        }
       } else if (resizeIndex % 3 === 2) {
-        boxElement.updateElementBox({ boxHeight: boxHeight + yGap })
+        newBox = { ...newBox, boxHeight: boxHeight + yGap }
       }
 
       if (Math.floor(resizeIndex / 3) === 0) {
-        boxElement.updateElementBox({ boxX: boxX + xGap, boxWidth: boxWidth - xGap })
+        newBox = { ...newBox, boxX: boxX + xGap, boxWidth: boxWidth - xGap }
       } else if (Math.floor(resizeIndex / 3) === 2) {
-        boxElement.updateElementBox({ boxWidth: boxWidth + xGap })
+        newBox = { ...newBox, boxWidth: boxWidth + xGap }
+      }
+      if (newBox.boxWidth > 0 && newBox.boxHeight > 0) {
+        boxElement.updateElementBox({ ...elementBox, ...newBox })
       }
     } else if (this.controlAction === CONTROL_ACTION.angleCenterDrag) {
       controlFrame.angleCenterBox.boxX = nextPoint.x

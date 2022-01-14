@@ -6,13 +6,13 @@ import { CanvasTransform, BoxElement } from "../transform"
 class Element implements BoxElement {
   rotate: Rotate = new RotateImp()
   elementBox: Box = new Box(0, 0, 100, 200)
-  updateElementBox = (box: Partial<Box>) => {
+  updateElementBox = (box: Pick<Box, "boxX" | "boxHeight" | "boxWidth" | "boxY">) => {
     const { boxX, boxY, boxWidth, boxHeight } = box
     const { elementBox } = this
-    boxX && (elementBox.boxX = boxX)
-    boxY && (elementBox.boxY = boxY)
-    boxWidth && (elementBox.boxWidth = boxWidth)
-    boxHeight && (elementBox.boxHeight = boxHeight)
+    elementBox.boxX = boxX
+    elementBox.boxY = boxY
+    elementBox.boxWidth = boxWidth
+    elementBox.boxHeight = boxHeight
   }
   render = (ctx: CanvasRenderingContext2D) => {
     const { elementBox, rotate } = this

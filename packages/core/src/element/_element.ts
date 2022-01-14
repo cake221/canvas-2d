@@ -17,7 +17,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
   public abstract readonly type: ElementType
   public abstract render(ctx: CanvasRenderingContext2D): void
   public abstract countElementBox(ctx: CanvasRenderingContext2D): void
-  public abstract updateElementBox(box: Partial<Box>): void
+  public abstract updateElementBox(box: Pick<Box, "boxX" | "boxHeight" | "boxWidth" | "boxY">): void
 
   static ELEMENT_ATTRIBUTES: (keyof D_ELEMENT_BASE)[] = [
     "fill",

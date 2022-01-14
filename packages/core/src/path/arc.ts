@@ -45,10 +45,6 @@ export class Arc extends Path implements D_PATH_ARC {
   }
 
   public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
-    const { boxX, boxY, boxWidth, boxHeight } = box
-    const { origin } = pathParam
-    boxX && (this.x = boxX - origin.x)
-    boxY && (this.y = boxY - origin.y)
-    boxWidth && (this.radius = boxWidth)
+    throw new Error("Method not implemented.")
   }
 }

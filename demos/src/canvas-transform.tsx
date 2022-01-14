@@ -6,16 +6,28 @@ import { CanvasTransform } from "./transform"
 
 const d_shape: D_SHAPE = {
   type: "shape",
+  // d_path: {
+  //   type: "rect",
+  //   width: 100,
+  //   height: 200
+  // },
   d_path: {
-    type: "rect",
-    width: 100,
-    height: 200
+    type: "ellipse",
+    x: 60,
+    y: 60,
+    radiusX: 40,
+    radiusY: 30,
+    startAngle: 1
+  },
+  origin: {
+    x: 300,
+    y: 300
   },
   fill: "yellow",
   stroke: "red"
 }
 
-const shape = Shape.createObj(Shape, d_shape)
+const shape = Shape.createObj(Shape, d_shape) as Shape
 
 export default function CanvasJson() {
   const canvasRef = useRef<HTMLCanvasElement>(null)

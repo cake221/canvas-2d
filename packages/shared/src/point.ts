@@ -165,10 +165,10 @@ export class Box {
     ]
   }
 
-  isPointInFrame(point: Point) {
+  isPointInFrame(point: Point, rotate?: Rotate) {
     const { x, y } = point
     const points = this.boxPoints
-    const [p1, p2, p3, p4] = points
+    const [p1, p2, p3, p4] = rotate ? points.map((p) => p.countPointBaseRotate(rotate)) : points
     // 四个向量
     const v1 = [p1.x - x, p1.y - y]
     const v2 = [p2.x - x, p2.y - y]
