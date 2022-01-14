@@ -1,7 +1,7 @@
 {
   "name": "@canvas-2d/canvas-transform",
   "version": "0.0.0",
-  "description": "调整canvas元素的transform尺寸",
+  "description": "调整canvas元素",
   "author": "wenyufei <wenyufei@aliyun.com>",
   "homepage": "https://wenyufei2018.github.io/canvas-2d/tree/master/packages/canvas-transform#readme",
   "license": "ISC",

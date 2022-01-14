@@ -1,13 +1,39 @@
 import React, { useEffect, useRef } from "react"
-import { CanvasTransform } from "./transform"
 import { CanvasBackGround } from "@canvas-2d/shared"
+import { Shape, D_SHAPE } from "@canvas-2d/core"
+import { CanvasTransform } from "@canvas-2d/canvas-transform"
+
+const d_shape: D_SHAPE = {
+  type: "shape",
+  // d_path: {
+  //   type: "rect",
+  //   width: 100,
+  //   height: 200
+  // },
+  d_path: {
+    type: "ellipse",
+    x: 60,
+    y: 60,
+    radiusX: 40,
+    radiusY: 30,
+    startAngle: 1
+  },
+  origin: {
+    x: 300,
+    y: 300
+  },
+  fill: "yellow",
+  stroke: "red"
+}
+
+const shape = Shape.createObj(Shape, d_shape) as Shape
 
 export default function CanvasJson() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasBgRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    new CanvasTransform({ canvas: canvasRef.current!, width: 600, height: 600 })
+    new CanvasTransform({ canvas: canvasRef.current!, width: 600, height: 600, boxElement: shape })
     new CanvasBackGround({
       canvas: canvasBgRef.current!,
       width: 600,

@@ -1,4 +1,5 @@
 import { Point, Box } from "./point"
+import { parseJsonData } from "./utils"
 
 export function genTextLine(text: string) {
   const textLine = text.split(/\n/).map((str) => str + "\n")
@@ -44,7 +45,9 @@ export class TextBox extends Box {
   char: string = ""
 
   static from(json: Partial<TextBox>): TextBox {
-    return super.from(json) as TextBox
+    const textBox = new TextBox()
+    parseJsonData(textBox, json)
+    return textBox
   }
 }
 

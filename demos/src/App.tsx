@@ -2,14 +2,13 @@ import React, { useCallback, useState } from "react"
 import { Menu } from "antd"
 import CanvasJson, { JsonTypes } from "./canvas-json"
 import CanvasInput from "./canvas-input"
-import CanvasShared from "./canvas-shared"
+import CanvasShared, { CommonTypes } from "./canvas-shared"
 import CanvasTransform from "./canvas-transform"
-import PointTransform from "./point-transform"
 
 const { SubMenu } = Menu
 
 export default function App() {
-  const [module, setModule] = useState("point-transform")
+  const [module, setModule] = useState("canvas-transform")
   const [subModule, setSubModule] = useState("")
 
   const handleClick = useCallback((e) => {
@@ -24,12 +23,10 @@ export default function App() {
         return <CanvasJson subModule={subModule as JsonTypes} />
       case "canvas-input":
         return <CanvasInput />
-      case "canvas-common":
-        return <CanvasShared />
+      case "canvas-shared":
+        return <CanvasShared subModule={subModule as CommonTypes} />
       case "canvas-transform":
         return <CanvasTransform />
-      case "point-transform":
-        return <PointTransform />
       default:
         return <div />
     }
@@ -47,9 +44,10 @@ export default function App() {
         </SubMenu>
         <Menu.Item key="canvas-transform">元素变换</Menu.Item>
         <Menu.Item key="canvas-input">文本输入</Menu.Item>
-        <SubMenu key="canvas-common" title="公共方法">
-          <Menu.Item key="canvas-common:transparent">透明度</Menu.Item>
-          <Menu.Item key="point-transform">点变化</Menu.Item>
+        <SubMenu key="canvas-shared" title="公共方法">
+          <Menu.Item key="canvas-shared:transparent">透明度</Menu.Item>
+          <Menu.Item key="canvas-shared:point-transform">点变换</Menu.Item>
+          <Menu.Item key="canvas-shared:box-transform">box 变换</Menu.Item>
         </SubMenu>
       </Menu>
       <div

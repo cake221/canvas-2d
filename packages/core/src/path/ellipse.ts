@@ -42,8 +42,21 @@ export class Ellipse extends Path implements D_PATH_ELLIPSE {
 
     ctx.ellipse(x, y, radiusX, radiusY, rotation, startAngle, endAngle, anticlockwise)
 
-    this.path_Frame = new Box(x - radiusX, y - radiusY, x + radiusX, y + radiusY)
+    this.pathBox = new Box(x - radiusX, y - radiusY, 2 * radiusX, 2 * radiusY)
 
     ctx.closePath()
+  }
+
+  public updatePathBox(
+    box: Pick<Box, "boxX" | "boxHeight" | "boxWidth" | "boxY">,
+    pathParam: PathParam
+  ): void {
+    const { boxX, boxY, boxWidth, boxHeight } = box
+    const { origin } = pathParam
+    if (boxWidth <= 0 || boxHeight <= 0) return
+    this.radiusX = boxWidth / 2
+    this.radiusY = boxHeight / 2
+    this.x = boxX - origin.x + this.radiusX
+    this.y = boxY - origin.y + this.radiusY
   }
 }

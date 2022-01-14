@@ -1,11 +1,9 @@
 import { Element } from "./_element"
 import { ImageType, D_IMAGE } from "../type"
 import { AssetImage } from "../asset"
+import { Box } from "@canvas-2d/shared"
 
 export class Image extends Element implements D_IMAGE {
-  public countFrameElement(ctx: CanvasRenderingContext2D): void {
-    throw new Error("Method not implemented.")
-  }
   public readonly type: ImageType = "image"
 
   public ATTRIBUTE_NAMES: (keyof D_IMAGE)[] = [
@@ -65,6 +63,24 @@ export class Image extends Element implements D_IMAGE {
     const { x, y } = this.origin
     const { width, height } = this
     ctx.drawImage(this.assetImage!.element!, x, y, width, height)
+  }
+
+  public updateElementBox(box: Partial<Box>): void {
+    const { boxX, boxY, boxWidth, boxHeight } = box
+    const { origin } = this
+
+    boxX && (origin.x = boxX)
+    boxY && (origin.y = boxY)
+    boxWidth && (this.width = boxWidth)
+    boxHeight && (this.height = boxHeight)
+  }
+
+  public countElementBox(ctx: CanvasRenderingContext2D): void {
+    const { elementBox, width, height, origin } = this
+    elementBox.boxX = origin.x
+    elementBox.boxY = origin.y
+    elementBox.boxWidth = width
+    elementBox.boxHeight = height
   }
 
   public fromJSON(json: D_IMAGE): void {

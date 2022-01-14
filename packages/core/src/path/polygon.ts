@@ -1,4 +1,4 @@
-import { Point } from "@canvas-2d/shared"
+import { Box, Point } from "@canvas-2d/shared"
 
 import { Origin } from "../attr"
 import { D_PATH_POLYGON } from "../type"
@@ -32,24 +32,27 @@ export class Polygon extends Path implements D_PATH_POLYGON {
       ctx.lineTo(points[i].x, points[i].y)
     }
 
-    // TODO: 计算 path_Frame
-
     ctx.closePath()
   }
 
   getPoints(origin: Origin): Point[] {
-    let { startAngle, centerX, centerY } = this
+    let { startAngle, centerX, centerY, sides, radius } = this
     const points = []
     let angle = startAngle || 0
     centerX = origin.x + centerX
     centerY = origin.y + centerY
 
-    for (let i = 0; i < this.sides; ++i) {
-      points.push(
-        new Point(centerX + this.radius * Math.sin(angle), centerX - this.radius * Math.cos(angle))
-      )
-      angle += (2 * Math.PI) / this.sides
+    for (let i = 0; i < sides; ++i) {
+      points.push(new Point(centerX + radius * Math.sin(angle), centerX - radius * Math.cos(angle)))
+      angle += (2 * Math.PI) / sides
     }
+
+    this.pathBox = new Box(centerX - radius, centerY - radius, 2 * radius, 2 * radius)
+
     return points
+  }
+
+  public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
+    throw new Error("Method not implemented.")
   }
 }
