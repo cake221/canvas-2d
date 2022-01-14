@@ -99,32 +99,39 @@ export class Transform {
   offsetX = 0
   offsetY = 0
 
-  rotate: Rotate = new RotateImp()
+  angle = 0
+  angleCenter = Point.Zero()
 
   scaleX = 1
   scaleY = 1
 
   takeEffect(ctx: CanvasRenderingContext2D, params: TransformParams = {}) {
-    const { offsetX, offsetY, scaleX, scaleY, rotate } = this
+    const { offsetX, offsetY, scaleX, scaleY, angle, angleCenter } = this
     const { isReset = true, isScale = true, isTranslate = true, isRotate = true } = params
     isReset && ctx.resetTransform()
 
     isTranslate && ctx.translate(offsetX, offsetY)
 
-    if (isRotate) {
-      rotate.takeEffect(ctx)
+    if (isRotate && angle) {
+      const { x, y } = angleCenter
+      if (angle) {
+        ctx.translate(x, y)
+        ctx.rotate(angle)
+        ctx.translate(-x, -y)
+      }
     }
 
     isScale && ctx.scale(scaleX, scaleY)
   }
 
   transFormPoint(p: Point, params: TransformParams = {}) {
-    const { offsetX, offsetY, rotate, scaleX, scaleY } = this
+    const { offsetX, offsetY, scaleX, scaleY, angleCenter, angle } = this
     const { isReset = true, isScale = true, isTranslate = true, isRotate = true } = params
     isTranslate && (p = p.translatePoint(-offsetX, -offsetY))
-
-    if (isRotate) {
-      p = p.countPointBaseRotate(rotate)
+    if (isRotate && angle) {
+      p = p.translatePoint(-angleCenter.x, -angleCenter.y)
+      p = p.rotatePointOnZero(-angle)
+      p = p.translatePoint(angleCenter.x, angleCenter.y)
     }
 
     isScale && (p = p.scalePoint(1 / scaleX, 1 / scaleY))

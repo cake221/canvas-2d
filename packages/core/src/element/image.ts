@@ -51,12 +51,18 @@ export class Image extends Element implements D_IMAGE {
   public render(ctx: CanvasRenderingContext2D): void {
     const { assetImage, width, height } = this
     if (!assetImage || !assetImage.element || !width || !height) return
+    ctx.save()
     this.renderBefore(ctx)
+    this.renderImage(ctx)
+    this.renderAfter(ctx)
+    ctx.restore()
+  }
+
+  public renderBefore(ctx: CanvasRenderingContext2D): void {
+    super.renderBefore(ctx)
     this.setImageSmoothing(ctx)
     this.setContextParam(ctx)
     this.setImageSmoothing(ctx)
-    this.renderImage(ctx)
-    this.renderAfter(ctx)
   }
 
   public renderImage(ctx: CanvasRenderingContext2D) {

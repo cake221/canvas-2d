@@ -19,7 +19,6 @@ export class Rotate extends Attribute implements D_ROTATE, RotateType {
   takeEffect(ctx: CanvasRenderingContext2D): void {
     const { angle = 0, angleCenter = Point.Zero() } = this
     const { x, y } = angleCenter
-    ctx.resetTransform()
 
     if (angle) {
       ctx.translate(x, y)

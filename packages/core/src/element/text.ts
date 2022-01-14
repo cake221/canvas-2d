@@ -68,13 +68,19 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
 
   render(ctx: CanvasRenderingContext2D): void {
     if (!this.text) return
+    ctx.save()
     this.renderBefore(ctx)
-    this.setContextParam(ctx)
-    this.setTextStyles(ctx)
     this.countTextBox(ctx)
     this.renderBorderAndBackground(ctx)
     this.renderText(ctx)
     this.renderAfter(ctx)
+    ctx.restore()
+  }
+
+  renderBefore(ctx: CanvasRenderingContext2D) {
+    super.renderBefore(ctx)
+    this.setContextParam(ctx)
+    this.setTextStyles(ctx)
   }
 
   renderBorderAndBackground(ctx: CanvasRenderingContext2D) {

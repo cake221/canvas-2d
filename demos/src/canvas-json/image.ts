@@ -23,7 +23,7 @@ export const imageJson: JSON_DATA = {
       assetId: 0
     }
   ],
-  dpr: 2,
+  dpr: 3,
   height: 500,
   width: 500
 }

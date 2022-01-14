@@ -1,12 +1,25 @@
 import { expect } from "chai"
+import { TextBox } from "@canvas-2d/shared"
 import { textFromCharBoxs, genTextChar, textCharFromTextBox } from "../src/text"
+
+function genTextBoxArray(charData: Partial<TextBox>[][]): TextBox[][] {
+  const charBox = []
+  for (let i = 0; i < charData.length; i++) {
+    const lineData = []
+    for (let j = 0; j < charData[i]?.length; j++) {
+      lineData[j] = TextBox.from(charData[i][j])
+    }
+    charBox[i] = lineData
+  }
+  return charBox
+}
 
 // 首行为空
 export const firstLineIsEmpty = [[]]
 export const firstLineIsEmptyText = ""
 
 // 尾行为空
-export const finalLineIsEmpty = [
+export const finalLineIsEmpty = genTextBoxArray([
   [
     {
       x: 10,
@@ -37,11 +50,12 @@ export const finalLineIsEmpty = [
     }
   ],
   []
-]
+])
+
 export const finalLineIsEmptyText = "a你\n"
 
 // 只有一行
-export const oneLine = [
+export const oneLine = genTextBoxArray([
   [
     {
       x: 10,
@@ -62,11 +76,11 @@ export const oneLine = [
       char: "1"
     }
   ]
-]
+])
 export const oneLineText = "01"
 
 // 多行
-export const multiLine = [
+export const multiLine = genTextBoxArray([
   [
     {
       x: 10,
@@ -163,7 +177,7 @@ export const multiLine = [
       char: "9"
     }
   ]
-]
+])
 export const multiLineText = "0123\n56\n89"
 
 describe("caret", () => {

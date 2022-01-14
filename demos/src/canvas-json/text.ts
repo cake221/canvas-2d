@@ -9,17 +9,13 @@ const textData = {
     fontSize: 20
   },
   strokeParam: {
-    // lineWidth: 10
+    lineWidth: 2
   },
   shadow: {
-    // shadowBlur: 20,
-    // shadowOffsetX: 5,
-    // shadowOffsetY: 5,
-    // shadowColor: "rgba(0, 0, 0, 0.8)"
-  },
-  transform: {
-    // scaleX: 2,
-    // angle: 1
+    shadowBlur: 5,
+    shadowOffsetX: 5,
+    shadowOffsetY: 5,
+    shadowColor: "rgba(0, 0, 0, 0.8)"
   }
 }
 

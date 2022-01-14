@@ -24,14 +24,20 @@ export class Shape extends Element implements D_SHAPE {
 
   public render(ctx: CanvasRenderingContext2D, param?: RenderParam): void {
     if (!this.path) return
-    const { origin } = this
     this.renderParam = param
+    ctx.save()
     this.renderBefore(ctx)
+    this.renderFillStroke(ctx)
+    this.renderAfter(ctx)
+    ctx.restore()
+  }
+
+  public renderBefore(ctx: CanvasRenderingContext2D): void {
+    const { origin } = this
+    super.renderBefore(ctx)
     this.path.takeEffect(ctx, {
       origin
     })
-    this.renderFillStroke(ctx)
-    this.renderAfter(ctx)
   }
 
   public countElementBox(ctx: CanvasRenderingContext2D): void {

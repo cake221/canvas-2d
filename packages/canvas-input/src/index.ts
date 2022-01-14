@@ -265,6 +265,8 @@ export class CanvasInput extends CanvasBase {
     const { ctx, textChar, origin, defaultBoxHeight } = this
     let { x, y } = origin
     const textCharBox = []
+    ctx.save()
+    this.paragraph.renderBefore(ctx)
     for (let i = 0; i < textChar.length; i++) {
       const line = textChar[i]
       const textLineBox = []
@@ -291,6 +293,7 @@ export class CanvasInput extends CanvasBase {
     if (this.__debug) {
       console.log("检测数据", this.textChar, this.textCharBox)
     }
+    ctx.restore()
   }
 
   renderContent() {
