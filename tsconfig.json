@@ -5,6 +5,7 @@
     { "path": "packages/core" },
     { "path": "packages/canvas-json" },
     { "path": "packages/canvas-input" },
+    { "path": "packages/canvas-transform" },
     { "path": "demos" }
   ]
 }
