@@ -17,6 +17,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
   public abstract readonly type: ElementType
   public abstract render(ctx: CanvasRenderingContext2D): void
   public abstract countElementBox(ctx: CanvasRenderingContext2D): void
+  public abstract updateElementBox(box: Partial<Box>): void
 
   static ELEMENT_ATTRIBUTES: (keyof D_ELEMENT_BASE)[] = [
     "fill",
@@ -42,7 +43,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   shadow?: Shadow
 
-  rotate?: Rotate
+  rotate: Rotate = new Rotate()
 
   coordStroke: string = ""
 
@@ -176,6 +177,9 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 }
 
 export class FalseElement extends Element {
+  public updateElementBox(box: Partial<Box>): void {
+    throw new Error("Method not implemented.")
+  }
   public countElementBox(ctx: CanvasRenderingContext2D): void {
     throw new Error("Method not implemented.")
   }

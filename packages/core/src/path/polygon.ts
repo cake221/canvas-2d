@@ -51,4 +51,10 @@ export class Polygon extends Path implements D_PATH_POLYGON {
 
     return points
   }
+
+  public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
+    const { boxX, boxY, boxWidth, boxHeight } = box
+    const { origin } = pathParam
+    console.log("没有实现")
+  }
 }

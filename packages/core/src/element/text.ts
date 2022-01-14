@@ -3,7 +3,8 @@ import {
   TextBox,
   countTextBoxByTextMetrics,
   addTextLineBox,
-  Point
+  Point,
+  Box
 } from "@canvas-2d/shared"
 
 import { Element } from "./_element"
@@ -110,6 +111,9 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
 }
 
 export class Text extends TextBase implements D_TEXT {
+  public updateElementBox(box: Partial<Box>): void {
+    throw new Error("Method not implemented.")
+  }
   public readonly type = "text"
 
   countTextBox(ctx: CanvasRenderingContext2D) {
@@ -129,6 +133,9 @@ export class Text extends TextBase implements D_TEXT {
 }
 
 export class Paragraph extends TextBase implements D_TEXT_BOX {
+  public updateElementBox(box: Partial<Box>): void {
+    throw new Error("Method not implemented.")
+  }
   public readonly type = "paragraph"
 
   get textLine() {

@@ -47,6 +47,43 @@ export class Point {
   countPointBaseTransform(trans: Transform, transParams?: TransformParams) {
     return trans.transFormPoint(this, transParams)
   }
+
+  countPointBaseRotate(rotate: Rotate) {
+    return rotate.rotatePoint(this)
+  }
+}
+
+export interface Rotate {
+  angle: number
+  angleCenter: Point
+  takeEffect(ctx: CanvasRenderingContext2D): void
+  rotatePoint(p: Point): Point
+}
+
+export class RotateImp implements Rotate {
+  angle = 0
+  angleCenter = Point.Zero()
+
+  // 一个元素，只能有一次变换
+  takeEffect(ctx: CanvasRenderingContext2D): void {
+    const { angle, angleCenter } = this
+    const { x, y } = angleCenter
+    if (angle) {
+      ctx.translate(x, y)
+      ctx.rotate(angle)
+      ctx.translate(-x, -y)
+    }
+  }
+
+  rotatePoint(p: Point) {
+    const { angleCenter, angle } = this
+    if (angle) {
+      p = p.translatePoint(-angleCenter.x, -angleCenter.y)
+      p = p.rotatePointOnZero(-angle)
+      p = p.translatePoint(angleCenter.x, angleCenter.y)
+    }
+    return p
+  }
 }
 
 export type TRANSFORM_MATRIX = [number, number, number, number, number, number]
@@ -61,36 +98,33 @@ interface TransformParams {
 export class Transform {
   offsetX = 0
   offsetY = 0
-  angle = 0
-  angleCenter = Point.Zero()
+
+  rotate: Rotate = new RotateImp()
+
   scaleX = 1
   scaleY = 1
 
   takeEffect(ctx: CanvasRenderingContext2D, params: TransformParams = {}) {
-    const { offsetX, offsetY, angle, angleCenter, scaleX, scaleY } = this
+    const { offsetX, offsetY, scaleX, scaleY, rotate } = this
     const { isReset = true, isScale = true, isTranslate = true, isRotate = true } = params
     isReset && ctx.resetTransform()
 
     isTranslate && ctx.translate(offsetX, offsetY)
 
-    if (isRotate && angle) {
-      ctx.translate(angleCenter.x, angleCenter.y)
-      ctx.rotate(angle)
-      ctx.translate(-angleCenter.x, -angleCenter.y)
+    if (isRotate) {
+      rotate.takeEffect(ctx)
     }
 
     isScale && ctx.scale(scaleX, scaleY)
   }
 
   transFormPoint(p: Point, params: TransformParams = {}) {
-    const { offsetX, offsetY, angleCenter, angle, scaleX, scaleY } = this
+    const { offsetX, offsetY, rotate, scaleX, scaleY } = this
     const { isReset = true, isScale = true, isTranslate = true, isRotate = true } = params
     isTranslate && (p = p.translatePoint(-offsetX, -offsetY))
 
-    if (isRotate && angle) {
-      p = p.translatePoint(-angleCenter.x, -angleCenter.y)
-      p = p.rotatePointOnZero(-angle)
-      p = p.translatePoint(angleCenter.x, angleCenter.y)
+    if (isRotate) {
+      p = p.countPointBaseRotate(rotate)
     }
 
     isScale && (p = p.scalePoint(1 / scaleX, 1 / scaleY))

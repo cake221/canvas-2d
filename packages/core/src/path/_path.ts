@@ -9,6 +9,7 @@ export interface PathParam {
 export abstract class Path extends Attribute {
   public abstract type: D_PATH["type"]
   abstract genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void
+  public abstract updatePathBox(box: Partial<Box>, pathParam: PathParam): void
   public pathBox = new Box()
 
   static ELEMENT_ATTRIBUTES: (keyof D_PATH)[] = []

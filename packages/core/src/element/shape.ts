@@ -1,6 +1,7 @@
 import { Element, RenderParam } from "./_element"
 import { D_PATH, D_SHAPE } from "../type"
 import { genPath, Path, Path_Path } from "../path"
+import { Box } from "@canvas-2d/shared"
 
 /**
  * Shape Element class.
@@ -35,6 +36,11 @@ export class Shape extends Element implements D_SHAPE {
 
   public countElementBox(ctx: CanvasRenderingContext2D): void {
     this.elementBox = this.path.pathBox
+  }
+
+  public updateElementBox(box: Partial<Box>): void {
+    const { origin } = this
+    this.path.updatePathBox(box, { origin })
   }
 
   renderFillStroke(ctx: CanvasRenderingContext2D): void {

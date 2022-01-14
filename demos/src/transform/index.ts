@@ -1,8 +1,22 @@
-import { CanvasBase, CanvasBaseParam, Point, Box, Transform } from "@canvas-2d/shared"
+import { CanvasBase, CanvasBaseParam, Point, Box, Rotate } from "@canvas-2d/shared"
 
 import { ControlFrame } from "./control-frame"
 
-interface CanvasTransformParam extends CanvasBaseParam {}
+export interface BoxElement {
+  elementBox: Box
+  updateElementBox(box: Partial<Box>): void
+  render(ctx: CanvasRenderingContext2D): void
+  rotate: Rotate
+}
+
+interface ControlELement {
+  boxElement: BoxElement
+  controlFrame: ControlFrame
+}
+
+interface CanvasTransformParam extends CanvasBaseParam {
+  boxElement: BoxElement
+}
 
 enum CONTROL_ACTION {
   None,
@@ -23,16 +37,19 @@ export class CanvasTransform extends CanvasBase {
 
   pBaseTrans = new Point(0, 0)
 
-  box = new Box(50, 50, 100, 110)
-
-  controlFrame = new ControlFrame(this.box)
-
-  trans = new Transform()
+  controlElement!: ControlELement
 
   resizeIndex = 0
 
   constructor(params: CanvasTransformParam) {
     super(params)
+
+    const { boxElement } = params
+
+    this.controlElement = {
+      boxElement,
+      controlFrame: new ControlFrame()
+    }
 
     this.canvas.addEventListener("pointerdown", this.onPointerdown)
 
@@ -44,17 +61,21 @@ export class CanvasTransform extends CanvasBase {
   }
 
   onPointerdown = (ev: PointerEvent) => {
-    const { trans } = this
+    const { controlElement } = this
+    const {
+      boxElement: { rotate }
+    } = controlElement
     const p = this.dom2CanvasPoint(ev.x, ev.y)
     this.p = p
-    this.pBaseTrans = p.countPointBaseTransform(trans)
+    this.pBaseTrans = p.countPointBaseRotate(rotate)
     this.firstP = p
     this.firstPBaseTrans = this.pBaseTrans
     this.countControlAction()
   }
 
   countControlAction() {
-    const { pBaseTrans, controlFrame, p } = this
+    const { pBaseTrans, p, controlElement } = this
+    const { controlFrame } = controlElement
     const { boundingBox, rotateControl, controlPoints, angleCenterBox } = controlFrame
 
     if (angleCenterBox.isPointInFrame(p)) {
@@ -82,38 +103,38 @@ export class CanvasTransform extends CanvasBase {
   }
 
   onPointermove = (ev: PointerEvent) => {
-    const { controlAction, p, pBaseTrans, trans, box, controlFrame } = this
+    const { controlAction, p, pBaseTrans, controlElement } = this
+    const { controlFrame, boxElement } = controlElement
+    const { rotate } = boxElement
+    const { boxX, boxY, boxWidth, boxHeight } = boxElement.elementBox
 
     if (controlAction === CONTROL_ACTION.None) return
     const nextPoint = this.dom2CanvasPoint(ev.x, ev.y)
-    const nextPointOnTrans = nextPoint.countPointBaseTransform(trans)
+    const nextPointOnTrans = nextPoint.countPointBaseRotate(rotate)
     const xGap = nextPointOnTrans.x - pBaseTrans.x
     const yGap = nextPointOnTrans.y - pBaseTrans.y
     if (controlAction === CONTROL_ACTION.Drag) {
-      box.boxX += xGap
-      box.boxY += yGap
+      boxElement.updateElementBox({ boxX: boxX + xGap, boxY: boxY + yGap })
     } else if (controlAction === CONTROL_ACTION.Rotate) {
-      trans.angle += this.controlFrame.countRotateAngle(p, nextPoint)
+      rotate.angle += controlFrame.countRotateAngle(p, nextPoint)
     } else if (controlAction === CONTROL_ACTION.Resize) {
       const { resizeIndex } = this
       if (resizeIndex % 3 === 0) {
-        box.boxY += yGap
-        box.boxHeight -= yGap
+        boxElement.updateElementBox({ boxHeight: boxHeight - yGap, boxY: boxY + yGap })
       } else if (resizeIndex % 3 === 2) {
-        box.boxHeight += yGap
+        boxElement.updateElementBox({ boxHeight: boxHeight + yGap })
       }
 
       if (Math.floor(resizeIndex / 3) === 0) {
-        box.boxX += xGap
-        box.boxWidth -= xGap
+        boxElement.updateElementBox({ boxX: boxX + xGap, boxWidth: boxWidth - xGap })
       } else if (Math.floor(resizeIndex / 3) === 2) {
-        box.boxWidth += xGap
+        boxElement.updateElementBox({ boxWidth: boxWidth + xGap })
       }
     } else if (this.controlAction === CONTROL_ACTION.angleCenterDrag) {
       controlFrame.angleCenterBox.boxX = nextPoint.x
       controlFrame.angleCenterBox.boxY = nextPoint.y
 
-      trans.angleCenter = this.controlFrame.centerPoint.countPointBaseTransform(trans)
+      rotate.angleCenter = controlFrame.centerPoint.countPointBaseRotate(rotate)
     }
 
     this.renderElement()
@@ -132,12 +153,12 @@ export class CanvasTransform extends CanvasBase {
   }
 
   renderElement() {
-    const { ctx, box, trans } = this
+    const { ctx, controlElement } = this
+    const { boxElement, controlFrame } = controlElement
     ctx.save()
     this.clear()
-    trans.takeEffect(ctx)
-    this.box?.render(ctx, { fill: "yellow", stroke: "red" })
-    this.controlFrame.render(ctx, box)
+    boxElement.render(ctx)
+    controlFrame.render(ctx, boxElement.elementBox)
     ctx.restore()
   }
 }

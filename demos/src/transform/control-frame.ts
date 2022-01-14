@@ -19,7 +19,7 @@ export class ControlFrame {
     return this.controlPoints[4]
   }
 
-  constructor(public eleFrame: Box) {}
+  eleFrame!: Box
 
   render(ctx: CanvasRenderingContext2D, eleFrame: Box) {
     this.eleFrame = eleFrame

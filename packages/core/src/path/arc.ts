@@ -43,4 +43,12 @@ export class Arc extends Path implements D_PATH_ARC {
     this.pathBox = new Box(x - radius, y - radius, x + radius, y + radius)
     ctx.closePath()
   }
+
+  public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
+    const { boxX, boxY, boxWidth, boxHeight } = box
+    const { origin } = pathParam
+    boxX && (this.x = boxX - origin.x)
+    boxY && (this.y = boxY - origin.y)
+    boxWidth && (this.radius = boxWidth)
+  }
 }

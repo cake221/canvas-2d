@@ -47,7 +47,7 @@ export default function App() {
         <SubMenu key="canvas-shared" title="公共方法">
           <Menu.Item key="canvas-shared:transparent">透明度</Menu.Item>
           <Menu.Item key="canvas-shared:point-transform">点变换</Menu.Item>
-          <Menu.Item key="canvas-shared:box-transform">box 变化</Menu.Item>
+          <Menu.Item key="canvas-shared:box-transform">box 变换</Menu.Item>
         </SubMenu>
       </Menu>
       <div
