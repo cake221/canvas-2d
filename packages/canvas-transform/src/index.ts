@@ -142,7 +142,10 @@ export class CanvasTransform extends CanvasBase {
       } else if (Math.floor(resizeIndex / 3) === 2) {
         newBox = { ...newBox, boxWidth: boxWidth + xGap }
       }
-      if (newBox.boxWidth > 0 && newBox.boxHeight > 0) {
+      if (
+        (newBox.boxWidth === undefined || newBox.boxWidth > 0) &&
+        (newBox.boxHeight === undefined || newBox.boxHeight > 0)
+      ) {
         boxElement.updateElementBox({ ...elementBox, ...newBox })
       }
     } else if (this.controlAction === CONTROL_ACTION.angleCenterDrag) {
