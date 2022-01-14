@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import { CanvasBackGround } from "@canvas-2d/shared"
 import { Shape, D_SHAPE } from "@canvas-2d/core"
-import { CanvasTransform } from "@canvas-2d/canvas-transform"
+import { CanvasTransform } from "../../packages/canvas-transform/src"
 
 const d_shape: D_SHAPE = {
   type: "shape",
