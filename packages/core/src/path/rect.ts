@@ -1,5 +1,5 @@
 import { Box } from "@canvas-2d/shared"
-import { D_PATH_RECTANGLE } from "../type"
+import { D_PATH_RECTANGLE, OmitType } from "../type"
 import { Path, PathParam } from "./_path"
 
 export class Rect extends Path implements D_PATH_RECTANGLE {
@@ -69,5 +69,9 @@ export class Rect extends Path implements D_PATH_RECTANGLE {
     this.y = boxY - origin.y
     this.width = boxWidth
     this.height = boxHeight
+  }
+
+  fromJSON(json: OmitType<D_PATH_RECTANGLE>): void {
+    super.fromJSON(json)
   }
 }

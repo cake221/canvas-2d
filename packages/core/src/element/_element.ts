@@ -8,7 +8,8 @@ import {
   D_PATTER,
   D_STROKE_PARAM,
   D_GRADIENT,
-  D_ASSET_IMAGE
+  D_ASSET_IMAGE,
+  OmitType
 } from "../type"
 import { Asset, AssetImage, IAsset } from "../asset"
 
@@ -135,7 +136,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     this.clip?.takeEffect(ctx, { fillRule, origin })
   }
 
-  fromJSON(json: D_ELEMENT_BASE): void {
+  fromJSON(json: OmitType<D_ELEMENT_BASE>): void {
     super.fromJSON(json)
     const { strokeParam, shadow, rotate, fill, stroke, clip } = json
 
@@ -204,6 +205,10 @@ export class Shadow extends Attribute implements D_SHADOW {
   shadowColor?: string
   shadowOffsetX?: number
   shadowOffsetY?: number
+
+  fromJSON(json: OmitType<D_SHADOW>): void {
+    super.fromJSON(json)
+  }
 }
 
 class Pattern extends Attribute implements D_PATTER, IAsset {
@@ -232,7 +237,7 @@ class Pattern extends Attribute implements D_PATTER, IAsset {
     return pattern
   }
 
-  fromJSON(json: D_PATTER): void {
+  fromJSON(json: OmitType<D_PATTER>): void {
     const { d_asset } = json
     super.fromJSON(json)
     if (typeof d_asset === "number") {
@@ -268,6 +273,10 @@ export class Gradient extends Attribute implements D_GRADIENT {
       gradient.addColorStop(...colorStop)
     }
     return gradient
+  }
+
+  fromJSON(json: OmitType<D_GRADIENT>): void {
+    super.fromJSON(json)
   }
 }
 
@@ -305,5 +314,9 @@ export class StrokeParam extends Attribute implements D_STROKE_PARAM {
       dashArray.push(...dashArray)
     }
     ctx.setLineDash(dashArray)
+  }
+
+  fromJSON(json: OmitType<D_STROKE_PARAM>): void {
+    super.fromJSON(json)
   }
 }

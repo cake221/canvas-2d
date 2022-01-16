@@ -1,7 +1,7 @@
 import { Point, Rotate as RotateType } from "@canvas-2d/shared"
 
 import { Attribute } from "./_attr"
-import { D_ROTATE } from "../type"
+import { D_ROTATE, OmitType } from "../type"
 
 export class Rotate extends Attribute implements D_ROTATE, RotateType {
   public type: string = "attr_rotate"
@@ -35,5 +35,9 @@ export class Rotate extends Attribute implements D_ROTATE, RotateType {
       p = p.translatePoint(angleCenter.x, angleCenter.y)
     }
     return p
+  }
+
+  fromJSON(json: OmitType<D_ROTATE>): void {
+    super.fromJSON(json)
   }
 }

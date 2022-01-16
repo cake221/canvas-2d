@@ -1,5 +1,5 @@
 import { Element, RenderParam } from "./_element"
-import { D_PATH, D_SHAPE } from "../type"
+import { D_PATH, D_SHAPE, OmitType } from "../type"
 import { genPath, Path, Path_Path } from "../path"
 import { Box } from "@canvas-2d/shared"
 
@@ -83,7 +83,7 @@ export class Shape extends Element implements D_SHAPE {
     }
   }
 
-  fromJSON(json: D_SHAPE): void {
+  fromJSON(json: OmitType<D_SHAPE>): void {
     super.fromJSON(json)
     const { d_path } = json
     this.path = genPath(d_path)

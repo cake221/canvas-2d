@@ -1,4 +1,4 @@
-import { AssetType, D_ASSET_BASE } from "../type"
+import { AssetType, D_ASSET_BASE, OmitType } from "../type"
 import { Base } from "../base"
 
 export interface IAsset {
@@ -35,7 +35,7 @@ export abstract class Asset extends Base implements D_ASSET_BASE {
     }
   }
 
-  public fromJSON(json: D_ASSET_BASE): void {
+  public fromJSON(json: OmitType<D_ASSET_BASE>): void {
     super.fromJSON(json)
     if (this.id === undefined) this.id = Date.now()
     this.assertAssetUniq()

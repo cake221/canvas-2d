@@ -1,7 +1,7 @@
 import { Box, Point } from "@canvas-2d/shared"
 
 import { Origin } from "../attr"
-import { D_PATH_POLYGON } from "../type"
+import { D_PATH_POLYGON, OmitType } from "../type"
 import { Path, PathParam } from "./_path"
 
 export class Polygon extends Path implements D_PATH_POLYGON {
@@ -54,5 +54,9 @@ export class Polygon extends Path implements D_PATH_POLYGON {
 
   public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
     throw new Error("Method not implemented.")
+  }
+
+  fromJSON(json: OmitType<D_PATH_POLYGON>): void {
+    super.fromJSON(json)
   }
 }

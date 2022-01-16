@@ -8,7 +8,7 @@ import {
 } from "@canvas-2d/shared"
 
 import { Element } from "./_element"
-import { TextType, D_TEXT, D_FONT, D_TEXT_BOX, D_TEXT_BASE } from "../type"
+import { TextType, D_TEXT, D_FONT, D_TEXT_BOX, D_TEXT_BASE, OmitType } from "../type"
 import { Attribute } from "../attr"
 import { D_SHAPE } from "../type"
 import { Shape } from "./shape"
@@ -60,7 +60,7 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
     ctx.direction = direction
   }
 
-  fromJSON(json: D_TEXT): void {
+  fromJSON(json: OmitType<D_TEXT>): void {
     super.fromJSON(json)
     const { font } = json
     this.font = Font.createObj(Font, font || {})
@@ -215,5 +215,9 @@ export class Font extends Attribute implements D_FONT {
     return `${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px${
       lineHeight ? `/${lineHeight}` : ""
     } ${fontFamily}`
+  }
+
+  fromJSON(json: OmitType<D_FONT>): void {
+    super.fromJSON(json)
   }
 }

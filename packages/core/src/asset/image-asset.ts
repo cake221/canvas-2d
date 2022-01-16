@@ -1,5 +1,5 @@
 import { onImageLoad } from "@canvas-2d/shared"
-import { D_ASSET_IMAGE } from "../type"
+import { D_ASSET_IMAGE, OmitType } from "../type"
 import { Asset } from "./_asset"
 
 export class AssetImage extends Asset implements D_ASSET_IMAGE {
@@ -21,5 +21,9 @@ export class AssetImage extends Asset implements D_ASSET_IMAGE {
     )
     this.element = img
     Asset.setAsset(this.uniqueIdent, this)
+  }
+
+  fromJSON(json: OmitType<D_ASSET_IMAGE>): void {
+    super.fromJSON(json)
   }
 }

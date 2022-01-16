@@ -1,6 +1,6 @@
 import { Box } from "@canvas-2d/shared"
 
-import { D_PATH_ARC } from "../type"
+import { D_PATH_ARC, OmitType } from "../type"
 
 import { Path, PathParam } from "./_path"
 
@@ -46,5 +46,9 @@ export class Arc extends Path implements D_PATH_ARC {
 
   public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
     throw new Error("Method not implemented.")
+  }
+
+  fromJSON(json: OmitType<D_PATH_ARC>): void {
+    super.fromJSON(json)
   }
 }

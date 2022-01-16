@@ -1,5 +1,5 @@
 import { Box } from "@canvas-2d/shared"
-import { D_PATH_PATH } from "../type"
+import { D_PATH_PATH, OmitType } from "../type"
 import { Path, PathParam } from "./_path"
 
 export class Path_Path extends Path implements D_PATH_PATH {
@@ -19,5 +19,9 @@ export class Path_Path extends Path implements D_PATH_PATH {
 
   public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
     throw new Error("Method not implemented.")
+  }
+
+  fromJSON(json: OmitType<D_PATH_PATH>): void {
+    super.fromJSON(json)
   }
 }

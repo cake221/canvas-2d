@@ -1,5 +1,5 @@
 import { Element } from "./_element"
-import { ImageType, D_IMAGE, D_ASSET_IMAGE } from "../type"
+import { ImageType, D_IMAGE, D_ASSET_IMAGE, OmitType } from "../type"
 import { Asset, AssetImage, IAsset } from "../asset"
 import { Box } from "@canvas-2d/shared"
 
@@ -100,7 +100,7 @@ export class Image extends Element implements D_IMAGE, IAsset {
     elementBox.boxHeight = height
   }
 
-  public fromJSON(json: D_IMAGE): void {
+  public fromJSON(json: OmitType<D_IMAGE>): void {
     const { d_asset } = json
     super.fromJSON(json)
     if (typeof d_asset === "number") {

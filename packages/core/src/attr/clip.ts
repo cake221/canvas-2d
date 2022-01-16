@@ -1,7 +1,7 @@
 import { Attribute } from "./_attr"
 import { Origin } from "./origin"
 
-import { D_ELEMENT_BASE, D_CLIP, D_PATH } from "../type"
+import { D_ELEMENT_BASE, D_CLIP, D_PATH, OmitType } from "../type"
 import { genPath, Path, Path_Path } from "../path"
 
 interface ClipParam {
@@ -38,7 +38,7 @@ export class Clip extends Attribute implements D_CLIP {
     }
   }
 
-  fromJSON(json: D_CLIP, parent?: D_ELEMENT_BASE): void {
+  fromJSON(json: OmitType<D_CLIP>, parent?: D_ELEMENT_BASE): void {
     super.fromJSON(json)
     const { d_path } = json
     this.path = genPath(d_path)
