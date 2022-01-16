@@ -1,13 +1,13 @@
 import { Element } from "./_element"
-import { ImageType, D_IMAGE } from "../type"
-import { AssetImage } from "../asset"
+import { ImageType, D_IMAGE, D_ASSET_IMAGE } from "../type"
+import { Asset, AssetImage, IAsset } from "../asset"
 import { Box } from "@canvas-2d/shared"
 
-export class Image extends Element implements D_IMAGE {
+export class Image extends Element implements D_IMAGE, IAsset {
   public readonly type: ImageType = "image"
 
   public ATTRIBUTE_NAMES: (keyof D_IMAGE)[] = [
-    "assetId",
+    "d_asset",
     "width",
     "height",
     "cropX",
@@ -21,9 +21,9 @@ export class Image extends Element implements D_IMAGE {
     this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
   }
 
-  public assetId!: number
+  d_asset!: number | D_ASSET_IMAGE
 
-  assetImage: AssetImage | null = null
+  asset!: AssetImage
 
   width: number = 0
 
@@ -49,8 +49,8 @@ export class Image extends Element implements D_IMAGE {
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    const { assetImage, width, height } = this
-    if (!assetImage || !assetImage.element || !width || !height) return
+    const { asset, width, height } = this
+    if (!asset || !asset.element || !width || !height) return
     ctx.save()
     this.renderBefore(ctx)
     this.renderImage(ctx)
@@ -67,8 +67,19 @@ export class Image extends Element implements D_IMAGE {
 
   public renderImage(ctx: CanvasRenderingContext2D) {
     const { x, y } = this.origin
-    const { width, height } = this
-    ctx.drawImage(this.assetImage!.element!, x, y, width, height)
+    const { width, height, asset } = this
+    if (!asset || !asset.element) {
+      throw new Error("没有图片资源填充")
+    }
+
+    ctx.drawImage(asset.element!, x, y, width, height)
+  }
+
+  async load(): Promise<void> {
+    const { asset } = this
+    if (!asset.element) {
+      await asset.load()
+    }
   }
 
   public updateElementBox(box: Partial<Box>): void {
@@ -90,10 +101,18 @@ export class Image extends Element implements D_IMAGE {
   }
 
   public fromJSON(json: D_IMAGE): void {
-    const { assetId } = json
+    const { d_asset } = json
     super.fromJSON(json)
-    this.assetImage = AssetImage.getAsset(
-      AssetImage.getUniqueIdent("asset_image", assetId)
-    ) as AssetImage
+    if (typeof d_asset === "number") {
+      const asset = AssetImage.getAsset(
+        AssetImage.getUniqueIdent("asset_image", d_asset)
+      ) as AssetImage
+      if (!asset) {
+        throw new Error("没有创建资源")
+      }
+      this.asset = asset
+    } else {
+      this.asset = AssetImage.createObj(AssetImage, d_asset)
+    }
   }
 }

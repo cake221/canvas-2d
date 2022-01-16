@@ -1,6 +1,7 @@
 import { Point } from "@canvas-2d/shared"
 
 import { D_PATH } from "./path.type"
+import { D_ASSET_IMAGE, Asset_ID } from "./asset.type"
 
 export interface D_ATTR_BASE {}
 
@@ -35,7 +36,7 @@ export interface D_GRADIENT extends D_ATTR_BASE {
 export interface D_PATTER extends D_ATTR_BASE {
   repetition?: string
   transform?: DOMMatrix2DInit
-  assetId: number
+  d_asset: Asset_ID | D_ASSET_IMAGE
 }
 
 export interface D_FONT extends D_ATTR_BASE {

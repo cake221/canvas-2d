@@ -1,11 +1,16 @@
 import { AssetType, D_ASSET_BASE } from "../type"
 import { Base } from "../base"
 
+export interface IAsset {
+  asset: Asset
+  load(): Promise<void>
+}
+
 export abstract class Asset extends Base implements D_ASSET_BASE {
   public abstract readonly type: AssetType
-  public abstract uniqueIdent: string
-  public abstract data: string
-  public abstract id: number
+  public uniqueIdent: string = ""
+  public data!: string
+  public id!: number
 
   public abstract load(): void
 
@@ -21,5 +26,18 @@ export abstract class Asset extends Base implements D_ASSET_BASE {
 
   static setAsset(uniqueIdent: string, ele: Asset) {
     Asset.assetMap.set(uniqueIdent, ele)
+  }
+
+  assertAssetUniq() {
+    const { type, id } = this
+    if (Asset.assetMap.has(Asset.getUniqueIdent(type, id))) {
+      throw new Error("资源重复创建")
+    }
+  }
+
+  public fromJSON(json: D_ASSET_BASE): void {
+    super.fromJSON(json)
+    if (this.id === undefined) this.id = Date.now()
+    this.assertAssetUniq()
   }
 }

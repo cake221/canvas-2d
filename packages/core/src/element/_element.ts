@@ -7,9 +7,10 @@ import {
   D_SHADOW,
   D_PATTER,
   D_STROKE_PARAM,
-  D_GRADIENT
+  D_GRADIENT,
+  D_ASSET_IMAGE
 } from "../type"
-import { AssetImage } from "../asset"
+import { Asset, AssetImage, IAsset } from "../asset"
 
 export interface RenderParam {}
 
@@ -143,7 +144,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     if (!!fill && typeof fill !== "string") {
       if ((fill as D_GRADIENT).gradientShape) {
         this.fill = Gradient.createObj(Gradient, fill)
-      } else if ((fill as D_PATTER).assetId !== undefined) {
+      } else if ((fill as D_PATTER).d_asset !== undefined) {
         this.fill = Pattern.createObj(Pattern, fill)
       }
     }
@@ -151,7 +152,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     if (!!stroke && typeof stroke !== "string") {
       if ((stroke as D_GRADIENT).gradientShape) {
         this.stroke = Gradient.createObj(Gradient, stroke)
-      } else if ((stroke as D_PATTER).assetId !== undefined) {
+      } else if ((stroke as D_PATTER).d_asset !== undefined) {
         this.stroke = Pattern.createObj(Pattern, stroke)
       }
     }
@@ -205,30 +206,46 @@ export class Shadow extends Attribute implements D_SHADOW {
   shadowOffsetY?: number
 }
 
-class Pattern extends Attribute implements D_PATTER {
+class Pattern extends Attribute implements D_PATTER, IAsset {
   public type: string = "attr_pattern"
-  public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["assetId", "repetition", "transform"]
+  public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["d_asset", "repetition", "transform"]
 
   repetition?: string
   transform?: DOMMatrix2DInit
-  assetId!: number
 
-  assetImage: AssetImage | null = null
+  d_asset!: number | D_ASSET_IMAGE
+
+  asset!: AssetImage
+
+  async load(): Promise<void> {
+    const { asset } = this
+    if (!asset.element) {
+      await asset.load()
+    }
+  }
 
   genPattern(ctx: CanvasRenderingContext2D) {
-    const { repetition, assetImage, transform } = this
-    if (!assetImage) return null
-    const pattern = ctx.createPattern(assetImage.element!, repetition ?? null)
+    const { repetition, asset, transform } = this
+    if (!asset.element) throw new Error("patter 没有资源")
+    const pattern = ctx.createPattern(asset.element, repetition ?? null)
     pattern?.setTransform(transform)
     return pattern
   }
 
   fromJSON(json: D_PATTER): void {
+    const { d_asset } = json
     super.fromJSON(json)
-    const { assetId } = this
-    this.assetImage = AssetImage.getAsset(
-      AssetImage.getUniqueIdent("asset_image", assetId)
-    ) as AssetImage
+    if (typeof d_asset === "number") {
+      const asset = AssetImage.getAsset(
+        AssetImage.getUniqueIdent("asset_image", d_asset)
+      ) as AssetImage
+      if (!asset) {
+        throw new Error("没有创建资源")
+      }
+      this.asset = asset
+    } else {
+      this.asset = AssetImage.createObj(AssetImage, d_asset)
+    }
   }
 }
 
