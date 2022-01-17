@@ -7,6 +7,16 @@ export interface CanvasBaseParam {
   canvas?: HTMLCanvasElement
 }
 
+// 双击事件
+// setTimeout(() => {
+//   if (Date.now() - this.lastClickTime < 400) {
+//     this.inputCanvasActive(ele, ev)
+//   } else {
+//     this.transformCanvasActive(ele, ev)
+//   }
+//   this.lastClickTime = 0
+// }, 500)
+
 export class CanvasBase {
   canvas!: HTMLCanvasElement
 

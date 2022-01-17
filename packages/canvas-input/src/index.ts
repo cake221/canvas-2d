@@ -19,7 +19,9 @@ import { HiddenInput } from "./hiddenInput"
 import { Caret } from "./caret"
 import { Selection } from "./selection"
 
-interface CanvasInputParam extends CanvasBaseParam {}
+interface CanvasInputParam extends CanvasBaseParam {
+  paragraph: Paragraph
+}
 
 export interface OnValueHandle {
   (value: string): void
@@ -32,21 +34,38 @@ const text_box_json: D_TEXT_BOX = {
 }
 
 export class CanvasInput extends CanvasBase {
-  origin = new Point(10, 10)
+  paragraph: Paragraph | null = null
 
-  paragraph: Paragraph = Paragraph.createObj(Paragraph, { ...text_box_json, origin: this.origin })
+  get origin() {
+    const { origin } = this.paragraph!
+    return new Point(origin.x, origin.y)
+  }
 
   get defaultBoxHeight() {
-    return this.paragraph.font.fontSize
+    return this.paragraph!.font.fontSize
   }
 
   get textLength() {
     return this.text.length
   }
 
-  hiddenInput: HiddenInput = new HiddenInput()
+  get text() {
+    return this.paragraph!.text
+  }
 
-  caret: Caret = new Caret(this.origin.x, this.origin.y, this.defaultBoxHeight)
+  set text(txt: string) {
+    this.paragraph!.text = txt
+  }
+
+  get textChar() {
+    return genTextChar(this.text)
+  }
+
+  __debug = false
+
+  hiddenInput!: HiddenInput
+
+  caret!: Caret
 
   selection: Selection = new Selection()
 
@@ -58,18 +77,20 @@ export class CanvasInput extends CanvasBase {
 
   caretTime?: NodeJS.Timeout
 
-  text: string = ""
-
-  __debug = false
-
-  get textChar() {
-    return genTextChar(this.text)
-  }
-
   textCharBox: TextBox[][] = [[]]
 
   constructor(param: CanvasInputParam) {
     super(param)
+
+    const { paragraph } = param
+
+    this.paragraph = paragraph
+
+    this.caret = new Caret(this.origin.x, this.origin.y, this.defaultBoxHeight)
+
+    this.hiddenInput = new HiddenInput(this.text)
+
+    this.lenAfterCaret = 0
 
     this.canvas.addEventListener("pointerdown", this.onPointerdown)
 
@@ -77,13 +98,11 @@ export class CanvasInput extends CanvasBase {
 
     this.canvas.addEventListener("pointerup", this.onPointerup)
 
-    document.addEventListener("click", this.documentOnclick)
-
     this.hiddenInput.onNewValue(this.onNewValue)
 
     this.hiddenInput.onKeydown(this.onKeydown)
 
-    this.preRender()
+    this.render()
   }
 
   cancelCaretTwinkle() {
@@ -99,16 +118,17 @@ export class CanvasInput extends CanvasBase {
     }, 1500)
   }
 
-  documentOnclick = () => {
-    this.submit()
-    this.hiddenInput.blur()
-  }
-
   onPointerdown = (ev: PointerEvent) => {
-    const { textCharBox } = this
+    if (!this.paragraph) return
+    const { textCharBox, paragraph } = this
+    const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
+    if (!paragraph.elementBox.isPointInFrame(p, paragraph.rotate)) {
+      this.submit()
+      this.hiddenInput.blur()
+    }
+
     this.startCaretTwinkle()
     this.selection.active = true
-    const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
     const caret = countCaretByPoint(textCharBox, p, this.origin)
     this.lenBeforeCaretStart = caret.index
     this.lenBeforeCaretEnd = caret.index
@@ -150,16 +170,10 @@ export class CanvasInput extends CanvasBase {
     }
   }
 
-  preRender() {
-    this.setBackground("white")
-  }
-
   submit() {
     this.caret.clear(this.ctx)
     if (!this.text) return
     console.log("数据提交", this.text)
-    this.text = ""
-    this.lenAfterCaret = 0
     this.render()
   }
 
@@ -263,6 +277,7 @@ export class CanvasInput extends CanvasBase {
 
   countTextBox() {
     const { ctx, textChar, origin, defaultBoxHeight } = this
+    if (!this.paragraph) return
     let { x, y } = origin
     const textCharBox = []
     ctx.save()
@@ -298,6 +313,7 @@ export class CanvasInput extends CanvasBase {
 
   renderContent() {
     const { ctx, text, paragraph } = this
+    if (!paragraph) return
     paragraph.text = text
     paragraph.render(ctx)
   }
@@ -315,7 +331,6 @@ export class CanvasInput extends CanvasBase {
 
   renderStatic() {
     this.clear()
-    this.preRender()
     this.renderContent()
     this.countTextBox()
     this.updateSelection()

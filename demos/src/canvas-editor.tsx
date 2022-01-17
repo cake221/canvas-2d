@@ -34,6 +34,17 @@ const data: JSON_DATA = {
         y: 300
       },
       fill: "red"
+    },
+    {
+      type: "paragraph",
+      text: "123",
+      font: {},
+      origin: {
+        x: 300,
+        y: 300
+      },
+      fill: "black",
+      border: "red"
     }
   ]
 }

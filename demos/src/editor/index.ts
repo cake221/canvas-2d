@@ -1,6 +1,7 @@
-import { Element } from "@canvas-2d/core"
+import { Element, Paragraph } from "@canvas-2d/core"
 import { CanvasJSON, JSON_DATA } from "@canvas-2d/canvas-json/src"
 import { CanvasTransform } from "@canvas-2d/canvas-transform/src"
+import { CanvasInput } from "@canvas-2d/canvas-input/src"
 
 interface CanvasEditorParams extends Omit<JSON_DATA, "canvas"> {
   container: HTMLElement
@@ -11,6 +12,8 @@ export class CanvasEditor extends CanvasJSON {
 
   canvasTransform: CanvasTransform | null = null
 
+  canvasInput: CanvasInput | null = null
+
   isEditor = false
 
   constructor(params: CanvasEditorParams) {
@@ -18,6 +21,7 @@ export class CanvasEditor extends CanvasJSON {
     super(params)
 
     this.canvas.addEventListener("pointerdown", this.onPointerdown)
+
     this.createCanvas(container)
   }
 
@@ -76,10 +80,33 @@ export class CanvasEditor extends CanvasJSON {
     for (let i = 0; i < elements.length; i++) {
       const ele = elements[i]
       if (ele.elementBox.isPointInFrame(p, ele.rotate)) {
-        this.transformCanvasActive(ele, ev)
+        if (ele.type === "paragraph") {
+          this.inputCanvasActive(ele as Paragraph, ev)
+        } else {
+          this.transformCanvasActive(ele, ev)
+        }
+
         return
       }
     }
+  }
+
+  inputCanvasActive(ele: Paragraph, ev: PointerEvent) {
+    const { dynamicCanvas, canvasInput, json } = this
+    if (canvasInput) return
+    this.transformCanvasBlur()
+
+    this.canvasInput = new CanvasInput({
+      ...json,
+      canvas: dynamicCanvas,
+      paragraph: ele
+    })
+
+    this.updateFocusCanvas(true)
+
+    this.canvasInput.onPointerdown(ev)
+
+    this.disappearElement(ele)
   }
 
   transformCanvasActive(ele: Element, ev: PointerEvent) {
@@ -99,14 +126,17 @@ export class CanvasEditor extends CanvasJSON {
     this.disappearElement(ele)
   }
 
-  transElementBlurCallback = (ev: PointerEvent) => {
+  transformCanvasBlur() {
     const { canvasTransform } = this
     if (!canvasTransform || !canvasTransform.controlElement) return
     this.appearElement(canvasTransform.controlElement.boxElement as Element)
     canvasTransform.destroy()
     this.canvasTransform = null
-
     this.updateFocusCanvas(false)
+  }
+
+  transElementBlurCallback = (ev: PointerEvent) => {
+    this.transformCanvasBlur()
     this.onPointerdown(ev)
   }
 
