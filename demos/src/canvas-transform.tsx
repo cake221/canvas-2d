@@ -23,8 +23,7 @@ const d_shape: D_SHAPE = {
     x: 300,
     y: 300
   },
-  fill: "yellow",
-  stroke: "red"
+  fill: "yellow"
 }
 
 const shape = Shape.createObj(Shape, d_shape) as Shape

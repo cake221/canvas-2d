@@ -6,7 +6,7 @@ import {
   countTextBoxByTextMetrics,
   Point
 } from "@canvas-2d/shared"
-import { Paragraph, D_TEXT_BOX } from "@canvas-2d/core"
+import { Paragraph } from "@canvas-2d/core"
 
 import {
   countCaretIndexByCoord,
@@ -25,12 +25,6 @@ interface CanvasInputParam extends CanvasBaseParam {
 
 export interface OnValueHandle {
   (value: string): void
-}
-
-const text_box_json: D_TEXT_BOX = {
-  type: "paragraph",
-  text: "",
-  fill: "black"
 }
 
 export class CanvasInput extends CanvasBase {
@@ -314,8 +308,10 @@ export class CanvasInput extends CanvasBase {
   renderContent() {
     const { ctx, text, paragraph } = this
     if (!paragraph) return
+    if (!paragraph.boxStroke) paragraph.boxStroke = "red"
     paragraph.text = text
     paragraph.render(ctx)
+    this.hiddenInput.hiddenInput.value = this.text
   }
 
   updateSelection() {

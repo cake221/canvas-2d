@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { CanvasInput } from "@canvas-2d/canvas-input"
-import { Paragraph } from "@canvas-2d/core"
+import { Paragraph } from "@canvas-2d/core/src"
 
 const p = new Paragraph()
 
@@ -12,7 +12,8 @@ p.fromJSON({
     y: 10
   },
   fill: "black",
-  border: "red"
+  width: 200,
+  height: 200
 })
 
 export default function CanvasJson() {

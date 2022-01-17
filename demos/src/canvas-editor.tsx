@@ -44,7 +44,8 @@ const data: JSON_DATA = {
         y: 300
       },
       fill: "black",
-      border: "red"
+      width: 200,
+      height: 200
     }
   ]
 }

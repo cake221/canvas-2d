@@ -1,5 +1,5 @@
 import { CanvasBase, cloneJson } from "@canvas-2d/shared"
-import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, IAsset } from "@canvas-2d/core"
+import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, IAsset } from "@canvas-2d/core/src"
 
 export type JSON_DATA = {
   assets?: D_ASSET[]

@@ -62,6 +62,8 @@ export interface D_TEXT extends D_TEXT_BASE {
 
 export interface D_TEXT_BOX extends D_TEXT_BASE {
   type: "paragraph"
+  width: number
+  height: number
 }
 
 export type D_ELEMENT = D_SHAPE | D_IMAGE | D_TEXT | D_TEXT_BOX | D_FALSE_ELEMENT
