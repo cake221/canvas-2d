@@ -1,4 +1,4 @@
-import { Point, Box } from "@canvas-2d/shared"
+import { Point, Box, Rotate } from "@canvas-2d/shared"
 
 export class ControlFrame {
   controlSize = 10
@@ -20,6 +20,11 @@ export class ControlFrame {
   }
 
   eleFrame!: Box
+
+  constructor(rotate: Rotate) {
+    this.angleCenterBox.boxX = rotate.angleCenter.x
+    this.angleCenterBox.boxY = rotate.angleCenter.y
+  }
 
   render(ctx: CanvasRenderingContext2D, eleFrame: Box) {
     this.eleFrame = eleFrame

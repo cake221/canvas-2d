@@ -18,7 +18,9 @@ interface ControlELement {
 }
 
 interface CanvasTransformParam extends CanvasBaseParam {
-  boxElement: BoxElement
+  boxElement?: BoxElement
+  renderCallBack?: () => void
+  elementBlurCallback?: (ev: PointerEvent) => void
 }
 
 enum CONTROL_ACTION {
@@ -40,31 +42,54 @@ export class CanvasTransform extends CanvasBase {
 
   pBaseTrans = new Point(0, 0)
 
-  controlElement!: ControlELement
+  controlElement: ControlELement | null = null
 
   resizeIndex = 0
+
+  renderCallBack = () => {}
+
+  elementBlurCallback = (ev: PointerEvent) => {}
 
   constructor(params: CanvasTransformParam) {
     super(params)
 
-    const { boxElement } = params
+    const { boxElement, renderCallBack, elementBlurCallback } = params
+    const { canvas } = this
 
+    canvas.addEventListener("pointerdown", this.onPointerdown)
+
+    canvas.addEventListener("pointermove", this.onPointermove)
+
+    canvas.addEventListener("pointerup", this.onPointerup)
+
+    boxElement && this.setBoxElement(boxElement)
+
+    renderCallBack && (this.renderCallBack = renderCallBack)
+
+    elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
+  }
+
+  destroy() {
+    const { canvas } = this
+    canvas.removeEventListener("pointerdown", this.onPointerdown)
+    canvas.removeEventListener("pointermove", this.onPointermove)
+    canvas.removeEventListener("pointerup", this.onPointerup)
+    this.controlElement = null
+    this.clear()
+  }
+
+  setBoxElement(boxElement: BoxElement) {
     this.controlElement = {
       boxElement,
-      controlFrame: new ControlFrame()
+      controlFrame: new ControlFrame(boxElement.rotate)
     }
-
-    this.canvas.addEventListener("pointerdown", this.onPointerdown)
-
-    this.canvas.addEventListener("pointermove", this.onPointermove)
-
-    this.canvas.addEventListener("pointerup", this.onPointerup)
 
     this.init()
   }
 
   onPointerdown = (ev: PointerEvent) => {
     const { controlElement } = this
+    if (!controlElement) return
     const {
       boxElement: { rotate }
     } = controlElement
@@ -73,11 +98,12 @@ export class CanvasTransform extends CanvasBase {
     this.pBaseTrans = p.countPointBaseRotate(rotate)
     this.firstP = p
     this.firstPBaseTrans = this.pBaseTrans
-    this.countControlAction()
+    this.countControlAction(ev)
   }
 
-  countControlAction() {
+  countControlAction(ev: PointerEvent) {
     const { pBaseTrans, p, controlElement } = this
+    if (!controlElement) return
     const { controlFrame } = controlElement
     const { boundingBox, rotateControl, controlPoints, angleCenterBox } = controlFrame
 
@@ -103,15 +129,17 @@ export class CanvasTransform extends CanvasBase {
       this.controlAction = CONTROL_ACTION.Drag
       return
     }
+
+    this.elementBlurCallback(ev)
   }
 
   onPointermove = (ev: PointerEvent) => {
     const { controlAction, p, pBaseTrans, controlElement } = this
+    if (this.controlAction === CONTROL_ACTION.None || !controlElement) return
     const { controlFrame, boxElement } = controlElement
     const { rotate, elementBox } = boxElement
     const { boxX, boxY, boxWidth, boxHeight } = elementBox
 
-    if (controlAction === CONTROL_ACTION.None) return
     const nextPoint = this.dom2CanvasPoint(ev.x, ev.y)
     const nextPointOnTrans = nextPoint.countPointBaseRotate(rotate)
     const xGap = nextPointOnTrans.x - pBaseTrans.x
@@ -172,6 +200,7 @@ export class CanvasTransform extends CanvasBase {
 
   renderElement() {
     const { ctx, controlElement } = this
+    if (!controlElement) return
     const { boxElement, controlFrame } = controlElement
     ctx.save()
     this.clear()
@@ -179,5 +208,6 @@ export class CanvasTransform extends CanvasBase {
     boxElement.renderBefore && boxElement.renderBefore(ctx)
     controlFrame.render(ctx, boxElement.elementBox)
     ctx.restore()
+    this.renderCallBack()
   }
 }

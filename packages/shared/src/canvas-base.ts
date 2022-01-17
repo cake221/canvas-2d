@@ -65,11 +65,18 @@ export class CanvasBase {
     width && (this.width = width)
     height && (this.height = height)
 
-    this.canvas.addEventListener("click", (ev) => {
-      ev.stopPropagation()
-      ev.preventDefault()
-      this.onPoint(this.dom2CanvasPoint(ev.pageX, ev.pageY))
-    })
+    this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
+  }
+
+  destroy() {
+    const { canvas } = this
+    canvas.removeEventListener("pointerdown", this.baseOnPointerdown)
+  }
+
+  baseOnPointerdown = (ev: PointerEvent) => {
+    ev.stopPropagation()
+    ev.preventDefault()
+    this.onPoint(this.dom2CanvasPoint(ev.pageX, ev.pageY))
   }
 
   dom2CanvasPoint(pageX: number, pageY: number) {

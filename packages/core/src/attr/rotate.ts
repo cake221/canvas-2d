@@ -9,6 +9,7 @@ export class Rotate extends Attribute implements D_ROTATE, RotateType {
   public ATTRIBUTE_NAMES: (keyof D_ROTATE)[] = ["angleCenterX", "angleCenterY", "angle"]
 
   angle: number = 0
+  // TODO: angleCenter 默认为空
   angleCenter: Point = Point.Zero()
 
   setAngleCenter(p: Point) {

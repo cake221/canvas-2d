@@ -1,12 +1,13 @@
 import { CanvasBase, cloneJson } from "@canvas-2d/shared"
-import { D_ASSET, D_ELEMENT, Element, genElement, genAsset } from "@canvas-2d/core"
+import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, IAsset } from "@canvas-2d/core"
 
 export type JSON_DATA = {
-  assets: D_ASSET[]
-  layers: D_ELEMENT[]
-  width: number
-  height: number
+  assets?: D_ASSET[]
+  layers?: D_ELEMENT[]
+  width?: number
+  height?: number
   dpr?: number
+  canvas?: HTMLCanvasElement
 }
 
 export class CanvasJSON extends CanvasBase {
@@ -14,7 +15,7 @@ export class CanvasJSON extends CanvasBase {
 
   layersData: D_ELEMENT[] = []
 
-  private elements: Element[] = []
+  public elements: Element[] = []
 
   constructor(public json: JSON_DATA) {
     super(json)
@@ -22,8 +23,18 @@ export class CanvasJSON extends CanvasBase {
     if (!this.ctx) {
       throw new Error("绘制有问题")
     }
-    this.assetsData = assets
-    this.layersData = layers
+    assets && (this.assetsData = assets)
+    layers && (this.layersData = layers)
+  }
+
+  disappearElement(ele: Element) {
+    ele.disappear()
+    this.render()
+  }
+
+  appearElement(ele: Element) {
+    ele.appear()
+    this.render()
   }
 
   render() {
@@ -31,6 +42,7 @@ export class CanvasJSON extends CanvasBase {
     ctx.clearRect(0, 0, this.width, this.height)
     if (dpr > 0 && dpr !== 1) this.setDpr()
     for (const ele of elements) {
+      if (!ele.visible) continue
       ctx.save()
       ele.render(ctx)
       ctx.restore()
@@ -42,10 +54,14 @@ export class CanvasJSON extends CanvasBase {
     return Promise.allSettled(assetsData.map(genAsset))
   }
 
-  loadElements() {
+  async loadElements() {
     const { layersData } = this
     for (const layer of layersData) {
-      this.elements.push(genElement(layer))
+      const ele = genElement(layer)
+      if ("load" in ele) {
+        await ((ele as unknown) as IAsset).load()
+      }
+      this.elements.push(ele)
     }
   }
 
@@ -66,7 +82,7 @@ export class CanvasJSON extends CanvasBase {
 export async function loadJson(json: JSON_DATA) {
   const staticCanvas2D = new CanvasJSON(cloneJson(json))
   await staticCanvas2D.loadAssets()
-  staticCanvas2D.loadElements()
+  await staticCanvas2D.loadElements()
   staticCanvas2D.render()
   return staticCanvas2D
 }

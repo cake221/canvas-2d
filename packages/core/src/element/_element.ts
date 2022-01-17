@@ -57,6 +57,16 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   elementBox = new Box()
 
+  visible = true
+
+  disappear() {
+    this.visible = false
+  }
+
+  appear() {
+    this.visible = true
+  }
+
   setShadow(ctx: CanvasRenderingContext2D) {
     this.shadow?.takeEffect(ctx)
   }
