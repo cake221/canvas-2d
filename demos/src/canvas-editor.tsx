@@ -46,6 +46,18 @@ const data: JSON_DATA = {
       fill: "black",
       width: 200,
       height: 200
+    },
+    {
+      type: "paragraph",
+      text: "456",
+      font: {},
+      origin: {
+        x: 100,
+        y: 400
+      },
+      fill: "black",
+      width: 200,
+      height: 200
     }
   ]
 }

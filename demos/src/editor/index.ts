@@ -12,7 +12,7 @@ export class CanvasEditor extends CanvasJSON {
 
   canvasTransform!: CanvasTransform
 
-  canvasInput: CanvasInput | null = null
+  canvasInput!: CanvasInput
 
   isEditor = false
 
@@ -20,15 +20,22 @@ export class CanvasEditor extends CanvasJSON {
     const { container, width, height } = params
     super(params)
 
-    this.canvas.addEventListener("pointerdown", this.onPointerdown)
+    const { canvas, dynamicCanvas } = this
 
-    this.dynamicCanvas.setAttribute("width", `${width}`)
+    canvas.addEventListener("pointerdown", this.onPointerdown)
 
-    this.dynamicCanvas.setAttribute("height", `${height}`)
+    dynamicCanvas.setAttribute("width", `${width}`)
+
+    dynamicCanvas.setAttribute("height", `${height}`)
 
     this.canvasTransform = new CanvasTransform({
-      canvas: this.dynamicCanvas,
+      canvas: dynamicCanvas,
       elementBlurCallback: (ev: PointerEvent) => this.transElementBlurCallback(ev)
+    })
+
+    this.canvasInput = new CanvasInput({
+      canvas: dynamicCanvas,
+      elementBlurCallback: () => this.inputCanvasBlurCallback()
     })
 
     this.createCanvas(container)
@@ -62,16 +69,11 @@ export class CanvasEditor extends CanvasJSON {
   }
 
   inputCanvasActive(ele: Paragraph, ev: PointerEvent) {
-    const { dynamicCanvas, canvasInput, json } = this
-    if (canvasInput) return
-    this.transformCanvasBlur()
+    const { canvasInput } = this
+    if (canvasInput.paragraph) return
 
-    this.canvasInput = new CanvasInput({
-      ...json,
-      canvas: dynamicCanvas,
-      paragraph: ele,
-      elementBlurCallback: () => this.inputCanvasBlurCallback()
-    })
+    this.canvasInput.setParagraph(ele)
+    this.transformCanvasBlur()
 
     this.updateFocusCanvas(true)
 
@@ -82,10 +84,9 @@ export class CanvasEditor extends CanvasJSON {
 
   inputCanvasBlurCallback() {
     const { canvasInput } = this
-    if (!canvasInput || !canvasInput.paragraph) return
+    if (!canvasInput.paragraph) return
     this.appearElement(canvasInput.paragraph)
-    canvasInput.destroy()
-    this.canvasInput = null
+    this.canvasInput.removeParagraph()
     this.updateFocusCanvas(false)
   }
 

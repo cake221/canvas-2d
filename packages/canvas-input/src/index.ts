@@ -20,7 +20,7 @@ import { Caret } from "./caret"
 import { Selection } from "./selection"
 
 interface CanvasInputParam extends CanvasBaseParam {
-  paragraph: Paragraph
+  paragraph?: Paragraph
   renderCallBack?: () => void
   elementBlurCallback?: () => void
 }
@@ -63,7 +63,7 @@ export class CanvasInput extends CanvasBase {
 
   caret!: Caret
 
-  selection: Selection = new Selection()
+  selection!: Selection
 
   lenAfterCaret = 0 // 光标后面的字符
 
@@ -84,11 +84,7 @@ export class CanvasInput extends CanvasBase {
 
     const { paragraph, renderCallBack, elementBlurCallback } = param
 
-    this.paragraph = paragraph
-
-    this.caret = new Caret(this.origin.x, this.origin.y, this.defaultBoxHeight)
-
-    this.hiddenInput = new HiddenInput(this.text)
+    paragraph && this.setParagraph(paragraph)
 
     this.canvas.addEventListener("pointerdown", this.onPointerdown)
 
@@ -96,15 +92,32 @@ export class CanvasInput extends CanvasBase {
 
     this.canvas.addEventListener("pointerup", this.onPointerup)
 
+    renderCallBack && (this.renderCallBack = renderCallBack)
+
+    elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
+  }
+
+  setParagraph(paragraph: Paragraph) {
+    paragraph && (this.paragraph = paragraph)
+
+    this.caret = new Caret(this.origin.x, this.origin.y, this.defaultBoxHeight)
+
+    this.hiddenInput = new HiddenInput(this.text)
+
+    this.selection = new Selection()
+
     this.hiddenInput.onNewValue(this.onNewValue)
 
     this.hiddenInput.onKeydown(this.onKeydown)
 
-    renderCallBack && (this.renderCallBack = renderCallBack)
-
-    elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
-
     this.render()
+  }
+
+  removeParagraph() {
+    this.cancelCaretTwinkle()
+    this.hiddenInput.blur()
+    this.paragraph = null
+    this.clear()
   }
 
   destroy(): void {
@@ -135,7 +148,7 @@ export class CanvasInput extends CanvasBase {
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
     if (!paragraph.elementBox.isPointInFrame(p, paragraph.rotate)) {
       this.submit()
-      this.hiddenInput.blur()
+      return
     }
 
     this.startCaretTwinkle()
@@ -148,6 +161,7 @@ export class CanvasInput extends CanvasBase {
   }
 
   onPointermove = (ev: PointerEvent) => {
+    if (!this.paragraph) return
     const { textCharBox } = this
 
     if (!this.selection.active) return
@@ -182,11 +196,8 @@ export class CanvasInput extends CanvasBase {
   }
 
   submit() {
-    this.caret.clear(this.ctx)
     this.elementBlurCallback()
-    if (!this.text) return
-
-    console.log("数据提交", this.text)
+    if (!this.paragraph) return
     this.render()
   }
 
@@ -327,8 +338,11 @@ export class CanvasInput extends CanvasBase {
   renderContent() {
     const { ctx, text, paragraph } = this
     if (!paragraph) return
-    if (!paragraph.boxStroke) paragraph.boxStroke = "red"
     paragraph.text = text
+    paragraph.elementBox.render(ctx, {
+      stroke: "red",
+      fill: "white"
+    })
     paragraph.render(ctx)
     this.hiddenInput.hiddenInput.value = this.text
   }

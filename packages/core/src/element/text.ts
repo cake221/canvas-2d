@@ -229,13 +229,9 @@ export class Paragraph extends TextBase implements D_TEXT_BOX {
 
   public countElementBox(ctx: CanvasRenderingContext2D): void {
     super.countElementBox(ctx)
-    const { elementBox, width, height, boxStroke } = this
+    const { elementBox, width, height } = this
     elementBox.boxWidth = width
     elementBox.boxHeight = height
-    boxStroke &&
-      elementBox.render(ctx, {
-        stroke: boxStroke
-      })
   }
 
   fromJSON(json: OmitType<D_TEXT_BOX>): void {

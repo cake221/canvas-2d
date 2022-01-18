@@ -57,8 +57,6 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   elementBox = new Box()
 
-  boxStroke = ""
-
   visible = true
 
   disappear() {
