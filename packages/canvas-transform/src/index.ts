@@ -70,6 +70,7 @@ export class CanvasTransform extends CanvasBase {
   }
 
   destroy() {
+    super.destroy()
     const { canvas } = this
     canvas.removeEventListener("pointerdown", this.onPointerdown)
     canvas.removeEventListener("pointermove", this.onPointermove)
@@ -207,7 +208,7 @@ export class CanvasTransform extends CanvasBase {
     boxElement.render(ctx)
     boxElement.renderBefore && boxElement.renderBefore(ctx)
     controlFrame.render(ctx, boxElement.elementBox)
-    ctx.restore()
     this.renderCallBack()
+    ctx.restore()
   }
 }

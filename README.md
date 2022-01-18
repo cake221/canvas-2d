@@ -12,6 +12,7 @@
 
 ### todo
 
+- 文本默认值
 - element 默认属性
 - 编辑 ELement，导出 JSON 数据
 - 思维导图

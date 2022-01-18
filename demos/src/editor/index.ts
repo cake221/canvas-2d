@@ -25,6 +25,96 @@ export class CanvasEditor extends CanvasJSON {
     this.createCanvas(container)
   }
 
+  updateFocusCanvas(isEditor: boolean = false) {
+    const { dynamicCanvas } = this
+    this.isEditor = isEditor
+    if (isEditor) {
+      dynamicCanvas.style.pointerEvents = "auto"
+    } else {
+      dynamicCanvas.style.pointerEvents = "none"
+    }
+  }
+
+  onPointerdown = (ev: PointerEvent) => {
+    const p = this.dom2CanvasPoint(ev.x, ev.y)
+    const { elements } = this
+    for (let i = 0; i < elements.length; i++) {
+      const ele = elements[i]
+      if (ele.elementBox.isPointInFrame(p, ele.rotate)) {
+        if (ele.type === "paragraph") {
+          this.inputCanvasActive(ele as Paragraph, ev)
+        } else {
+          this.transformCanvasActive(ele, ev)
+        }
+
+        return
+      }
+    }
+  }
+
+  inputCanvasActive(ele: Paragraph, ev: PointerEvent) {
+    const { dynamicCanvas, canvasInput, json } = this
+    if (canvasInput) return
+    this.transformCanvasBlur()
+
+    this.canvasInput = new CanvasInput({
+      ...json,
+      canvas: dynamicCanvas,
+      paragraph: ele,
+      elementBlurCallback: () => this.inputCanvasBlurCallback()
+    })
+
+    this.updateFocusCanvas(true)
+
+    this.canvasInput.onPointerdown(ev)
+
+    this.disappearElement(ele)
+  }
+
+  inputCanvasBlurCallback() {
+    const { canvasInput } = this
+    if (!canvasInput || !canvasInput.paragraph) return
+    this.appearElement(canvasInput.paragraph)
+    canvasInput.destroy()
+    this.canvasInput = null
+    this.updateFocusCanvas(false)
+  }
+
+  transformCanvasActive(ele: Element, ev: PointerEvent) {
+    if (this.canvasTransform) return
+    const { json, dynamicCanvas } = this
+    this.canvasTransform = new CanvasTransform({
+      ...json,
+      canvas: dynamicCanvas,
+      elementBlurCallback: (ev: PointerEvent) => this.transElementBlurCallback(ev),
+      boxElement: ele
+    })
+
+    this.updateFocusCanvas(true)
+
+    this.canvasTransform.onPointerdown(ev)
+
+    this.disappearElement(ele)
+  }
+
+  transformCanvasBlur() {
+    const { canvasTransform } = this
+    if (!canvasTransform || !canvasTransform.controlElement) return
+    this.appearElement(canvasTransform.controlElement.boxElement as Element)
+    canvasTransform.destroy()
+    this.canvasTransform = null
+    this.updateFocusCanvas(false)
+  }
+
+  transElementBlurCallback = (ev: PointerEvent) => {
+    this.transformCanvasBlur()
+    this.onPointerdown(ev)
+  }
+
+  update() {
+    this.render()
+  }
+
   createCanvas(container: HTMLElement) {
     const { canvas, dynamicCanvas, width, height } = this
     container.innerHTML = ""
@@ -61,86 +151,6 @@ export class CanvasEditor extends CanvasJSON {
     container.appendChild(dynamicCanvas)
     // TODO: 放在 对象 初始化 时
     this.loadElements()
-    this.render()
-  }
-
-  updateFocusCanvas(isEditor: boolean = false) {
-    const { dynamicCanvas } = this
-    this.isEditor = isEditor
-    if (isEditor) {
-      dynamicCanvas.style.pointerEvents = "auto"
-    } else {
-      dynamicCanvas.style.pointerEvents = "none"
-    }
-  }
-
-  onPointerdown = (ev: PointerEvent) => {
-    const p = this.dom2CanvasPoint(ev.x, ev.y)
-    const { elements } = this
-    for (let i = 0; i < elements.length; i++) {
-      const ele = elements[i]
-      if (ele.elementBox.isPointInFrame(p, ele.rotate)) {
-        if (ele.type === "paragraph") {
-          this.inputCanvasActive(ele as Paragraph, ev)
-        } else {
-          this.transformCanvasActive(ele, ev)
-        }
-
-        return
-      }
-    }
-  }
-
-  inputCanvasActive(ele: Paragraph, ev: PointerEvent) {
-    const { dynamicCanvas, canvasInput, json } = this
-    if (canvasInput) return
-    this.transformCanvasBlur()
-
-    this.canvasInput = new CanvasInput({
-      ...json,
-      canvas: dynamicCanvas,
-      paragraph: ele
-    })
-
-    this.updateFocusCanvas(true)
-
-    this.canvasInput.onPointerdown(ev)
-
-    this.disappearElement(ele)
-  }
-
-  transformCanvasActive(ele: Element, ev: PointerEvent) {
-    if (this.canvasTransform) return
-    const { json, dynamicCanvas } = this
-    this.canvasTransform = new CanvasTransform({
-      ...json,
-      canvas: dynamicCanvas,
-      elementBlurCallback: (ev: PointerEvent) => this.transElementBlurCallback(ev),
-      boxElement: ele
-    })
-
-    this.updateFocusCanvas(true)
-
-    this.canvasTransform.onPointerdown(ev)
-
-    this.disappearElement(ele)
-  }
-
-  transformCanvasBlur() {
-    const { canvasTransform } = this
-    if (!canvasTransform || !canvasTransform.controlElement) return
-    this.appearElement(canvasTransform.controlElement.boxElement as Element)
-    canvasTransform.destroy()
-    this.canvasTransform = null
-    this.updateFocusCanvas(false)
-  }
-
-  transElementBlurCallback = (ev: PointerEvent) => {
-    this.transformCanvasBlur()
-    this.onPointerdown(ev)
-  }
-
-  update() {
     this.render()
   }
 }

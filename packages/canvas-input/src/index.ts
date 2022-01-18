@@ -21,6 +21,8 @@ import { Selection } from "./selection"
 
 interface CanvasInputParam extends CanvasBaseParam {
   paragraph: Paragraph
+  renderCallBack?: () => void
+  elementBlurCallback?: () => void
 }
 
 export interface OnValueHandle {
@@ -73,18 +75,20 @@ export class CanvasInput extends CanvasBase {
 
   textCharBox: TextBox[][] = [[]]
 
+  renderCallBack = () => {}
+
+  elementBlurCallback = () => {}
+
   constructor(param: CanvasInputParam) {
     super(param)
 
-    const { paragraph } = param
+    const { paragraph, renderCallBack, elementBlurCallback } = param
 
     this.paragraph = paragraph
 
     this.caret = new Caret(this.origin.x, this.origin.y, this.defaultBoxHeight)
 
     this.hiddenInput = new HiddenInput(this.text)
-
-    this.lenAfterCaret = 0
 
     this.canvas.addEventListener("pointerdown", this.onPointerdown)
 
@@ -96,7 +100,20 @@ export class CanvasInput extends CanvasBase {
 
     this.hiddenInput.onKeydown(this.onKeydown)
 
+    renderCallBack && (this.renderCallBack = renderCallBack)
+
+    elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
+
     this.render()
+  }
+
+  destroy(): void {
+    super.destroy()
+    this.canvas.removeEventListener("pointerdown", this.onPointerdown)
+
+    this.canvas.removeEventListener("pointermove", this.onPointermove)
+
+    this.canvas.removeEventListener("pointerup", this.onPointerup)
   }
 
   cancelCaretTwinkle() {
@@ -166,7 +183,9 @@ export class CanvasInput extends CanvasBase {
 
   submit() {
     this.caret.clear(this.ctx)
+    this.elementBlurCallback()
     if (!this.text) return
+
     console.log("数据提交", this.text)
     this.render()
   }
@@ -335,5 +354,6 @@ export class CanvasInput extends CanvasBase {
   render() {
     this.renderStatic()
     this.updateCaretByAfterIndex()
+    this.renderCallBack()
   }
 }

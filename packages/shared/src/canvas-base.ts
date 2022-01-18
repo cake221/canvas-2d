@@ -27,6 +27,8 @@ export class CanvasBase {
    */
   dpr = 1
 
+  active = false
+
   setDpr() {
     const { dpr, width, height, ctx } = this
     this.width = dpr * width
@@ -76,6 +78,10 @@ export class CanvasBase {
     height && (this.height = height)
 
     this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
+
+    this.canvas.addEventListener("pointermove", this.baseOnPointermove)
+
+    this.canvas.addEventListener("pointerup", this.baseOnPointerup)
   }
 
   destroy() {
@@ -86,7 +92,21 @@ export class CanvasBase {
   baseOnPointerdown = (ev: PointerEvent) => {
     ev.stopPropagation()
     ev.preventDefault()
-    this.onPoint(this.dom2CanvasPoint(ev.pageX, ev.pageY))
+    this.active = true
+  }
+
+  baseOnPointermove = (ev: PointerEvent) => {
+    ev.stopPropagation()
+    ev.preventDefault()
+    const p = this.dom2CanvasPoint(ev.x, ev.y)
+    if (p.x <= 0 || p.y <= 0) {
+      this.active = false
+    }
+  }
+
+  baseOnPointerup = (ev: PointerEvent) => {
+    ev.stopPropagation()
+    ev.preventDefault()
   }
 
   dom2CanvasPoint(pageX: number, pageY: number) {
