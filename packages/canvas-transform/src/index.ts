@@ -81,6 +81,16 @@ export class CanvasTransform extends CanvasBase {
     this.clear()
   }
 
+  dblclickCallback(ev: PointerEvent) {
+    const { controlElement } = this
+    if (!controlElement) return
+    // FIXME: 去掉 type
+    // @ts-ignore
+    if (controlElement.boxElement.type === "paragraph") {
+      this.elementBlurCallback(ev)
+    }
+  }
+
   onPointerdown(ev: PointerEvent) {
     super.onPointerdown(ev)
     const { controlElement } = this

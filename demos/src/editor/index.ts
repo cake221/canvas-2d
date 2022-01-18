@@ -49,8 +49,10 @@ export class CanvasEditor extends CanvasJSON {
     }
   }
 
+  isDblclick = false
+
   dblclickCallback() {
-    console.log("双击事件")
+    this.isDblclick = true
   }
 
   onPointerdown(ev: PointerEvent) {
@@ -60,12 +62,14 @@ export class CanvasEditor extends CanvasJSON {
     for (let i = 0; i < elements.length; i++) {
       const ele = elements[i]
       if (ele.elementBox.isPointInFrame(p, ele.rotate)) {
-        if (ele.type === "paragraph") {
-          this.inputCanvasActive(ele as Paragraph, ev)
-        } else {
-          this.transformCanvasActive(ele, ev)
+        if (this.isDblclick) {
+          if (ele.type === "paragraph") {
+            this.inputCanvasActive(ele as Paragraph, ev)
+          }
+          this.isDblclick = false
+          return
         }
-
+        this.transformCanvasActive(ele, ev)
         return
       }
     }

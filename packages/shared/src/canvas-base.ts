@@ -102,7 +102,7 @@ export class CanvasBase {
 
   dblclickDelay = 400
 
-  dblclickCallback() {}
+  dblclickCallback(ev: PointerEvent) {}
 
   onPointerdown(ev: PointerEvent) {
     ev.stopPropagation()
@@ -111,7 +111,7 @@ export class CanvasBase {
 
     const time = Date.now()
     if (time - this.lastClickTime < this.dblclickDelay) {
-      this.dblclickCallback()
+      this.dblclickCallback(ev)
     }
     this.lastClickTime = time
   }
