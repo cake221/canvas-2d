@@ -73,9 +73,20 @@ export class CanvasBase {
     if (!this.ctx) {
       throw new Error("没有 ctx")
     }
+
     dpr && (this.dpr = dpr)
-    width && (this.width = width)
-    height && (this.height = height)
+
+    if (width) {
+      this.width = width
+    } else {
+      this._width = Number(this.canvas.getAttribute("width"))
+    }
+
+    if (height) {
+      this.height = height
+    } else {
+      this._height = Number(this.canvas.getAttribute("height"))
+    }
 
     this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
 

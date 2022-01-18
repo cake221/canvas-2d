@@ -75,8 +75,7 @@ export class CanvasTransform extends CanvasBase {
     canvas.removeEventListener("pointerdown", this.onPointerdown)
     canvas.removeEventListener("pointermove", this.onPointermove)
     canvas.removeEventListener("pointerup", this.onPointerup)
-    this.controlElement = null
-    this.clear()
+    this.removeBoxElement()
   }
 
   setBoxElement(boxElement: BoxElement) {
@@ -86,6 +85,11 @@ export class CanvasTransform extends CanvasBase {
     }
 
     this.init()
+  }
+
+  removeBoxElement() {
+    this.controlElement = null
+    this.clear()
   }
 
   onPointerdown = (ev: PointerEvent) => {

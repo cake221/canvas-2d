@@ -10,17 +10,26 @@ interface CanvasEditorParams extends Omit<JSON_DATA, "canvas"> {
 export class CanvasEditor extends CanvasJSON {
   dynamicCanvas = document.createElement("canvas")
 
-  canvasTransform: CanvasTransform | null = null
+  canvasTransform!: CanvasTransform
 
   canvasInput: CanvasInput | null = null
 
   isEditor = false
 
   constructor(params: CanvasEditorParams) {
-    const { container } = params
+    const { container, width, height } = params
     super(params)
 
     this.canvas.addEventListener("pointerdown", this.onPointerdown)
+
+    this.dynamicCanvas.setAttribute("width", `${width}`)
+
+    this.dynamicCanvas.setAttribute("height", `${height}`)
+
+    this.canvasTransform = new CanvasTransform({
+      canvas: this.dynamicCanvas,
+      elementBlurCallback: (ev: PointerEvent) => this.transElementBlurCallback(ev)
+    })
 
     this.createCanvas(container)
   }
@@ -81,15 +90,9 @@ export class CanvasEditor extends CanvasJSON {
   }
 
   transformCanvasActive(ele: Element, ev: PointerEvent) {
-    if (this.canvasTransform) return
-    const { json, dynamicCanvas } = this
-    this.canvasTransform = new CanvasTransform({
-      ...json,
-      canvas: dynamicCanvas,
-      elementBlurCallback: (ev: PointerEvent) => this.transElementBlurCallback(ev),
-      boxElement: ele
-    })
-
+    const { canvasTransform } = this
+    if (canvasTransform.controlElement) return
+    canvasTransform.setBoxElement(ele)
     this.updateFocusCanvas(true)
 
     this.canvasTransform.onPointerdown(ev)
@@ -99,10 +102,9 @@ export class CanvasEditor extends CanvasJSON {
 
   transformCanvasBlur() {
     const { canvasTransform } = this
-    if (!canvasTransform || !canvasTransform.controlElement) return
+    if (!canvasTransform.controlElement) return
     this.appearElement(canvasTransform.controlElement.boxElement as Element)
-    canvasTransform.destroy()
-    this.canvasTransform = null
+    canvasTransform.removeBoxElement()
     this.updateFocusCanvas(false)
   }
 
