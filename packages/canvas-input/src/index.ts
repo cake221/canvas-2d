@@ -86,12 +86,6 @@ export class CanvasInput extends CanvasBase {
 
     paragraph && this.setParagraph(paragraph)
 
-    this.canvas.addEventListener("pointerdown", this.onPointerdown)
-
-    this.canvas.addEventListener("pointermove", this.onPointermove)
-
-    this.canvas.addEventListener("pointerup", this.onPointerup)
-
     renderCallBack && (this.renderCallBack = renderCallBack)
 
     elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
@@ -120,15 +114,6 @@ export class CanvasInput extends CanvasBase {
     this.clear()
   }
 
-  destroy(): void {
-    super.destroy()
-    this.canvas.removeEventListener("pointerdown", this.onPointerdown)
-
-    this.canvas.removeEventListener("pointermove", this.onPointermove)
-
-    this.canvas.removeEventListener("pointerup", this.onPointerup)
-  }
-
   cancelCaretTwinkle() {
     clearTimeout(this.caretTime!)
     this.caret.cancelTwinkle(this.ctx)
@@ -142,7 +127,8 @@ export class CanvasInput extends CanvasBase {
     }, 1500)
   }
 
-  onPointerdown = (ev: PointerEvent) => {
+  onPointerdown(ev: PointerEvent) {
+    super.onPointerdown(ev)
     if (!this.paragraph) return
     const { textCharBox, paragraph } = this
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
@@ -160,7 +146,8 @@ export class CanvasInput extends CanvasBase {
     this.render()
   }
 
-  onPointermove = (ev: PointerEvent) => {
+  onPointermove(ev: PointerEvent) {
+    super.onPointermove(ev)
     if (!this.paragraph) return
     const { textCharBox } = this
 
@@ -173,7 +160,9 @@ export class CanvasInput extends CanvasBase {
     this.renderStatic()
   }
 
-  onPointerup = () => {
+  onPointerup(ev: PointerEvent) {
+    super.onPointerup(ev)
+    if (!this.paragraph) return
     this.selection.active = false
     this.hiddenInput.focus()
   }

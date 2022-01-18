@@ -89,24 +89,28 @@ export class CanvasBase {
     }
 
     this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
-
     this.canvas.addEventListener("pointermove", this.baseOnPointermove)
-
     this.canvas.addEventListener("pointerup", this.baseOnPointerup)
   }
+
+  baseOnPointerup = (ev: PointerEvent) => this.onPointerup(ev)
+  baseOnPointerdown = (ev: PointerEvent) => this.onPointerdown(ev)
+  baseOnPointermove = (ev: PointerEvent) => this.onPointermove(ev)
 
   destroy() {
     const { canvas } = this
     canvas.removeEventListener("pointerdown", this.baseOnPointerdown)
+    canvas.removeEventListener("pointermove", this.baseOnPointermove)
+    canvas.removeEventListener("pointerup", this.baseOnPointerup)
   }
 
-  baseOnPointerdown = (ev: PointerEvent) => {
+  onPointerdown(ev: PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
     this.active = true
   }
 
-  baseOnPointermove = (ev: PointerEvent) => {
+  onPointermove(ev: PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
     const p = this.dom2CanvasPoint(ev.x, ev.y)
@@ -115,7 +119,7 @@ export class CanvasBase {
     }
   }
 
-  baseOnPointerup = (ev: PointerEvent) => {
+  onPointerup(ev: PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
   }

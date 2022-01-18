@@ -20,9 +20,7 @@ export class CanvasEditor extends CanvasJSON {
     const { container, width, height } = params
     super(params)
 
-    const { canvas, dynamicCanvas } = this
-
-    canvas.addEventListener("pointerdown", this.onPointerdown)
+    const { dynamicCanvas } = this
 
     dynamicCanvas.setAttribute("width", `${width}`)
 
@@ -51,7 +49,8 @@ export class CanvasEditor extends CanvasJSON {
     }
   }
 
-  onPointerdown = (ev: PointerEvent) => {
+  onPointerdown(ev: PointerEvent) {
+    super.onPointerdown(ev)
     const p = this.dom2CanvasPoint(ev.x, ev.y)
     const { elements } = this
     for (let i = 0; i < elements.length; i++) {

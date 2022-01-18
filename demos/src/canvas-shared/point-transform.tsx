@@ -17,12 +17,12 @@ class PointTrans extends CanvasBase {
 
   constructor(params: PointTransformParam) {
     super(params)
-    this.canvas.addEventListener("pointerdown", this.onPointerdown)
     this.trans.offsetX = PointTrans.coordWidth
     this.trans.offsetY = PointTrans.coordHeight
   }
 
-  onPointerdown = (ev: PointerEvent) => {
+  onPointerdown(ev: PointerEvent): void {
+    super.onPointerdown(ev)
     const _p = this.dom2CanvasPoint(ev.x, ev.y)
     this.p = new Point(_p.x, _p.y)
     console.log("未转换前", this.p)

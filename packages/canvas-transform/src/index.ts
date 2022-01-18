@@ -54,13 +54,6 @@ export class CanvasTransform extends CanvasBase {
     super(params)
 
     const { boxElement, renderCallBack, elementBlurCallback } = params
-    const { canvas } = this
-
-    canvas.addEventListener("pointerdown", this.onPointerdown)
-
-    canvas.addEventListener("pointermove", this.onPointermove)
-
-    canvas.addEventListener("pointerup", this.onPointerup)
 
     boxElement && this.setBoxElement(boxElement)
 
@@ -71,10 +64,6 @@ export class CanvasTransform extends CanvasBase {
 
   destroy() {
     super.destroy()
-    const { canvas } = this
-    canvas.removeEventListener("pointerdown", this.onPointerdown)
-    canvas.removeEventListener("pointermove", this.onPointermove)
-    canvas.removeEventListener("pointerup", this.onPointerup)
     this.removeBoxElement()
   }
 
@@ -92,7 +81,8 @@ export class CanvasTransform extends CanvasBase {
     this.clear()
   }
 
-  onPointerdown = (ev: PointerEvent) => {
+  onPointerdown(ev: PointerEvent) {
+    super.onPointerdown(ev)
     const { controlElement } = this
     if (!controlElement) return
     const {
@@ -138,7 +128,8 @@ export class CanvasTransform extends CanvasBase {
     this.elementBlurCallback(ev)
   }
 
-  onPointermove = (ev: PointerEvent) => {
+  onPointermove(ev: PointerEvent) {
+    super.onPointermove(ev)
     const { controlAction, p, pBaseTrans, controlElement } = this
     if (this.controlAction === CONTROL_ACTION.None || !controlElement) return
     const { controlFrame, boxElement } = controlElement
@@ -193,8 +184,9 @@ export class CanvasTransform extends CanvasBase {
     this.pBaseTrans = nextPointOnTrans
   }
 
-  onPointerup = () => {
-    if (this.controlAction === CONTROL_ACTION.None) return
+  onPointerup(ev: PointerEvent) {
+    super.onPointerup(ev)
+    if (this.controlAction === CONTROL_ACTION.None || !this.controlElement) return
     this.renderElement()
     this.controlAction = CONTROL_ACTION.None
   }
