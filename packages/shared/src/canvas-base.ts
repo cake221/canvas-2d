@@ -5,17 +5,8 @@ export interface CanvasBaseParam {
   height?: number
   dpr?: number
   canvas?: HTMLCanvasElement
+  dblclickDelay?: number
 }
-
-// 双击事件
-// setTimeout(() => {
-//   if (Date.now() - this.lastClickTime < 400) {
-//     this.inputCanvasActive(ele, ev)
-//   } else {
-//     this.transformCanvasActive(ele, ev)
-//   }
-//   this.lastClickTime = 0
-// }, 500)
 
 export class CanvasBase {
   canvas!: HTMLCanvasElement
@@ -63,7 +54,8 @@ export class CanvasBase {
     return this.canvas.toDataURL("image/png")
   }
 
-  constructor({ dpr, width, height, canvas }: CanvasBaseParam) {
+  constructor(params: CanvasBaseParam) {
+    const { dpr, width, height, canvas, dblclickDelay } = params
     if (canvas) {
       this.canvas = canvas
     } else {
@@ -88,6 +80,8 @@ export class CanvasBase {
       this._height = Number(this.canvas.getAttribute("height"))
     }
 
+    dblclickDelay && (this.dblclickDelay = dblclickDelay)
+
     this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
     this.canvas.addEventListener("pointermove", this.baseOnPointermove)
     this.canvas.addEventListener("pointerup", this.baseOnPointerup)
@@ -104,10 +98,22 @@ export class CanvasBase {
     canvas.removeEventListener("pointerup", this.baseOnPointerup)
   }
 
+  private lastClickTime = 0
+
+  dblclickDelay = 400
+
+  dblclickCallback() {}
+
   onPointerdown(ev: PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
     this.active = true
+
+    const time = Date.now()
+    if (time - this.lastClickTime < this.dblclickDelay) {
+      this.dblclickCallback()
+    }
+    this.lastClickTime = time
   }
 
   onPointermove(ev: PointerEvent) {

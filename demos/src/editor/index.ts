@@ -49,6 +49,10 @@ export class CanvasEditor extends CanvasJSON {
     }
   }
 
+  dblclickCallback() {
+    console.log("双击事件")
+  }
+
   onPointerdown(ev: PointerEvent) {
     super.onPointerdown(ev)
     const p = this.dom2CanvasPoint(ev.x, ev.y)
