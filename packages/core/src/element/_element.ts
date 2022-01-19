@@ -7,9 +7,11 @@ import {
   D_SHADOW,
   D_PATTER,
   D_STROKE_PARAM,
-  D_GRADIENT
+  D_GRADIENT,
+  D_ASSET_IMAGE,
+  OmitType
 } from "../type"
-import { AssetImage } from "../asset"
+import { Asset, AssetImage, IAsset } from "../asset"
 
 export interface RenderParam {}
 
@@ -55,6 +57,16 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   elementBox = new Box()
 
+  visible = true
+
+  disappear() {
+    this.visible = false
+  }
+
+  appear() {
+    this.visible = true
+  }
+
   setShadow(ctx: CanvasRenderingContext2D) {
     this.shadow?.takeEffect(ctx)
   }
@@ -82,6 +94,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   renderAfter(ctx: CanvasRenderingContext2D) {
     this.countElementBox(ctx)
+    this.rotate.elementBox = this.elementBox
     this.renderCoord(ctx)
   }
 
@@ -134,7 +147,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     this.clip?.takeEffect(ctx, { fillRule, origin })
   }
 
-  fromJSON(json: D_ELEMENT_BASE): void {
+  fromJSON(json: OmitType<D_ELEMENT_BASE>): void {
     super.fromJSON(json)
     const { strokeParam, shadow, rotate, fill, stroke, clip } = json
 
@@ -143,7 +156,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     if (!!fill && typeof fill !== "string") {
       if ((fill as D_GRADIENT).gradientShape) {
         this.fill = Gradient.createObj(Gradient, fill)
-      } else if ((fill as D_PATTER).assetId !== undefined) {
+      } else if ((fill as D_PATTER).d_asset !== undefined) {
         this.fill = Pattern.createObj(Pattern, fill)
       }
     }
@@ -151,7 +164,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     if (!!stroke && typeof stroke !== "string") {
       if ((stroke as D_GRADIENT).gradientShape) {
         this.stroke = Gradient.createObj(Gradient, stroke)
-      } else if ((stroke as D_PATTER).assetId !== undefined) {
+      } else if ((stroke as D_PATTER).d_asset !== undefined) {
         this.stroke = Pattern.createObj(Pattern, stroke)
       }
     }
@@ -203,32 +216,52 @@ export class Shadow extends Attribute implements D_SHADOW {
   shadowColor?: string
   shadowOffsetX?: number
   shadowOffsetY?: number
+
+  fromJSON(json: OmitType<D_SHADOW>): void {
+    super.fromJSON(json)
+  }
 }
 
-class Pattern extends Attribute implements D_PATTER {
+class Pattern extends Attribute implements D_PATTER, IAsset {
   public type: string = "attr_pattern"
-  public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["assetId", "repetition", "transform"]
+  public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["d_asset", "repetition", "transform"]
 
   repetition?: string
   transform?: DOMMatrix2DInit
-  assetId!: number
 
-  assetImage: AssetImage | null = null
+  d_asset!: number | D_ASSET_IMAGE
+
+  asset!: AssetImage
+
+  async load(): Promise<void> {
+    const { asset } = this
+    if (!asset.element) {
+      await asset.load()
+    }
+  }
 
   genPattern(ctx: CanvasRenderingContext2D) {
-    const { repetition, assetImage, transform } = this
-    if (!assetImage) return null
-    const pattern = ctx.createPattern(assetImage.element!, repetition ?? null)
+    const { repetition, asset, transform } = this
+    if (!asset.element) throw new Error("patter 没有资源")
+    const pattern = ctx.createPattern(asset.element, repetition ?? null)
     pattern?.setTransform(transform)
     return pattern
   }
 
-  fromJSON(json: D_PATTER): void {
+  fromJSON(json: OmitType<D_PATTER>): void {
+    const { d_asset } = json
     super.fromJSON(json)
-    const { assetId } = this
-    this.assetImage = AssetImage.getAsset(
-      AssetImage.getUniqueIdent("asset_image", assetId)
-    ) as AssetImage
+    if (typeof d_asset === "number") {
+      const asset = AssetImage.getAsset(
+        AssetImage.getUniqueIdent("asset_image", d_asset)
+      ) as AssetImage
+      if (!asset) {
+        throw new Error("没有创建资源")
+      }
+      this.asset = asset
+    } else {
+      this.asset = AssetImage.createObj(AssetImage, d_asset)
+    }
   }
 }
 
@@ -251,6 +284,10 @@ export class Gradient extends Attribute implements D_GRADIENT {
       gradient.addColorStop(...colorStop)
     }
     return gradient
+  }
+
+  fromJSON(json: OmitType<D_GRADIENT>): void {
+    super.fromJSON(json)
   }
 }
 
@@ -288,5 +325,9 @@ export class StrokeParam extends Attribute implements D_STROKE_PARAM {
       dashArray.push(...dashArray)
     }
     ctx.setLineDash(dashArray)
+  }
+
+  fromJSON(json: OmitType<D_STROKE_PARAM>): void {
+    super.fromJSON(json)
   }
 }

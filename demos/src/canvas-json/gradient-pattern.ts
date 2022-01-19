@@ -5,7 +5,7 @@ export const gradientPatternJson: JSON_DATA = {
   assets: [
     {
       data: wrapStaticUrl("images/redball.png"),
-      id: 0,
+      id: 3,
       type: "asset_image"
     },
     {
@@ -32,7 +32,7 @@ export const gradientPatternJson: JSON_DATA = {
         ]
       },
       stroke: {
-        assetId: 1,
+        d_asset: 1,
         repetition: "repeat"
       },
       text: "你好fillStyle.genGradient(ctx)",
@@ -51,7 +51,7 @@ export const gradientPatternJson: JSON_DATA = {
         y: 300
       },
       fill: {
-        assetId: 0,
+        d_asset: 3,
         repetition: "repeat"
       },
       stroke: {

@@ -8,6 +8,7 @@ import {
   D_CLIP,
   D_FONT
 } from "./attr.type"
+import { D_ASSET_IMAGE, Asset_ID } from "./asset.type"
 import { D_PATH } from "./path.type"
 import { PartialOmit } from "./_type"
 
@@ -40,7 +41,7 @@ export interface D_IMAGE extends D_ELEMENT_BASE {
   type: "image"
   width: Number
   height: number
-  assetId: number
+  d_asset: Asset_ID | D_ASSET_IMAGE
   cropX?: number
   cropY?: number
   imageSmoothing?: boolean
@@ -61,6 +62,8 @@ export interface D_TEXT extends D_TEXT_BASE {
 
 export interface D_TEXT_BOX extends D_TEXT_BASE {
   type: "paragraph"
+  width: number
+  height: number
 }
 
 export type D_ELEMENT = D_SHAPE | D_IMAGE | D_TEXT | D_TEXT_BOX | D_FALSE_ELEMENT

@@ -1,4 +1,4 @@
-import { Point, Box } from "@canvas-2d/shared"
+import { Point, Box, Rotate } from "@canvas-2d/shared"
 
 export class ControlFrame {
   controlSize = 10
@@ -6,6 +6,8 @@ export class ControlFrame {
   boundingBox = new Box()
 
   angleCenterBox = new Box(0, 0, this.controlSize, this.controlSize)
+
+  angleCenterDragEnable: boolean = false
 
   get centerPoint() {
     return this.angleCenterBox.centerPoint
@@ -21,8 +23,24 @@ export class ControlFrame {
 
   eleFrame!: Box
 
+  constructor(rotate: Rotate, angleCenterDragEnable: boolean) {
+    if (angleCenterDragEnable) {
+      this.angleCenterDragEnable = angleCenterDragEnable
+      this.angleCenterBox.boxX = rotate.angleCenter.x
+      this.angleCenterBox.boxY = rotate.angleCenter.y
+    }
+  }
+
   render(ctx: CanvasRenderingContext2D, eleFrame: Box) {
     this.eleFrame = eleFrame
+    if (!this.angleCenterDragEnable) {
+      this.angleCenterBox = Box.fromPoint(
+        this.eleFrame.centerPoint,
+        this.controlSize,
+        this.controlSize
+      )
+    }
+
     this.updateBoundingBox(ctx)
     this.updateControlPoints(ctx)
   }
@@ -50,7 +68,7 @@ export class ControlFrame {
     }
     controlPoints[4].boxY = controlPoints[4].boxY - hStep - controlSize * 2
     controlPoints.forEach((box) => box.render(ctx, { fill: "red" }))
-    this.angleCenterBox.render(ctx, { fill: "blue" })
+    this.angleCenterBox.render(ctx, { fill: this.angleCenterDragEnable ? "blue" : "gray" })
   }
 
   // https://harmonyos.51cto.com/posts/89

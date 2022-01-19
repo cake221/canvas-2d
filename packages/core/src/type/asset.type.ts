@@ -1,6 +1,8 @@
+export type Asset_ID = number
+
 export interface D_ASSET_BASE {
   data: string
-  id: number
+  id?: Asset_ID
 }
 
 export interface D_ASSET_IMAGE extends D_ASSET_BASE {

@@ -3,6 +3,7 @@ import { CanvasBackGround, Box, RotateImp, Rotate } from "@canvas-2d/shared"
 import { CanvasTransform, BoxElement } from "../../../packages/canvas-transform/src"
 
 class Element implements BoxElement {
+  constructor(public angleCenterDragEnable: boolean = false) {}
   rotate: Rotate = new RotateImp()
   elementBox: Box = new Box(0, 0, 100, 200)
   updateElementBox = (box: Pick<Box, "boxX" | "boxHeight" | "boxWidth" | "boxY">) => {
@@ -12,6 +13,9 @@ class Element implements BoxElement {
     elementBox.boxY = boxY
     elementBox.boxWidth = boxWidth
     elementBox.boxHeight = boxHeight
+    if (!this.angleCenterDragEnable) {
+      this.rotate.angleCenter = elementBox.centerPoint
+    }
   }
   render = (ctx: CanvasRenderingContext2D) => {
     const { elementBox, rotate } = this
@@ -26,12 +30,14 @@ export function BoxTransform() {
   const eleRef = useRef<Element | null>(null)
 
   useEffect(() => {
-    eleRef.current = new Element()
+    const angleCenterDragEnable = true
+    eleRef.current = new Element(angleCenterDragEnable)
     new CanvasTransform({
       canvas: canvasRef.current!,
       width: 600,
       height: 600,
-      boxElement: eleRef.current!
+      boxElement: eleRef.current!,
+      angleCenterDragEnable
     })
     new CanvasBackGround({
       canvas: canvasBgRef.current!,

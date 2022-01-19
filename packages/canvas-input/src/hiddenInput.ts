@@ -5,12 +5,9 @@ const ctrlChars = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]
 export class HiddenInput {
   hiddenInput = document.createElement("textarea")
 
-  constructor() {
-    this.genInput()
-  }
-
-  genInput() {
+  constructor(text: string) {
     this.setStyle()
+    this.hiddenInput.value = text
   }
 
   isCtrlValue(value: string) {

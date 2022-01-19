@@ -1,5 +1,5 @@
 import { Box } from "@canvas-2d/shared"
-import { D_PATH_ELLIPSE } from "../type"
+import { D_PATH_ELLIPSE, OmitType } from "../type"
 
 import { Path, PathParam } from "./_path"
 
@@ -58,5 +58,9 @@ export class Ellipse extends Path implements D_PATH_ELLIPSE {
     this.radiusY = boxHeight / 2
     this.x = boxX - origin.x + this.radiusX
     this.y = boxY - origin.y + this.radiusY
+  }
+
+  fromJSON(json: OmitType<D_PATH_ELLIPSE>): void {
+    super.fromJSON(json)
   }
 }

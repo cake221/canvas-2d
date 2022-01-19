@@ -15,7 +15,8 @@ export const shapeJson: JSON_DATA = {
       fill: "yellow",
       stroke: "red",
       origin: {
-        x: 200
+        x: 200,
+        y: 200
       }
     },
     {
@@ -28,7 +29,7 @@ export const shapeJson: JSON_DATA = {
         height: 80
       },
       origin: {
-        x: 10,
+        x: 300,
         y: 10
       },
       fill: "yellow",
@@ -54,6 +55,10 @@ export const shapeJson: JSON_DATA = {
         type: "ellipse",
         radiusX: 50,
         radiusY: 100
+      },
+      origin: {
+        x: 50,
+        y: 300
       },
       fill: "red"
     },

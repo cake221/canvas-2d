@@ -6,7 +6,7 @@ export const imageJson: JSON_DATA = {
     {
       type: "asset_image",
       data: wrapStaticUrl("images/logo.png"),
-      id: 0
+      id: 4
     }
   ],
   layers: [
@@ -20,7 +20,7 @@ export const imageJson: JSON_DATA = {
       height: 200,
       fill: "yellow",
       stroke: "red",
-      assetId: 0
+      d_asset: 4
     }
   ],
   dpr: 3,

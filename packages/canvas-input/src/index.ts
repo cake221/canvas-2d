@@ -6,7 +6,7 @@ import {
   countTextBoxByTextMetrics,
   Point
 } from "@canvas-2d/shared"
-import { Paragraph, D_TEXT_BOX } from "@canvas-2d/core"
+import { Paragraph, Rotate } from "@canvas-2d/core"
 
 import {
   countCaretIndexByCoord,
@@ -19,36 +19,51 @@ import { HiddenInput } from "./hiddenInput"
 import { Caret } from "./caret"
 import { Selection } from "./selection"
 
-interface CanvasInputParam extends CanvasBaseParam {}
+interface CanvasInputParam extends CanvasBaseParam {
+  paragraph?: Paragraph
+  renderCallBack?: () => void
+  elementBlurCallback?: (ev: PointerEvent) => void
+}
 
 export interface OnValueHandle {
   (value: string): void
 }
 
-const text_box_json: D_TEXT_BOX = {
-  type: "paragraph",
-  text: "",
-  fill: "black"
-}
-
 export class CanvasInput extends CanvasBase {
-  origin = new Point(10, 10)
+  paragraph: Paragraph | null = null
 
-  paragraph: Paragraph = Paragraph.createObj(Paragraph, { ...text_box_json, origin: this.origin })
+  get origin() {
+    const { origin } = this.paragraph!
+    return new Point(origin.x, origin.y)
+  }
 
   get defaultBoxHeight() {
-    return this.paragraph.font.fontSize
+    return this.paragraph!.font.fontSize
   }
 
   get textLength() {
     return this.text.length
   }
 
-  hiddenInput: HiddenInput = new HiddenInput()
+  get text() {
+    return this.paragraph!.text
+  }
 
-  caret: Caret = new Caret(this.origin.x, this.origin.y, this.defaultBoxHeight)
+  set text(txt: string) {
+    this.paragraph!.text = txt
+  }
 
-  selection: Selection = new Selection()
+  get textChar() {
+    return genTextChar(this.text)
+  }
+
+  __debug = false
+
+  hiddenInput!: HiddenInput
+
+  caret!: Caret
+
+  selection!: Selection
 
   lenAfterCaret = 0 // 光标后面的字符
 
@@ -58,32 +73,47 @@ export class CanvasInput extends CanvasBase {
 
   caretTime?: NodeJS.Timeout
 
-  text: string = ""
-
-  __debug = false
-
-  get textChar() {
-    return genTextChar(this.text)
-  }
-
   textCharBox: TextBox[][] = [[]]
+
+  renderCallBack = () => {}
+
+  elementBlurCallback = (ev: PointerEvent) => {}
 
   constructor(param: CanvasInputParam) {
     super(param)
 
-    this.canvas.addEventListener("pointerdown", this.onPointerdown)
+    const { paragraph, renderCallBack, elementBlurCallback } = param
 
-    this.canvas.addEventListener("pointermove", this.onPointermove)
+    paragraph && this.setParagraph(paragraph)
 
-    this.canvas.addEventListener("pointerup", this.onPointerup)
+    renderCallBack && (this.renderCallBack = renderCallBack)
 
-    document.addEventListener("click", this.documentOnclick)
+    elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
+  }
+
+  setParagraph(paragraph: Paragraph) {
+    paragraph && (this.paragraph = paragraph)
+
+    this.caret = new Caret(this.origin.x, this.origin.y, this.defaultBoxHeight)
+
+    this.hiddenInput = new HiddenInput(this.text)
+
+    this.selection = new Selection()
 
     this.hiddenInput.onNewValue(this.onNewValue)
 
     this.hiddenInput.onKeydown(this.onKeydown)
 
-    this.preRender()
+    this.lenAfterCaret = 0
+
+    this.render()
+  }
+
+  removeParagraph() {
+    this.cancelCaretTwinkle()
+    this.hiddenInput.blur()
+    this.paragraph = null
+    this.clear()
   }
 
   cancelCaretTwinkle() {
@@ -99,16 +129,18 @@ export class CanvasInput extends CanvasBase {
     }, 1500)
   }
 
-  documentOnclick = () => {
-    this.submit()
-    this.hiddenInput.blur()
-  }
+  onPointerdown(ev: PointerEvent) {
+    super.onPointerdown(ev)
+    if (!this.paragraph) return
+    const { textCharBox, paragraph } = this
+    const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
+    if (!paragraph.elementBox.isPointInFrame(p, paragraph.rotate)) {
+      this.submit(ev)
+      return
+    }
 
-  onPointerdown = (ev: PointerEvent) => {
-    const { textCharBox } = this
     this.startCaretTwinkle()
     this.selection.active = true
-    const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
     const caret = countCaretByPoint(textCharBox, p, this.origin)
     this.lenBeforeCaretStart = caret.index
     this.lenBeforeCaretEnd = caret.index
@@ -116,7 +148,9 @@ export class CanvasInput extends CanvasBase {
     this.render()
   }
 
-  onPointermove = (ev: PointerEvent) => {
+  onPointermove(ev: PointerEvent) {
+    super.onPointermove(ev)
+    if (!this.paragraph) return
     const { textCharBox } = this
 
     if (!this.selection.active) return
@@ -128,7 +162,9 @@ export class CanvasInput extends CanvasBase {
     this.renderStatic()
   }
 
-  onPointerup = () => {
+  onPointerup(ev: PointerEvent) {
+    super.onPointerup(ev)
+    if (!this.paragraph) return
     this.selection.active = false
     this.hiddenInput.focus()
   }
@@ -150,16 +186,9 @@ export class CanvasInput extends CanvasBase {
     }
   }
 
-  preRender() {
-    this.setBackground("white")
-  }
-
-  submit() {
-    this.caret.clear(this.ctx)
-    if (!this.text) return
-    console.log("数据提交", this.text)
-    this.text = ""
-    this.lenAfterCaret = 0
+  submit(ev: PointerEvent) {
+    this.elementBlurCallback(ev)
+    if (!this.paragraph) return
     this.render()
   }
 
@@ -263,6 +292,7 @@ export class CanvasInput extends CanvasBase {
 
   countTextBox() {
     const { ctx, textChar, origin, defaultBoxHeight } = this
+    if (!this.paragraph) return
     let { x, y } = origin
     const textCharBox = []
     ctx.save()
@@ -298,8 +328,18 @@ export class CanvasInput extends CanvasBase {
 
   renderContent() {
     const { ctx, text, paragraph } = this
+    if (!paragraph) return
     paragraph.text = text
+    paragraph.elementBox.render(ctx, {
+      stroke: "red",
+      fill: "white"
+    })
+    // 去除旋转坐标系影响
+    const rotate = paragraph.rotate
+    paragraph.rotate = new Rotate()
     paragraph.render(ctx)
+    paragraph.rotate = rotate
+    this.hiddenInput.hiddenInput.value = this.text
   }
 
   updateSelection() {
@@ -315,7 +355,6 @@ export class CanvasInput extends CanvasBase {
 
   renderStatic() {
     this.clear()
-    this.preRender()
     this.renderContent()
     this.countTextBox()
     this.updateSelection()
@@ -324,5 +363,6 @@ export class CanvasInput extends CanvasBase {
   render() {
     this.renderStatic()
     this.updateCaretByAfterIndex()
+    this.renderCallBack()
   }
 }

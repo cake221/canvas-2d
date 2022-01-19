@@ -1,11 +1,26 @@
 import React, { useEffect, useRef, useState } from "react"
 import { CanvasInput } from "@canvas-2d/canvas-input"
+import { Paragraph } from "@canvas-2d/core/src"
+
+const p = new Paragraph()
+
+p.fromJSON({
+  text: "123",
+  font: {},
+  origin: {
+    x: 10,
+    y: 10
+  },
+  fill: "black",
+  width: 200,
+  height: 200
+})
 
 export default function CanvasJson() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    new CanvasInput({ canvas: canvasRef.current!, width: 600, height: 600 })
+    new CanvasInput({ canvas: canvasRef.current!, width: 600, height: 600, paragraph: p })
   }, [])
 
   return (

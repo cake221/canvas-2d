@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from "react"
 import { CanvasBackGround } from "@canvas-2d/shared"
-import { Shape, D_SHAPE } from "@canvas-2d/core"
+import { Shape, D_SHAPE, D_IMAGE, Image } from "@canvas-2d/core"
 import { CanvasTransform } from "../../packages/canvas-transform/src"
+import { wrapStaticUrl } from "../shared"
 
 const d_shape: D_SHAPE = {
   type: "shape",
@@ -22,18 +23,32 @@ const d_shape: D_SHAPE = {
     x: 300,
     y: 300
   },
-  fill: "yellow",
-  stroke: "red"
+  fill: "yellow"
 }
 
 const shape = Shape.createObj(Shape, d_shape) as Shape
+
+const imageData: D_IMAGE = {
+  type: "image",
+  d_asset: {
+    type: "asset_image",
+    data: wrapStaticUrl("images/logo.png"),
+    id: 1
+  },
+  width: 200,
+  height: 200
+}
+
+const image = Image.createObj(Image, imageData) as Image
+
+await image.load()
 
 export default function CanvasJson() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasBgRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    new CanvasTransform({ canvas: canvasRef.current!, width: 600, height: 600, boxElement: shape })
+    new CanvasTransform({ canvas: canvasRef.current!, width: 600, height: 600, boxElement: image })
     new CanvasBackGround({
       canvas: canvasBgRef.current!,
       width: 600,

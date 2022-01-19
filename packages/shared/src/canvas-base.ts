@@ -5,6 +5,7 @@ export interface CanvasBaseParam {
   height?: number
   dpr?: number
   canvas?: HTMLCanvasElement
+  dblclickDelay?: number
 }
 
 export class CanvasBase {
@@ -16,6 +17,8 @@ export class CanvasBase {
    * devicePixelRatio 设备像素 / css 像素
    */
   dpr = 1
+
+  active = false
 
   setDpr() {
     const { dpr, width, height, ctx } = this
@@ -51,7 +54,8 @@ export class CanvasBase {
     return this.canvas.toDataURL("image/png")
   }
 
-  constructor({ dpr, width, height, canvas }: CanvasBaseParam) {
+  constructor(params: CanvasBaseParam) {
+    const { dpr, width, height, canvas, dblclickDelay } = params
     if (canvas) {
       this.canvas = canvas
     } else {
@@ -61,15 +65,73 @@ export class CanvasBase {
     if (!this.ctx) {
       throw new Error("没有 ctx")
     }
-    dpr && (this.dpr = dpr)
-    width && (this.width = width)
-    height && (this.height = height)
 
-    this.canvas.addEventListener("click", (ev) => {
-      ev.stopPropagation()
-      ev.preventDefault()
-      this.onPoint(this.dom2CanvasPoint(ev.pageX, ev.pageY))
-    })
+    dpr && (this.dpr = dpr)
+
+    if (width) {
+      this.width = width
+    } else {
+      this._width = Number(this.canvas.getAttribute("width"))
+    }
+
+    if (height) {
+      this.height = height
+    } else {
+      this._height = Number(this.canvas.getAttribute("height"))
+    }
+
+    dblclickDelay && (this.dblclickDelay = dblclickDelay)
+
+    this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
+    this.canvas.addEventListener("pointermove", this.baseOnPointermove)
+    this.canvas.addEventListener("pointerup", this.baseOnPointerup)
+  }
+
+  baseOnPointerup = (ev: PointerEvent) => this.onPointerup(ev)
+  baseOnPointerdown = (ev: PointerEvent) => this.onPointerdown(ev)
+  baseOnPointermove = (ev: PointerEvent) => this.onPointermove(ev)
+
+  destroy() {
+    const { canvas } = this
+    canvas.removeEventListener("pointerdown", this.baseOnPointerdown)
+    canvas.removeEventListener("pointermove", this.baseOnPointermove)
+    canvas.removeEventListener("pointerup", this.baseOnPointerup)
+  }
+
+  private lastClickTime = 0
+
+  cancelDblclickEffect() {
+    this.lastClickTime = 0
+  }
+
+  dblclickDelay = 300
+
+  dblclickCallback(ev: PointerEvent) {}
+
+  onPointerdown(ev: PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
+    this.active = true
+
+    const time = Date.now()
+    if (time - this.lastClickTime < this.dblclickDelay) {
+      this.dblclickCallback(ev)
+    }
+    this.lastClickTime = time
+  }
+
+  onPointermove(ev: PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
+    const p = this.dom2CanvasPoint(ev.x, ev.y)
+    if (p.x <= 0 || p.y <= 0) {
+      this.active = false
+    }
+  }
+
+  onPointerup(ev: PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
   }
 
   dom2CanvasPoint(pageX: number, pageY: number) {

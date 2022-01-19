@@ -89,3 +89,24 @@ export function addTextLineBox(textLineBoxs: TextBox[]): TextBox {
     boxHeight
   })
 }
+
+export function updateText(textLine: string[], ctx: CanvasRenderingContext2D, maxWidth: number) {
+  for (let i = 0; i < textLine.length; i++) {
+    const line = textLine[i]
+    const { width } = ctx.measureText(line)
+    if (width > maxWidth) {
+      let newLine = ""
+      for (let j = 0; j < line.length; j++) {
+        if (line[j] === "\n") continue
+        newLine += line[j]
+        const { width } = ctx.measureText(newLine + (line[j + 1] || "") + "\n")
+        if (width > maxWidth) {
+          textLine.splice(i, 0, newLine + "\n")
+          textLine[i + 1] = line.slice(j + 1)
+          i++
+          newLine = ""
+        }
+      }
+    }
+  }
+}

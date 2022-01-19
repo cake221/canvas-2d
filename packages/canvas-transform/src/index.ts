@@ -18,7 +18,10 @@ interface ControlELement {
 }
 
 interface CanvasTransformParam extends CanvasBaseParam {
-  boxElement: BoxElement
+  boxElement?: BoxElement
+  renderCallBack?: () => void
+  elementBlurCallback?: (ev: PointerEvent, isDblclick: boolean) => void
+  angleCenterDragEnable?: boolean
 }
 
 enum CONTROL_ACTION {
@@ -40,31 +43,66 @@ export class CanvasTransform extends CanvasBase {
 
   pBaseTrans = new Point(0, 0)
 
-  controlElement!: ControlELement
+  controlElement: ControlELement | null = null
 
   resizeIndex = 0
+
+  angleCenterDragEnable: boolean = false
+
+  renderCallBack = () => {}
+
+  elementBlurCallback = (ev: PointerEvent, isDblclick: boolean) => {}
 
   constructor(params: CanvasTransformParam) {
     super(params)
 
-    const { boxElement } = params
+    const { boxElement, renderCallBack, elementBlurCallback, angleCenterDragEnable } = params
 
+    angleCenterDragEnable && (this.angleCenterDragEnable = angleCenterDragEnable)
+
+    renderCallBack && (this.renderCallBack = renderCallBack)
+
+    elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
+
+    boxElement && this.setBoxElement(boxElement)
+  }
+
+  destroy() {
+    super.destroy()
+    this.removeBoxElement()
+  }
+
+  setBoxElement(boxElement: BoxElement) {
     this.controlElement = {
       boxElement,
-      controlFrame: new ControlFrame()
+      controlFrame: new ControlFrame(boxElement.rotate, this.angleCenterDragEnable)
     }
-
-    this.canvas.addEventListener("pointerdown", this.onPointerdown)
-
-    this.canvas.addEventListener("pointermove", this.onPointermove)
-
-    this.canvas.addEventListener("pointerup", this.onPointerup)
 
     this.init()
   }
 
-  onPointerdown = (ev: PointerEvent) => {
+  removeBoxElement() {
+    this.controlElement = null
+    this.cancelDblclickEffect()
+    this.clear()
+  }
+
+  dblclickCallback(ev: PointerEvent) {
     const { controlElement } = this
+    if (!controlElement) return
+
+    // FIXME: 去掉 type
+    // @ts-ignore
+    if (controlElement.boxElement.type === "paragraph") {
+      this.elementBlurCallback(ev, true)
+    }
+  }
+
+  onPointerdown(ev: PointerEvent) {
+    super.onPointerdown(ev)
+    const { controlElement } = this
+    if (!controlElement) return
+
     const {
       boxElement: { rotate }
     } = controlElement
@@ -73,15 +111,16 @@ export class CanvasTransform extends CanvasBase {
     this.pBaseTrans = p.countPointBaseRotate(rotate)
     this.firstP = p
     this.firstPBaseTrans = this.pBaseTrans
-    this.countControlAction()
+    this.countControlAction(ev)
   }
 
-  countControlAction() {
-    const { pBaseTrans, p, controlElement } = this
+  countControlAction(ev: PointerEvent) {
+    const { pBaseTrans, p, controlElement, angleCenterDragEnable } = this
+    if (!controlElement) return
     const { controlFrame } = controlElement
     const { boundingBox, rotateControl, controlPoints, angleCenterBox } = controlFrame
 
-    if (angleCenterBox.isPointInFrame(p)) {
+    if (angleCenterDragEnable && angleCenterBox.isPointInFrame(p)) {
       this.controlAction = CONTROL_ACTION.angleCenterDrag
       return
     }
@@ -103,15 +142,18 @@ export class CanvasTransform extends CanvasBase {
       this.controlAction = CONTROL_ACTION.Drag
       return
     }
+
+    this.elementBlurCallback(ev, false)
   }
 
-  onPointermove = (ev: PointerEvent) => {
-    const { controlAction, p, pBaseTrans, controlElement } = this
+  onPointermove(ev: PointerEvent) {
+    super.onPointermove(ev)
+    const { controlAction, p, pBaseTrans, controlElement, angleCenterDragEnable } = this
+    if (this.controlAction === CONTROL_ACTION.None || !controlElement) return
     const { controlFrame, boxElement } = controlElement
     const { rotate, elementBox } = boxElement
     const { boxX, boxY, boxWidth, boxHeight } = elementBox
 
-    if (controlAction === CONTROL_ACTION.None) return
     const nextPoint = this.dom2CanvasPoint(ev.x, ev.y)
     const nextPointOnTrans = nextPoint.countPointBaseRotate(rotate)
     const xGap = nextPointOnTrans.x - pBaseTrans.x
@@ -148,7 +190,7 @@ export class CanvasTransform extends CanvasBase {
       ) {
         boxElement.updateElementBox({ ...elementBox, ...newBox })
       }
-    } else if (this.controlAction === CONTROL_ACTION.angleCenterDrag) {
+    } else if (angleCenterDragEnable && this.controlAction === CONTROL_ACTION.angleCenterDrag) {
       controlFrame.angleCenterBox.boxX = nextPoint.x
       controlFrame.angleCenterBox.boxY = nextPoint.y
 
@@ -160,8 +202,9 @@ export class CanvasTransform extends CanvasBase {
     this.pBaseTrans = nextPointOnTrans
   }
 
-  onPointerup = () => {
-    if (this.controlAction === CONTROL_ACTION.None) return
+  onPointerup(ev: PointerEvent) {
+    super.onPointerup(ev)
+    if (this.controlAction === CONTROL_ACTION.None || !this.controlElement) return
     this.renderElement()
     this.controlAction = CONTROL_ACTION.None
   }
@@ -172,12 +215,14 @@ export class CanvasTransform extends CanvasBase {
 
   renderElement() {
     const { ctx, controlElement } = this
+    if (!controlElement) return
     const { boxElement, controlFrame } = controlElement
     ctx.save()
     this.clear()
     boxElement.render(ctx)
     boxElement.renderBefore && boxElement.renderBefore(ctx)
     controlFrame.render(ctx, boxElement.elementBox)
+    this.renderCallBack()
     ctx.restore()
   }
 }
