@@ -104,6 +104,8 @@ export class CanvasInput extends CanvasBase {
 
     this.hiddenInput.onKeydown(this.onKeydown)
 
+    this.lenAfterCaret = 0
+
     this.render()
   }
 

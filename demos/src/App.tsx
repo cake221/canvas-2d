@@ -9,7 +9,7 @@ import CanvasEditor from "./canvas-editor"
 const { SubMenu } = Menu
 
 export default function App() {
-  const [module, setModule] = useState("canvas-shared:box-transform")
+  const [module, setModule] = useState("canvas-editor")
   const [subModule, setSubModule] = useState("")
 
   const handleClick = useCallback((e) => {
@@ -52,7 +52,7 @@ export default function App() {
           <Menu.Item key="canvas-shared:point-transform">点变换</Menu.Item>
           <Menu.Item key="canvas-shared:box-transform">box 变换</Menu.Item>
         </SubMenu>
-        <Menu.Item key="canvas-editor">图片编辑</Menu.Item>
+        <Menu.Item key="canvas-editor">编辑器</Menu.Item>
       </Menu>
       <div
         style={{
