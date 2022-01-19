@@ -22,7 +22,7 @@ import { Selection } from "./selection"
 interface CanvasInputParam extends CanvasBaseParam {
   paragraph?: Paragraph
   renderCallBack?: () => void
-  elementBlurCallback?: () => void
+  elementBlurCallback?: (ev: PointerEvent) => void
 }
 
 export interface OnValueHandle {
@@ -77,7 +77,7 @@ export class CanvasInput extends CanvasBase {
 
   renderCallBack = () => {}
 
-  elementBlurCallback = () => {}
+  elementBlurCallback = (ev: PointerEvent) => {}
 
   constructor(param: CanvasInputParam) {
     super(param)
@@ -133,7 +133,7 @@ export class CanvasInput extends CanvasBase {
     const { textCharBox, paragraph } = this
     const p = this.dom2CanvasPoint(ev.pageX, ev.pageY)
     if (!paragraph.elementBox.isPointInFrame(p, paragraph.rotate)) {
-      this.submit()
+      this.submit(ev)
       return
     }
 
@@ -184,8 +184,8 @@ export class CanvasInput extends CanvasBase {
     }
   }
 
-  submit() {
-    this.elementBlurCallback()
+  submit(ev: PointerEvent) {
+    this.elementBlurCallback(ev)
     if (!this.paragraph) return
     this.render()
   }

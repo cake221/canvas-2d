@@ -28,12 +28,13 @@ export class CanvasEditor extends CanvasJSON {
 
     this.canvasTransform = new CanvasTransform({
       canvas: dynamicCanvas,
-      elementBlurCallback: (ev: PointerEvent) => this.transElementBlurCallback(ev)
+      elementBlurCallback: (ev: PointerEvent, isDblclick: boolean) =>
+        this.transElementBlurCallback(ev, isDblclick)
     })
 
     this.canvasInput = new CanvasInput({
       canvas: dynamicCanvas,
-      elementBlurCallback: () => this.inputCanvasBlurCallback()
+      elementBlurCallback: (ev: PointerEvent) => this.inputCanvasBlurCallback(ev)
     })
 
     this.createCanvas(container)
@@ -79,22 +80,20 @@ export class CanvasEditor extends CanvasJSON {
     const { canvasInput } = this
     if (canvasInput.paragraph) return
 
-    this.canvasInput.setParagraph(ele)
     this.transformCanvasBlur()
 
+    this.canvasInput.setParagraph(ele)
     this.updateFocusCanvas(true)
-
-    this.canvasInput.onPointerdown(ev)
-
     this.disappearElement(ele)
   }
 
-  inputCanvasBlurCallback() {
+  inputCanvasBlurCallback(ev: PointerEvent) {
     const { canvasInput } = this
     if (!canvasInput.paragraph) return
     this.appearElement(canvasInput.paragraph)
     this.canvasInput.removeParagraph()
     this.updateFocusCanvas(false)
+    this.onPointerdown(ev)
   }
 
   transformCanvasActive(ele: Element, ev: PointerEvent) {
@@ -102,22 +101,22 @@ export class CanvasEditor extends CanvasJSON {
     if (canvasTransform.controlElement) return
     canvasTransform.setBoxElement(ele)
     this.updateFocusCanvas(true)
-
     this.canvasTransform.onPointerdown(ev)
-
     this.disappearElement(ele)
   }
 
   transformCanvasBlur() {
     const { canvasTransform } = this
     if (!canvasTransform.controlElement) return
+
     this.appearElement(canvasTransform.controlElement.boxElement as Element)
     canvasTransform.removeBoxElement()
     this.updateFocusCanvas(false)
   }
 
-  transElementBlurCallback = (ev: PointerEvent) => {
+  transElementBlurCallback = (ev: PointerEvent, isDblclick: boolean) => {
     this.transformCanvasBlur()
+    this.isDblclick = isDblclick
     this.onPointerdown(ev)
   }
 

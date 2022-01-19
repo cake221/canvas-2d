@@ -20,7 +20,7 @@ interface ControlELement {
 interface CanvasTransformParam extends CanvasBaseParam {
   boxElement?: BoxElement
   renderCallBack?: () => void
-  elementBlurCallback?: (ev: PointerEvent) => void
+  elementBlurCallback?: (ev: PointerEvent, isDblclick: boolean) => void
 }
 
 enum CONTROL_ACTION {
@@ -48,7 +48,7 @@ export class CanvasTransform extends CanvasBase {
 
   renderCallBack = () => {}
 
-  elementBlurCallback = (ev: PointerEvent) => {}
+  elementBlurCallback = (ev: PointerEvent, isDblclick: boolean) => {}
 
   constructor(params: CanvasTransformParam) {
     super(params)
@@ -78,16 +78,18 @@ export class CanvasTransform extends CanvasBase {
 
   removeBoxElement() {
     this.controlElement = null
+    this.cancelDblclickEffect()
     this.clear()
   }
 
   dblclickCallback(ev: PointerEvent) {
     const { controlElement } = this
     if (!controlElement) return
+
     // FIXME: 去掉 type
     // @ts-ignore
     if (controlElement.boxElement.type === "paragraph") {
-      this.elementBlurCallback(ev)
+      this.elementBlurCallback(ev, true)
     }
   }
 
@@ -95,6 +97,7 @@ export class CanvasTransform extends CanvasBase {
     super.onPointerdown(ev)
     const { controlElement } = this
     if (!controlElement) return
+
     const {
       boxElement: { rotate }
     } = controlElement
@@ -135,7 +138,7 @@ export class CanvasTransform extends CanvasBase {
       return
     }
 
-    this.elementBlurCallback(ev)
+    this.elementBlurCallback(ev, false)
   }
 
   onPointermove(ev: PointerEvent) {
