@@ -9,7 +9,7 @@ import CanvasEditor from "./canvas-editor"
 const { SubMenu } = Menu
 
 export default function App() {
-  const [module, setModule] = useState("canvas-editor")
+  const [module, setModule] = useState("canvas-shared:box-transform")
   const [subModule, setSubModule] = useState("")
 
   const handleClick = useCallback((e) => {

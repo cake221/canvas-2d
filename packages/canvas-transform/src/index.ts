@@ -21,11 +21,13 @@ interface CanvasTransformParam extends CanvasBaseParam {
   boxElement?: BoxElement
   renderCallBack?: () => void
   elementBlurCallback?: (ev: PointerEvent, isDblclick: boolean) => void
+  angleCenterDragEnable?: boolean
 }
 
 enum CONTROL_ACTION {
   None,
   Drag,
+  angleCenterDrag,
   Rotate,
   Resize
 }
@@ -45,6 +47,8 @@ export class CanvasTransform extends CanvasBase {
 
   resizeIndex = 0
 
+  angleCenterDragEnable: boolean = false
+
   renderCallBack = () => {}
 
   elementBlurCallback = (ev: PointerEvent, isDblclick: boolean) => {}
@@ -52,13 +56,15 @@ export class CanvasTransform extends CanvasBase {
   constructor(params: CanvasTransformParam) {
     super(params)
 
-    const { boxElement, renderCallBack, elementBlurCallback } = params
+    const { boxElement, renderCallBack, elementBlurCallback, angleCenterDragEnable } = params
 
-    boxElement && this.setBoxElement(boxElement)
+    angleCenterDragEnable && (this.angleCenterDragEnable = angleCenterDragEnable)
 
     renderCallBack && (this.renderCallBack = renderCallBack)
 
     elementBlurCallback && (this.elementBlurCallback = elementBlurCallback)
+
+    boxElement && this.setBoxElement(boxElement)
   }
 
   destroy() {
@@ -69,7 +75,7 @@ export class CanvasTransform extends CanvasBase {
   setBoxElement(boxElement: BoxElement) {
     this.controlElement = {
       boxElement,
-      controlFrame: new ControlFrame()
+      controlFrame: new ControlFrame(boxElement.rotate, this.angleCenterDragEnable)
     }
 
     this.init()
@@ -109,10 +115,15 @@ export class CanvasTransform extends CanvasBase {
   }
 
   countControlAction(ev: PointerEvent) {
-    const { pBaseTrans, p, controlElement } = this
+    const { pBaseTrans, p, controlElement, angleCenterDragEnable } = this
     if (!controlElement) return
     const { controlFrame } = controlElement
     const { boundingBox, rotateControl, controlPoints, angleCenterBox } = controlFrame
+
+    if (angleCenterDragEnable && angleCenterBox.isPointInFrame(p)) {
+      this.controlAction = CONTROL_ACTION.angleCenterDrag
+      return
+    }
 
     if (rotateControl.isPointInFrame(pBaseTrans)) {
       this.controlAction = CONTROL_ACTION.Rotate
@@ -137,7 +148,7 @@ export class CanvasTransform extends CanvasBase {
 
   onPointermove(ev: PointerEvent) {
     super.onPointermove(ev)
-    const { controlAction, p, pBaseTrans, controlElement } = this
+    const { controlAction, p, pBaseTrans, controlElement, angleCenterDragEnable } = this
     if (this.controlAction === CONTROL_ACTION.None || !controlElement) return
     const { controlFrame, boxElement } = controlElement
     const { rotate, elementBox } = boxElement
@@ -179,6 +190,11 @@ export class CanvasTransform extends CanvasBase {
       ) {
         boxElement.updateElementBox({ ...elementBox, ...newBox })
       }
+    } else if (angleCenterDragEnable && this.controlAction === CONTROL_ACTION.angleCenterDrag) {
+      controlFrame.angleCenterBox.boxX = nextPoint.x
+      controlFrame.angleCenterBox.boxY = nextPoint.y
+
+      rotate.angleCenter = controlFrame.centerPoint.countPointBaseRotate(rotate)
     }
 
     this.renderElement()
