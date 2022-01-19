@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef } from "react"
 import { CanvasEditor, JSON_DATA } from "./editor"
+import { wrapStaticUrl } from "../shared"
 
 const data: JSON_DATA = {
   width: 600,
@@ -58,8 +59,18 @@ const data: JSON_DATA = {
       fill: "black",
       width: 200,
       height: 200
+    },
+    {
+      type: "image",
+      d_asset: {
+        type: "asset_image",
+        data: wrapStaticUrl("images/logo.png")
+      },
+      width: 200,
+      height: 200
     }
-  ]
+  ],
+  dpr: 1
 }
 
 interface ReactProps {}

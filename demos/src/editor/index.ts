@@ -125,7 +125,7 @@ export class CanvasEditor extends CanvasJSON {
     this.render()
   }
 
-  createCanvas(container: HTMLElement) {
+  async createCanvas(container: HTMLElement) {
     const { canvas, dynamicCanvas, width, height } = this
     container.innerHTML = ""
     if (width) {
@@ -160,7 +160,7 @@ export class CanvasEditor extends CanvasJSON {
     container.appendChild(canvas)
     container.appendChild(dynamicCanvas)
     // TODO: 放在 对象 初始化 时
-    this.loadElements()
+    await this.loadElements()
     this.render()
   }
 }
