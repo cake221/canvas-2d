@@ -1,4 +1,4 @@
-import { Point, Rotate as RotateType } from "@canvas-2d/shared"
+import { Point, Rotate as RotateType, Box } from "@canvas-2d/shared"
 
 import { Attribute } from "./_attr"
 import { D_ROTATE, OmitType } from "../type"
@@ -6,19 +6,22 @@ import { D_ROTATE, OmitType } from "../type"
 export class Rotate extends Attribute implements D_ROTATE, RotateType {
   public type: string = "attr_rotate"
 
-  public ATTRIBUTE_NAMES: (keyof D_ROTATE)[] = ["angleCenterX", "angleCenterY", "angle"]
+  public ATTRIBUTE_NAMES: (keyof D_ROTATE)[] = ["angle"]
 
   angle: number = 0
-  // TODO: angleCenter 默认为空
-  angleCenter: Point = Point.Zero()
 
-  setAngleCenter(p: Point) {
-    this.angleCenter = p.clone()
+  get angleCenter(): Point {
+    if (this.elementBox) {
+      return this.elementBox.centerPoint
+    }
+    return Point.Zero()
   }
+
+  elementBox?: Box
 
   // 一个元素，只能有一次变换
   takeEffect(ctx: CanvasRenderingContext2D): void {
-    const { angle = 0, angleCenter = Point.Zero() } = this
+    const { angle = 0, angleCenter } = this
     const { x, y } = angleCenter
 
     if (angle) {

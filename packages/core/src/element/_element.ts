@@ -94,6 +94,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   renderAfter(ctx: CanvasRenderingContext2D) {
     this.countElementBox(ctx)
+    this.rotate.elementBox = this.elementBox
     this.renderCoord(ctx)
   }
 

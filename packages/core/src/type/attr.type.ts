@@ -6,8 +6,6 @@ import { D_ASSET_IMAGE, Asset_ID } from "./asset.type"
 export interface D_ATTR_BASE {}
 
 export interface D_ROTATE {
-  angleCenterX?: number
-  angleCenterY?: number
   angle?: number
 }
 

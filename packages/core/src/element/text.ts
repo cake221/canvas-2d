@@ -200,7 +200,6 @@ export class Paragraph extends TextBase implements D_TEXT_BOX {
   countTextBox(ctx: CanvasRenderingContext2D) {
     const { textLine, origin, textLineBox } = this
     let { x, y } = origin
-    let textHeight
     for (let i = 0; i < textLine.length; i++) {
       const measure = ctx.measureText(textLine[i])
       const box = countTextBoxByTextMetrics(

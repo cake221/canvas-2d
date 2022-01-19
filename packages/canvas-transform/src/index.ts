@@ -26,7 +26,6 @@ interface CanvasTransformParam extends CanvasBaseParam {
 enum CONTROL_ACTION {
   None,
   Drag,
-  angleCenterDrag,
   Rotate,
   Resize
 }
@@ -70,7 +69,7 @@ export class CanvasTransform extends CanvasBase {
   setBoxElement(boxElement: BoxElement) {
     this.controlElement = {
       boxElement,
-      controlFrame: new ControlFrame(boxElement.rotate)
+      controlFrame: new ControlFrame()
     }
 
     this.init()
@@ -114,11 +113,6 @@ export class CanvasTransform extends CanvasBase {
     if (!controlElement) return
     const { controlFrame } = controlElement
     const { boundingBox, rotateControl, controlPoints, angleCenterBox } = controlFrame
-
-    if (angleCenterBox.isPointInFrame(p)) {
-      this.controlAction = CONTROL_ACTION.angleCenterDrag
-      return
-    }
 
     if (rotateControl.isPointInFrame(pBaseTrans)) {
       this.controlAction = CONTROL_ACTION.Rotate
@@ -185,11 +179,6 @@ export class CanvasTransform extends CanvasBase {
       ) {
         boxElement.updateElementBox({ ...elementBox, ...newBox })
       }
-    } else if (this.controlAction === CONTROL_ACTION.angleCenterDrag) {
-      controlFrame.angleCenterBox.boxX = nextPoint.x
-      controlFrame.angleCenterBox.boxY = nextPoint.y
-
-      rotate.angleCenter = controlFrame.centerPoint.countPointBaseRotate(rotate)
     }
 
     this.renderElement()

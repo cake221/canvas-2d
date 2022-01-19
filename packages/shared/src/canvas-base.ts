@@ -100,7 +100,11 @@ export class CanvasBase {
 
   private lastClickTime = 0
 
-  dblclickDelay = 100
+  cancelDblclickEffect() {
+    this.lastClickTime = 0
+  }
+
+  dblclickDelay = 300
 
   dblclickCallback(ev: PointerEvent) {}
 
