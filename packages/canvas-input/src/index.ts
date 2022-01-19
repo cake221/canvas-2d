@@ -6,7 +6,7 @@ import {
   countTextBoxByTextMetrics,
   Point
 } from "@canvas-2d/shared"
-import { Paragraph } from "@canvas-2d/core"
+import { Paragraph, Rotate } from "@canvas-2d/core"
 
 import {
   countCaretIndexByCoord,
@@ -332,7 +332,11 @@ export class CanvasInput extends CanvasBase {
       stroke: "red",
       fill: "white"
     })
+    // 去除旋转坐标系影响
+    const rotate = paragraph.rotate
+    paragraph.rotate = new Rotate()
     paragraph.render(ctx)
+    paragraph.rotate = rotate
     this.hiddenInput.hiddenInput.value = this.text
   }
 
