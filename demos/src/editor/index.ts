@@ -128,14 +128,14 @@ export class CanvasEditor extends CanvasJSON {
     const { canvas, dynamicCanvas, width, height } = this
     container.innerHTML = ""
     if (width) {
-      canvas.width = width
       dynamicCanvas.width = width
       container.style.width = width + "px"
+      dynamicCanvas.style.width = width + "px"
     }
     if (height) {
-      canvas.height = height
       dynamicCanvas.height = height
       container.style.height = height + "px"
+      dynamicCanvas.style.height = height + "px"
     }
 
     {

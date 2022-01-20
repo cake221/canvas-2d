@@ -19,12 +19,45 @@ export class CanvasJSON extends CanvasBase {
 
   constructor(public json: JSON_DATA) {
     super(json)
-    const { assets, layers } = json
+    const { assets, layers, dpr } = json
     if (!this.ctx) {
       throw new Error("绘制有问题")
     }
     assets && (this.assetsData = assets)
     layers && (this.layersData = layers)
+
+    dpr && (this.dpr = dpr)
+
+    this.setJsonCanvas()
+  }
+
+  /**
+   * devicePixelRatio 设备像素 / css 像素
+   */
+  dpr = 1
+
+  setDpr() {
+    const { dpr, ctx } = this
+    ctx.setTransform(1, 0, 0, 1, 0, 0) // scale 前先恢复变换矩阵，不然会重复 scale
+    ctx.scale(dpr, dpr)
+  }
+
+  get widthDpr() {
+    return this.width * this.dpr
+  }
+
+  get heightDpr() {
+    return this.height * this.dpr
+  }
+
+  setJsonCanvas() {
+    const { canvas, width, height } = this
+
+    canvas.width = this.widthDpr
+    canvas.height = this.heightDpr
+
+    canvas.style.width = width + "px"
+    canvas.style.height = height + "px"
   }
 
   disappearElement(ele: Element) {
@@ -37,9 +70,15 @@ export class CanvasJSON extends CanvasBase {
     this.render()
   }
 
+  clear() {
+    const { ctx } = this
+    ctx.clearRect(0, 0, this.widthDpr, this.heightDpr)
+  }
+
   render() {
     const { ctx, elements, dpr } = this
-    ctx.clearRect(0, 0, this.width, this.height)
+    this.clear()
+    ctx.save()
     if (dpr > 0 && dpr !== 1) this.setDpr()
     for (const ele of elements) {
       if (!ele.visible) continue
@@ -47,6 +86,7 @@ export class CanvasJSON extends CanvasBase {
       ele.render(ctx)
       ctx.restore()
     }
+    ctx.restore()
   }
 
   async loadAssets() {

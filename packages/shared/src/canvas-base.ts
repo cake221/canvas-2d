@@ -3,7 +3,6 @@ import { Point } from "./point"
 export interface CanvasBaseParam {
   width?: number
   height?: number
-  dpr?: number
   canvas?: HTMLCanvasElement
   dblclickDelay?: number
 }
@@ -13,20 +12,7 @@ export class CanvasBase {
 
   ctx!: CanvasRenderingContext2D
 
-  /**
-   * devicePixelRatio 设备像素 / css 像素
-   */
-  dpr = 1
-
   active = false
-
-  setDpr() {
-    const { dpr, width, height, ctx } = this
-    this.width = dpr * width
-    this.height = dpr * height
-    ctx.setTransform(1, 0, 0, 1, 0, 0) // scale 前先恢复变换矩阵，不然会重复 scale
-    ctx.scale(dpr, dpr)
-  }
 
   _height = 150
 
@@ -55,7 +41,7 @@ export class CanvasBase {
   }
 
   constructor(params: CanvasBaseParam) {
-    const { dpr, width, height, canvas, dblclickDelay } = params
+    const { width, height, canvas, dblclickDelay } = params
     if (canvas) {
       this.canvas = canvas
     } else {
@@ -65,8 +51,6 @@ export class CanvasBase {
     if (!this.ctx) {
       throw new Error("没有 ctx")
     }
-
-    dpr && (this.dpr = dpr)
 
     if (width) {
       this.width = width
