@@ -70,7 +70,7 @@ const data: JSON_DATA = {
       height: 200
     }
   ],
-  dpr: 1
+  dpr: 2
 }
 
 interface ReactProps {}

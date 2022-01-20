@@ -59,3 +59,25 @@ export function toJsonData(obj: any, attrs: string[]): any {
   json.type = obj.type
   return json
 }
+
+export function throttle(fun: Function) {
+  let flag = false
+  return function(...args: any) {
+    if (flag) return
+    requestAnimationFrame(() => {
+      flag = false
+      fun(...args)
+    })
+    flag = true
+  }
+}
+
+export function debounce(fun: Function) {
+  let timer: number
+  return function(...args: any) {
+    if (timer) {
+      cancelAnimationFrame(timer)
+    }
+    timer = requestAnimationFrame(() => fun(args))
+  }
+}
