@@ -1,17 +1,15 @@
 import { Element } from "./_element"
 import { ImageType, D_IMAGE, D_ASSET_IMAGE, OmitType } from "../type"
-import { Asset, AssetImage, IAsset } from "../asset"
+import { AssetImage, assetManage } from "../asset"
 import { Box } from "@canvas-2d/shared"
 
-export class Image extends Element implements D_IMAGE, IAsset {
+export class Image extends Element implements D_IMAGE {
   public readonly type: ImageType = "image"
 
   public ATTRIBUTE_NAMES: (keyof D_IMAGE)[] = [
-    "d_asset",
+    "asset",
     "width",
     "height",
-    "cropX",
-    "cropY",
     "imageSmoothing",
     "imageSmoothingQuality"
   ]
@@ -21,9 +19,9 @@ export class Image extends Element implements D_IMAGE, IAsset {
     this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
   }
 
-  d_asset!: number | D_ASSET_IMAGE
+  asset!: number | D_ASSET_IMAGE
 
-  asset!: AssetImage
+  uniqueIdent: string = ""
 
   width: number = 0
 
@@ -33,27 +31,23 @@ export class Image extends Element implements D_IMAGE, IAsset {
 
   imageSmoothingQuality: ImageSmoothingQuality = "medium"
 
-  /**
-   * Image crop in pixels from original image size.
-   */
-  cropX: number = 0
-
-  /**
-   * Image crop in pixels from original image size.
-   */
-  cropY: number = 0
-
   setImageSmoothing(ctx: CanvasRenderingContext2D) {
     ctx.imageSmoothingEnabled = this.imageSmoothing
     ctx.imageSmoothingQuality = this.imageSmoothingQuality
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    const { asset, width, height } = this
+    const { width, height, uniqueIdent } = this
+
+    const asset = assetManage.getAsset(uniqueIdent) as AssetImage
+    if (!asset || !asset.element) {
+      throw new Error("没有图片资源填充")
+    }
+
     if (!asset || !asset.element || !width || !height) return
     ctx.save()
     this.renderBefore(ctx)
-    this.renderImage(ctx)
+    this.renderImage(ctx, asset)
     this.renderAfter(ctx)
     ctx.restore()
   }
@@ -65,21 +59,10 @@ export class Image extends Element implements D_IMAGE, IAsset {
     this.setImageSmoothing(ctx)
   }
 
-  public renderImage(ctx: CanvasRenderingContext2D) {
+  public renderImage(ctx: CanvasRenderingContext2D, asset: AssetImage) {
     const { x, y } = this.origin
-    const { width, height, asset } = this
-    if (!asset || !asset.element) {
-      throw new Error("没有图片资源填充")
-    }
-
+    const { width, height } = this
     ctx.drawImage(asset.element!, x, y, width, height)
-  }
-
-  async load(): Promise<void> {
-    const { asset } = this
-    if (!asset.element) {
-      await asset.load()
-    }
   }
 
   public updateElementBox(box: Partial<Box>): void {
@@ -101,18 +84,15 @@ export class Image extends Element implements D_IMAGE, IAsset {
   }
 
   public fromJSON(json: OmitType<D_IMAGE>): void {
-    const { d_asset } = json
+    const { asset } = json
     super.fromJSON(json)
-    if (typeof d_asset === "number") {
-      const asset = AssetImage.getAsset(
-        AssetImage.getUniqueIdent("asset_image", d_asset)
-      ) as AssetImage
-      if (!asset) {
-        throw new Error("没有创建资源")
-      }
-      this.asset = asset
+    const assetImage = new AssetImage()
+    if (typeof asset === "number") {
+      assetImage.id = asset
+      this.uniqueIdent = assetImage.uniqueIdent
     } else {
-      this.asset = AssetImage.createObj(AssetImage, d_asset)
+      assetImage.fromJSON(asset)
+      this.uniqueIdent = assetImage.uniqueIdent
     }
   }
 }

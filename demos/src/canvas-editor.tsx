@@ -62,7 +62,7 @@ const data: JSON_DATA = {
     },
     {
       type: "image",
-      d_asset: {
+      asset: {
         type: "asset_image",
         data: wrapStaticUrl("images/logo.png")
       },
@@ -82,6 +82,9 @@ export default function(props: ReactProps) {
     const editor = new CanvasEditor({
       container: containerRef.current!,
       ...data
+    })
+    editor.loadAssets().then(() => {
+      editor.render()
     })
   }, [])
 

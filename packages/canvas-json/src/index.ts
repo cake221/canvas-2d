@@ -1,5 +1,5 @@
 import { CanvasBase, cloneJson } from "@canvas-2d/shared"
-import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, IAsset } from "@canvas-2d/core/src"
+import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, assetManage } from "@canvas-2d/core/src"
 
 export type JSON_DATA = {
   assets?: D_ASSET[]
@@ -29,6 +29,7 @@ export class CanvasJSON extends CanvasBase {
     dpr && (this.dpr = dpr)
 
     this.setJsonCanvas()
+    this.loadElements()
   }
 
   /**
@@ -91,16 +92,14 @@ export class CanvasJSON extends CanvasBase {
 
   async loadAssets() {
     const { assetsData } = this
-    return Promise.allSettled(assetsData.map(genAsset))
+    assetsData.map(genAsset)
+    return assetManage.loadAllAsset()
   }
 
-  async loadElements() {
+  loadElements() {
     const { layersData } = this
     for (const layer of layersData) {
       const ele = genElement(layer)
-      if ("load" in ele) {
-        await ((ele as unknown) as IAsset).load()
-      }
       this.elements.push(ele)
     }
   }
@@ -122,7 +121,6 @@ export class CanvasJSON extends CanvasBase {
 export async function loadJson(json: JSON_DATA) {
   const staticCanvas2D = new CanvasJSON(cloneJson(json))
   await staticCanvas2D.loadAssets()
-  await staticCanvas2D.loadElements()
   staticCanvas2D.render()
   return staticCanvas2D
 }

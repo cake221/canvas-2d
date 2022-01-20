@@ -20,7 +20,7 @@ export const imageJson: JSON_DATA = {
       height: 200,
       fill: "yellow",
       stroke: "red",
-      d_asset: 4
+      asset: 4
     }
   ],
   dpr: 3,

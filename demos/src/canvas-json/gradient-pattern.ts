@@ -32,7 +32,7 @@ export const gradientPatternJson: JSON_DATA = {
         ]
       },
       stroke: {
-        d_asset: 1,
+        asset: 1,
         repetition: "repeat"
       },
       text: "你好fillStyle.genGradient(ctx)",
@@ -51,7 +51,7 @@ export const gradientPatternJson: JSON_DATA = {
         y: 300
       },
       fill: {
-        d_asset: 3,
+        asset: 3,
         repetition: "repeat"
       },
       stroke: {

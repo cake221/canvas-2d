@@ -158,9 +158,6 @@ export class CanvasEditor extends CanvasJSON {
     }
     container.appendChild(canvas)
     container.appendChild(dynamicCanvas)
-    // TODO: 放在 对象 初始化 时
-    await this.loadElements()
-    this.render()
   }
 }
 
