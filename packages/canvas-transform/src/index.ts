@@ -197,7 +197,7 @@ export class CanvasTransform extends CanvasBase {
       rotate.angleCenter = controlFrame.centerPoint.countPointBaseRotate(rotate)
     }
 
-    this.renderElement()
+    this.render()
     this.p = nextPoint
     this.pBaseTrans = nextPointOnTrans
   }
@@ -205,15 +205,15 @@ export class CanvasTransform extends CanvasBase {
   onPointerup(ev: PointerEvent) {
     super.onPointerup(ev)
     if (this.controlAction === CONTROL_ACTION.None || !this.controlElement) return
-    this.renderElement()
+    this.render()
     this.controlAction = CONTROL_ACTION.None
   }
 
   init() {
-    this.renderElement()
+    this.render()
   }
 
-  renderElement() {
+  render() {
     const { ctx, controlElement } = this
     if (!controlElement) return
     const { boxElement, controlFrame } = controlElement
