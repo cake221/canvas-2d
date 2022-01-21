@@ -11,7 +11,7 @@ import {
   D_ASSET_IMAGE,
   OmitType
 } from "../type"
-import { Asset, AssetImage, IAsset } from "../asset"
+import { assetManage, AssetImage } from "../asset"
 
 export interface RenderParam {}
 
@@ -156,7 +156,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     if (!!fill && typeof fill !== "string") {
       if ((fill as D_GRADIENT).gradientShape) {
         this.fill = Gradient.createObj(Gradient, fill)
-      } else if ((fill as D_PATTER).d_asset !== undefined) {
+      } else if ((fill as D_PATTER).asset !== undefined) {
         this.fill = Pattern.createObj(Pattern, fill)
       }
     }
@@ -164,7 +164,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     if (!!stroke && typeof stroke !== "string") {
       if ((stroke as D_GRADIENT).gradientShape) {
         this.stroke = Gradient.createObj(Gradient, stroke)
-      } else if ((stroke as D_PATTER).d_asset !== undefined) {
+      } else if ((stroke as D_PATTER).asset !== undefined) {
         this.stroke = Pattern.createObj(Pattern, stroke)
       }
     }
@@ -222,45 +222,39 @@ export class Shadow extends Attribute implements D_SHADOW {
   }
 }
 
-class Pattern extends Attribute implements D_PATTER, IAsset {
+class Pattern extends Attribute implements D_PATTER {
   public type: string = "attr_pattern"
-  public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["d_asset", "repetition", "transform"]
+  public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["asset", "repetition", "transform"]
 
   repetition?: string
+
   transform?: DOMMatrix2DInit
 
-  d_asset!: number | D_ASSET_IMAGE
+  asset!: number | D_ASSET_IMAGE
 
-  asset!: AssetImage
-
-  async load(): Promise<void> {
-    const { asset } = this
-    if (!asset.element) {
-      await asset.load()
-    }
-  }
+  uniqueIdent: string = ""
 
   genPattern(ctx: CanvasRenderingContext2D) {
-    const { repetition, asset, transform } = this
-    if (!asset.element) throw new Error("patter 没有资源")
+    const { repetition, transform, uniqueIdent } = this
+    const asset = assetManage.getAsset(uniqueIdent) as AssetImage
+    if (!asset || !asset.element) {
+      throw new Error("没有图片资源填充")
+    }
     const pattern = ctx.createPattern(asset.element, repetition ?? null)
     pattern?.setTransform(transform)
     return pattern
   }
 
   fromJSON(json: OmitType<D_PATTER>): void {
-    const { d_asset } = json
+    const { asset } = json
     super.fromJSON(json)
-    if (typeof d_asset === "number") {
-      const asset = AssetImage.getAsset(
-        AssetImage.getUniqueIdent("asset_image", d_asset)
-      ) as AssetImage
-      if (!asset) {
-        throw new Error("没有创建资源")
-      }
-      this.asset = asset
+    const assetImage = new AssetImage()
+    if (typeof asset === "number") {
+      assetImage.id = asset
+      this.uniqueIdent = assetImage.uniqueIdent
     } else {
-      this.asset = AssetImage.createObj(AssetImage, d_asset)
+      assetImage.fromJSON(asset)
+      this.uniqueIdent = assetImage.uniqueIdent
     }
   }
 }

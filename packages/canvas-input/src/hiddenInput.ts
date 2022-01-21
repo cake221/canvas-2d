@@ -1,3 +1,4 @@
+import { throttle } from "@canvas-2d/shared"
 import { OnValueHandle } from "./index"
 
 const ctrlChars = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]
@@ -14,14 +15,20 @@ export class HiddenInput {
     return ctrlChars.includes(value)
   }
 
+  onNewValueCallBack!: (...args: any) => void
+
   onNewValue(listener: OnValueHandle) {
-    this.hiddenInput.addEventListener("input", () => listener(this.hiddenInput.value))
+    this.onNewValueCallBack = throttle(() => listener(this.hiddenInput.value))
+    this.hiddenInput.addEventListener("input", this.onNewValueCallBack)
   }
 
+  onKeydownCallBack!: (...args: any) => void
+
   onKeydown(listener: OnValueHandle) {
-    this.hiddenInput.addEventListener("keydown", (ev) => {
+    this.onKeydownCallBack = throttle((ev: any) => {
       listener(ev.code)
     })
+    this.hiddenInput.addEventListener("keydown", this.onKeydownCallBack)
   }
 
   setStyle() {
@@ -47,6 +54,8 @@ export class HiddenInput {
     this.hiddenInput.blur()
     this.clearValue()
     if (document.body.contains(this.hiddenInput)) {
+      this.hiddenInput.removeEventListener("input", this.onNewValueCallBack)
+      this.hiddenInput.removeEventListener("keydown", this.onKeydownCallBack)
       document.body.removeChild(this.hiddenInput)
     }
   }

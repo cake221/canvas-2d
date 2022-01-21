@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react"
 import { CanvasBackGround } from "@canvas-2d/shared"
-import { Shape, D_SHAPE, D_IMAGE, Image } from "@canvas-2d/core"
+import { Shape, D_SHAPE, D_IMAGE, Image, assetManage } from "@canvas-2d/core"
 import { CanvasTransform } from "../../packages/canvas-transform/src"
 import { wrapStaticUrl } from "../shared"
 
@@ -30,7 +30,7 @@ const shape = Shape.createObj(Shape, d_shape) as Shape
 
 const imageData: D_IMAGE = {
   type: "image",
-  d_asset: {
+  asset: {
     type: "asset_image",
     data: wrapStaticUrl("images/logo.png"),
     id: 1
@@ -41,7 +41,7 @@ const imageData: D_IMAGE = {
 
 const image = Image.createObj(Image, imageData) as Image
 
-await image.load()
+await assetManage.loadAllAsset()
 
 export default function CanvasJson() {
   const canvasRef = useRef<HTMLCanvasElement>(null)

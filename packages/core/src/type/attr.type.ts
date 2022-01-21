@@ -34,7 +34,7 @@ export interface D_GRADIENT extends D_ATTR_BASE {
 export interface D_PATTER extends D_ATTR_BASE {
   repetition?: string
   transform?: DOMMatrix2DInit
-  d_asset: Asset_ID | D_ASSET_IMAGE
+  asset: Asset_ID | D_ASSET_IMAGE
 }
 
 export interface D_FONT extends D_ATTR_BASE {

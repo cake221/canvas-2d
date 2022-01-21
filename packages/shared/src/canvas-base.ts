@@ -1,9 +1,9 @@
 import { Point } from "./point"
+import { throttle } from "./utils"
 
 export interface CanvasBaseParam {
   width?: number
   height?: number
-  dpr?: number
   canvas?: HTMLCanvasElement
   dblclickDelay?: number
 }
@@ -13,20 +13,7 @@ export class CanvasBase {
 
   ctx!: CanvasRenderingContext2D
 
-  /**
-   * devicePixelRatio 设备像素 / css 像素
-   */
-  dpr = 1
-
-  active = false
-
-  setDpr() {
-    const { dpr, width, height, ctx } = this
-    this.width = dpr * width
-    this.height = dpr * height
-    ctx.setTransform(1, 0, 0, 1, 0, 0) // scale 前先恢复变换矩阵，不然会重复 scale
-    ctx.scale(dpr, dpr)
-  }
+  isInCanvas = false
 
   _height = 150
 
@@ -55,7 +42,7 @@ export class CanvasBase {
   }
 
   constructor(params: CanvasBaseParam) {
-    const { dpr, width, height, canvas, dblclickDelay } = params
+    const { width, height, canvas, dblclickDelay } = params
     if (canvas) {
       this.canvas = canvas
     } else {
@@ -65,8 +52,6 @@ export class CanvasBase {
     if (!this.ctx) {
       throw new Error("没有 ctx")
     }
-
-    dpr && (this.dpr = dpr)
 
     if (width) {
       this.width = width
@@ -85,17 +70,19 @@ export class CanvasBase {
     this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
     this.canvas.addEventListener("pointermove", this.baseOnPointermove)
     this.canvas.addEventListener("pointerup", this.baseOnPointerup)
+    document.addEventListener("pointermove", this.documentOnPointermove)
   }
 
-  baseOnPointerup = (ev: PointerEvent) => this.onPointerup(ev)
-  baseOnPointerdown = (ev: PointerEvent) => this.onPointerdown(ev)
-  baseOnPointermove = (ev: PointerEvent) => this.onPointermove(ev)
+  baseOnPointerup = throttle((ev: PointerEvent) => this.onPointerup(ev))
+  baseOnPointerdown = throttle((ev: PointerEvent) => this.onPointerdown(ev))
+  baseOnPointermove = throttle((ev: PointerEvent) => this.onPointermove(ev))
 
   destroy() {
     const { canvas } = this
     canvas.removeEventListener("pointerdown", this.baseOnPointerdown)
     canvas.removeEventListener("pointermove", this.baseOnPointermove)
     canvas.removeEventListener("pointerup", this.baseOnPointerup)
+    document.removeEventListener("pointermove", this.documentOnPointermove)
   }
 
   private lastClickTime = 0
@@ -111,7 +98,7 @@ export class CanvasBase {
   onPointerdown(ev: PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
-    this.active = true
+    this.isInCanvas = true
 
     const time = Date.now()
     if (time - this.lastClickTime < this.dblclickDelay) {
@@ -120,13 +107,20 @@ export class CanvasBase {
     this.lastClickTime = time
   }
 
-  onPointermove(ev: PointerEvent) {
+  documentOnPointermove = (ev: PointerEvent) => {
     ev.stopPropagation()
     ev.preventDefault()
     const p = this.dom2CanvasPoint(ev.x, ev.y)
+
     if (p.x <= 0 || p.y <= 0) {
-      this.active = false
+      this.isInCanvas = false
+      this.onPointerup(ev)
     }
+  }
+
+  onPointermove(ev: PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
   }
 
   onPointerup(ev: PointerEvent) {

@@ -83,19 +83,13 @@ export class CanvasTransform extends CanvasBase {
 
   removeBoxElement() {
     this.controlElement = null
-    this.cancelDblclickEffect()
     this.clear()
   }
 
   dblclickCallback(ev: PointerEvent) {
     const { controlElement } = this
     if (!controlElement) return
-
-    // FIXME: 去掉 type
-    // @ts-ignore
-    if (controlElement.boxElement.type === "paragraph") {
-      this.elementBlurCallback(ev, true)
-    }
+    this.elementBlurCallback(ev, true)
   }
 
   onPointerdown(ev: PointerEvent) {
@@ -148,7 +142,7 @@ export class CanvasTransform extends CanvasBase {
 
   onPointermove(ev: PointerEvent) {
     super.onPointermove(ev)
-    const { controlAction, p, pBaseTrans, controlElement, angleCenterDragEnable } = this
+    const { controlAction, p, controlElement, angleCenterDragEnable } = this
     if (this.controlAction === CONTROL_ACTION.None || !controlElement) return
     const { controlFrame, boxElement } = controlElement
     const { rotate, elementBox } = boxElement
@@ -156,8 +150,8 @@ export class CanvasTransform extends CanvasBase {
 
     const nextPoint = this.dom2CanvasPoint(ev.x, ev.y)
     const nextPointOnTrans = nextPoint.countPointBaseRotate(rotate)
-    const xGap = nextPointOnTrans.x - pBaseTrans.x
-    const yGap = nextPointOnTrans.y - pBaseTrans.y
+    const xGap = nextPoint.x - p.x
+    const yGap = nextPoint.y - p.y
     if (controlAction === CONTROL_ACTION.Drag) {
       boxElement.updateElementBox({
         ...elementBox,
@@ -197,7 +191,7 @@ export class CanvasTransform extends CanvasBase {
       rotate.angleCenter = controlFrame.centerPoint.countPointBaseRotate(rotate)
     }
 
-    this.renderElement()
+    this.render()
     this.p = nextPoint
     this.pBaseTrans = nextPointOnTrans
   }
@@ -205,15 +199,15 @@ export class CanvasTransform extends CanvasBase {
   onPointerup(ev: PointerEvent) {
     super.onPointerup(ev)
     if (this.controlAction === CONTROL_ACTION.None || !this.controlElement) return
-    this.renderElement()
+    this.render()
     this.controlAction = CONTROL_ACTION.None
   }
 
   init() {
-    this.renderElement()
+    this.render()
   }
 
-  renderElement() {
+  render() {
     const { ctx, controlElement } = this
     if (!controlElement) return
     const { boxElement, controlFrame } = controlElement

@@ -20,7 +20,7 @@ export const clipJson: JSON_DATA = {
       height: 200,
       fill: "yellow",
       stroke: "red",
-      d_asset: 0,
+      asset: 0,
       clip: {
         d_path: {
           type: "arc",

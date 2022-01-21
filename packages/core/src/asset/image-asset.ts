@@ -14,13 +14,12 @@ export class AssetImage extends Asset implements D_ASSET_IMAGE {
   public element: HTMLImageElement | null = null
 
   public async load(): Promise<void> {
-    const { data, id, type } = this
-    this.uniqueIdent = Asset.getUniqueIdent(type, id)
+    const { data } = this
+    if (this.element) return
     const img = await new Promise<HTMLImageElement>((resolve, reject) =>
       onImageLoad(data, resolve, reject)
     )
     this.element = img
-    Asset.setAsset(this.uniqueIdent, this)
   }
 
   fromJSON(json: OmitType<D_ASSET_IMAGE>): void {

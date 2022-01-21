@@ -1,5 +1,5 @@
 import { CanvasBase, cloneJson } from "@canvas-2d/shared"
-import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, IAsset } from "@canvas-2d/core/src"
+import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, assetManage } from "@canvas-2d/core/src"
 
 export type JSON_DATA = {
   assets?: D_ASSET[]
@@ -19,12 +19,46 @@ export class CanvasJSON extends CanvasBase {
 
   constructor(public json: JSON_DATA) {
     super(json)
-    const { assets, layers } = json
+    const { assets, layers, dpr } = json
     if (!this.ctx) {
       throw new Error("绘制有问题")
     }
     assets && (this.assetsData = assets)
     layers && (this.layersData = layers)
+
+    dpr && (this.dpr = dpr)
+
+    this.setJsonCanvas()
+    this.loadElements()
+  }
+
+  /**
+   * devicePixelRatio 设备像素 / css 像素
+   */
+  dpr = 1
+
+  setDpr() {
+    const { dpr, ctx } = this
+    ctx.setTransform(1, 0, 0, 1, 0, 0) // scale 前先恢复变换矩阵，不然会重复 scale
+    ctx.scale(dpr, dpr)
+  }
+
+  get widthDpr() {
+    return this.width * this.dpr
+  }
+
+  get heightDpr() {
+    return this.height * this.dpr
+  }
+
+  setJsonCanvas() {
+    const { canvas, width, height } = this
+
+    canvas.width = this.widthDpr
+    canvas.height = this.heightDpr
+
+    canvas.style.width = width + "px"
+    canvas.style.height = height + "px"
   }
 
   disappearElement(ele: Element) {
@@ -37,9 +71,15 @@ export class CanvasJSON extends CanvasBase {
     this.render()
   }
 
+  clear() {
+    const { ctx } = this
+    ctx.clearRect(0, 0, this.widthDpr, this.heightDpr)
+  }
+
   render() {
     const { ctx, elements, dpr } = this
-    ctx.clearRect(0, 0, this.width, this.height)
+    this.clear()
+    ctx.save()
     if (dpr > 0 && dpr !== 1) this.setDpr()
     for (const ele of elements) {
       if (!ele.visible) continue
@@ -47,20 +87,19 @@ export class CanvasJSON extends CanvasBase {
       ele.render(ctx)
       ctx.restore()
     }
+    ctx.restore()
   }
 
   async loadAssets() {
     const { assetsData } = this
-    return Promise.allSettled(assetsData.map(genAsset))
+    assetsData.map(genAsset)
+    return assetManage.loadAllAsset()
   }
 
-  async loadElements() {
+  loadElements() {
     const { layersData } = this
     for (const layer of layersData) {
       const ele = genElement(layer)
-      if ("load" in ele) {
-        await ((ele as unknown) as IAsset).load()
-      }
       this.elements.push(ele)
     }
   }
@@ -82,7 +121,6 @@ export class CanvasJSON extends CanvasBase {
 export async function loadJson(json: JSON_DATA) {
   const staticCanvas2D = new CanvasJSON(cloneJson(json))
   await staticCanvas2D.loadAssets()
-  await staticCanvas2D.loadElements()
   staticCanvas2D.render()
   return staticCanvas2D
 }
