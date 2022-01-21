@@ -13,7 +13,7 @@ export class CanvasBase {
 
   ctx!: CanvasRenderingContext2D
 
-  active = false
+  isInCanvas = false
 
   _height = 150
 
@@ -70,6 +70,7 @@ export class CanvasBase {
     this.canvas.addEventListener("pointerdown", this.baseOnPointerdown)
     this.canvas.addEventListener("pointermove", this.baseOnPointermove)
     this.canvas.addEventListener("pointerup", this.baseOnPointerup)
+    document.addEventListener("pointermove", this.documentOnPointermove)
   }
 
   baseOnPointerup = throttle((ev: PointerEvent) => this.onPointerup(ev))
@@ -81,6 +82,7 @@ export class CanvasBase {
     canvas.removeEventListener("pointerdown", this.baseOnPointerdown)
     canvas.removeEventListener("pointermove", this.baseOnPointermove)
     canvas.removeEventListener("pointerup", this.baseOnPointerup)
+    document.removeEventListener("pointermove", this.documentOnPointermove)
   }
 
   private lastClickTime = 0
@@ -96,7 +98,7 @@ export class CanvasBase {
   onPointerdown(ev: PointerEvent) {
     ev.stopPropagation()
     ev.preventDefault()
-    this.active = true
+    this.isInCanvas = true
 
     const time = Date.now()
     if (time - this.lastClickTime < this.dblclickDelay) {
@@ -105,13 +107,20 @@ export class CanvasBase {
     this.lastClickTime = time
   }
 
-  onPointermove(ev: PointerEvent) {
+  documentOnPointermove = (ev: PointerEvent) => {
     ev.stopPropagation()
     ev.preventDefault()
     const p = this.dom2CanvasPoint(ev.x, ev.y)
+
     if (p.x <= 0 || p.y <= 0) {
-      this.active = false
+      this.isInCanvas = false
+      this.onPointerup(ev)
     }
+  }
+
+  onPointermove(ev: PointerEvent) {
+    ev.stopPropagation()
+    ev.preventDefault()
   }
 
   onPointerup(ev: PointerEvent) {
