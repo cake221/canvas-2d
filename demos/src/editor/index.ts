@@ -56,6 +56,12 @@ export class CanvasEditor extends CanvasJSON {
     this.isDblclick = true
   }
 
+  cancelDblclickEffect() {
+    super.cancelDblclickEffect()
+    this.canvasTransform.cancelDblclickEffect()
+    this.canvasInput.cancelDblclickEffect()
+  }
+
   onPointerdown(ev: PointerEvent) {
     super.onPointerdown(ev)
     const p = this.dom2CanvasPoint(ev.x, ev.y)
@@ -92,6 +98,7 @@ export class CanvasEditor extends CanvasJSON {
     if (!canvasInput.paragraph) return
     this.appearElement(canvasInput.paragraph)
     this.canvasInput.removeParagraph()
+    this.cancelDblclickEffect()
     this.updateFocusCanvas(false)
     this.onPointerdown(ev)
   }
@@ -111,10 +118,18 @@ export class CanvasEditor extends CanvasJSON {
 
     this.appearElement(canvasTransform.controlElement.boxElement as Element)
     canvasTransform.removeBoxElement()
+    this.cancelDblclickEffect()
     this.updateFocusCanvas(false)
   }
 
   transElementBlurCallback = (ev: PointerEvent, isDblclick: boolean) => {
+    const { canvasTransform } = this
+    if (isDblclick) {
+      const { boxElement } = canvasTransform.controlElement!
+      if ((boxElement as Element).type !== "paragraph") {
+        return
+      }
+    }
     this.transformCanvasBlur()
     this.isDblclick = isDblclick
     this.onPointerdown(ev)

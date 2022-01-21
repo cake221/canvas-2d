@@ -16,7 +16,6 @@
     "dist/"
   ],
   "dependencies": {
-    "@canvas-2d/core": "^0.0.0",
     "@canvas-2d/shared": "^0.0.0"
   }
 }
