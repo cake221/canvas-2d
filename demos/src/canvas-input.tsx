@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { CanvasInput } from "@canvas-2d/canvas-input"
-import { Paragraph } from "@canvas-2d/core/src"
+import { Paragraph } from "@canvas-2d/core"
 
 const p = new Paragraph()
 

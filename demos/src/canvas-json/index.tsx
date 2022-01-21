@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react"
-import { loadJson } from "@canvas-2d/canvas-json/src"
+import { loadJson } from "@canvas-2d/canvas-json"
 import { assertNever } from "@canvas-2d/shared"
 
 import { textJson } from "./text"

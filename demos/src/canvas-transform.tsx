@@ -41,20 +41,25 @@ const imageData: D_IMAGE = {
 
 const image = Image.createObj(Image, imageData) as Image
 
-await assetManage.loadAllAsset()
-
 export default function CanvasJson() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasBgRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    new CanvasTransform({ canvas: canvasRef.current!, width: 600, height: 600, boxElement: image })
-    new CanvasBackGround({
-      canvas: canvasBgRef.current!,
-      width: 600,
-      height: 600,
-      coordInterval: 20,
-      backgroundColor: "white"
+    assetManage.loadAllAsset().then(() => {
+      new CanvasTransform({
+        canvas: canvasRef.current!,
+        width: 600,
+        height: 600,
+        boxElement: image
+      })
+      new CanvasBackGround({
+        canvas: canvasBgRef.current!,
+        width: 600,
+        height: 600,
+        coordInterval: 20,
+        backgroundColor: "white"
+      })
     })
   }, [])
 

@@ -1,7 +1,8 @@
 import { Element, Paragraph } from "@canvas-2d/core"
-import { CanvasJSON, JSON_DATA } from "@canvas-2d/canvas-json/src"
-import { CanvasTransform } from "@canvas-2d/canvas-transform/src"
-import { CanvasInput } from "@canvas-2d/canvas-input/src"
+import { CanvasJSON, JSON_DATA } from "@canvas-2d/canvas-json"
+// FIXME: build error
+import { CanvasTransform } from "../../../../packages/canvas-transform/src"
+import { CanvasInput } from "@canvas-2d/canvas-input"
 
 interface CanvasEditorParams extends Omit<JSON_DATA, "canvas"> {
   container: HTMLElement
