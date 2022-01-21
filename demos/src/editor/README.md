@@ -12,8 +12,3 @@
 2. 共享点击事件：canvasInput 和 canvasTransform 同时起作用
 3. dpr
 4. 统一解析资源，初始时加载
-
-- 输入跟 paragraph 解耦
-
-- element 默认属性
-- 编辑 ELement，导出 JSON 数据
