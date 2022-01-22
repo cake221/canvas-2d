@@ -3,8 +3,11 @@ import { CanvasJSON, JSON_DATA } from "@canvas-2d/canvas-json/src"
 import { CanvasTransform } from "@canvas-2d/canvas-transform/src"
 import { CanvasInput } from "@canvas-2d/canvas-input/src"
 
+export type EleActiveCallback = (ele?: Element | null) => void
+
 interface CanvasEditorParams extends Omit<JSON_DATA, "canvas"> {
   container: HTMLElement
+  eleChange: EleActiveCallback
 }
 
 export class CanvasEditor extends CanvasJSON {
@@ -16,11 +19,15 @@ export class CanvasEditor extends CanvasJSON {
 
   isEditor = false
 
+  eleChange: EleActiveCallback = () => {}
+
   constructor(params: CanvasEditorParams) {
-    const { container, width, height } = params
+    const { container, width, height, eleChange } = params
     super(params)
 
     const { dynamicCanvas } = this
+
+    eleChange && (this.eleChange = eleChange)
 
     dynamicCanvas.setAttribute("width", `${width}`)
 
@@ -29,37 +36,17 @@ export class CanvasEditor extends CanvasJSON {
     this.canvasTransform = new CanvasTransform({
       canvas: dynamicCanvas,
       elementBlurCallback: (ev: PointerEvent, isDblclick: boolean) =>
-        this.transElementBlurCallback(ev, isDblclick)
+        this.transElementBlurCallback(ev, isDblclick),
+      renderCallBack: () => this.eleChange()
     })
 
     this.canvasInput = new CanvasInput({
       canvas: dynamicCanvas,
-      elementBlurCallback: (ev: PointerEvent) => this.inputCanvasBlurCallback(ev)
+      elementBlurCallback: (ev: PointerEvent) => this.inputCanvasBlurCallback(ev),
+      renderCallBack: () => this.eleChange()
     })
 
     this.createCanvas(container)
-  }
-
-  updateFocusCanvas(isEditor: boolean = false) {
-    const { dynamicCanvas } = this
-    this.isEditor = isEditor
-    if (isEditor) {
-      dynamicCanvas.style.pointerEvents = "auto"
-    } else {
-      dynamicCanvas.style.pointerEvents = "none"
-    }
-  }
-
-  isDblclick = false
-
-  dblclickCallback() {
-    this.isDblclick = true
-  }
-
-  cancelDblclickEffect() {
-    super.cancelDblclickEffect()
-    this.canvasTransform.cancelDblclickEffect()
-    this.canvasInput.cancelDblclickEffect()
   }
 
   onPointerdown(ev: PointerEvent) {
@@ -86,40 +73,52 @@ export class CanvasEditor extends CanvasJSON {
     const { canvasInput } = this
     if (canvasInput.paragraph) return
 
-    this.transformCanvasBlur()
+    this.removeTransCanvas()
 
+    // 显示 CanvasInput
     this.canvasInput.setParagraph(ele)
-    this.updateFocusCanvas(true)
     this.disappearElement(ele)
+
+    // 更新元素
+    this.updateElement(ele)
   }
 
   inputCanvasBlurCallback(ev: PointerEvent) {
     const { canvasInput } = this
     if (!canvasInput.paragraph) return
+
+    // 移除 canvasInput
     this.appearElement(canvasInput.paragraph)
     this.canvasInput.removeParagraph()
+
+    // 触发 canvasTrans
     this.cancelDblclickEffect()
-    this.updateFocusCanvas(false)
     this.onPointerdown(ev)
+
+    this.updateElement(null)
   }
 
   transformCanvasActive(ele: Element, ev: PointerEvent) {
     const { canvasTransform } = this
     if (canvasTransform.controlElement) return
+
+    // transformCanvas 展示
     canvasTransform.setBoxElement(ele)
-    this.updateFocusCanvas(true)
-    this.canvasTransform.onPointerdown(ev)
     this.disappearElement(ele)
+
+    // 更新元素
+    this.updateElement(ele)
+
+    this.canvasTransform.onPointerdown(ev)
   }
 
-  transformCanvasBlur() {
+  // 移除 canvasTrans
+  removeTransCanvas() {
     const { canvasTransform } = this
     if (!canvasTransform.controlElement) return
 
     this.appearElement(canvasTransform.controlElement.boxElement as Element)
     canvasTransform.removeBoxElement()
-    this.cancelDblclickEffect()
-    this.updateFocusCanvas(false)
   }
 
   transElementBlurCallback = (ev: PointerEvent, isDblclick: boolean) => {
@@ -130,13 +129,61 @@ export class CanvasEditor extends CanvasJSON {
         return
       }
     }
-    this.transformCanvasBlur()
+
+    this.removeTransCanvas()
     this.isDblclick = isDblclick
+
+    // 触发 CanvasInput
+    this.cancelDblclickEffect()
     this.onPointerdown(ev)
+
+    this.updateElement(null)
+  }
+
+  // 是否选中元素
+  updateElement(ele: Element | null) {
+    if (ele === null) {
+      if (!this.canvasInput.paragraph && !this.canvasTransform.controlElement) {
+        this.eleChange(null)
+        this.updateFocusCanvas(false)
+      }
+    } else {
+      this.eleChange(ele)
+      this.updateFocusCanvas(true)
+    }
   }
 
   update() {
-    this.render()
+    const { canvasInput, canvasTransform } = this
+    if (canvasInput.paragraph) {
+      canvasInput.render()
+    } else if (canvasTransform.controlElement) {
+      canvasTransform.render()
+    } else {
+      this.render()
+    }
+  }
+
+  updateFocusCanvas(isEditor: boolean = false) {
+    const { dynamicCanvas } = this
+    this.isEditor = isEditor
+    if (isEditor) {
+      dynamicCanvas.style.pointerEvents = "auto"
+    } else {
+      dynamicCanvas.style.pointerEvents = "none"
+    }
+  }
+
+  isDblclick = false
+
+  dblclickCallback() {
+    this.isDblclick = true
+  }
+
+  cancelDblclickEffect() {
+    super.cancelDblclickEffect()
+    this.canvasTransform.cancelDblclickEffect()
+    this.canvasInput.cancelDblclickEffect()
   }
 
   async createCanvas(container: HTMLElement) {

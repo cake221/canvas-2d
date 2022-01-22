@@ -1,8 +1,8 @@
 import { Attribute } from "./_attr"
 import { Origin } from "./origin"
 
-import { D_ELEMENT_BASE, D_CLIP, D_PATH, OmitType } from "../type"
-import { genPath, Path, Path_Path } from "../path"
+import { D_CLIP, D_PATH, OmitType } from "../type"
+import { genPath, Path, Path_Path, assetPath } from "../path"
 
 interface ClipParam {
   origin: Origin
@@ -14,11 +14,12 @@ export class Clip extends Attribute implements D_CLIP {
 
   public ATTRIBUTE_NAMES: (keyof D_CLIP)[] = ["d_path"]
 
-  path!: Path
+  path?: Path
 
   d_path!: D_PATH
 
   takeEffect(ctx: CanvasRenderingContext2D, clipParam: ClipParam): void {
+    if (!this.path) return
     const { origin, fillRule } = clipParam
     this.path.genPath(ctx, { origin })
     const { path } = this
@@ -38,9 +39,23 @@ export class Clip extends Attribute implements D_CLIP {
     }
   }
 
-  fromJSON(json: OmitType<D_CLIP>, parent?: D_ELEMENT_BASE): void {
+  static assertJsonTrue(json?: OmitType<D_CLIP>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { d_path } = json
+    assetPath(d_path)
+  }
+
+  fromJSON(json: OmitType<D_CLIP>): void {
     super.fromJSON(json)
     const { d_path } = json
-    this.path = genPath(d_path)
+
+    if (d_path) {
+      if (this.path === undefined) {
+        this.path = genPath(d_path)
+      } else {
+        this.path.fromJSON(d_path)
+      }
+    }
   }
 }

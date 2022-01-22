@@ -1,3 +1,4 @@
+import { assertJsonType } from "@canvas-2d/shared"
 import { AssetType, D_ASSET_BASE, OmitType } from "../type"
 import { Base } from "../base"
 import { assetManage } from "./assetManage"
@@ -7,8 +8,11 @@ export abstract class Asset extends Base implements D_ASSET_BASE {
   get uniqueIdent(): string {
     return assetManage.countUniqueIdent(this)
   }
-  public data!: string
-  public id!: number
+
+  ASSET_ATTRIBUTE: (keyof D_ASSET_BASE)[] = ["data", "id"]
+
+  public data: string = ""
+  public id: number = Date.now()
 
   public abstract load(): void
 
@@ -18,9 +22,16 @@ export abstract class Asset extends Base implements D_ASSET_BASE {
     }
   }
 
+  static assertJsonTrue(json?: OmitType<D_ASSET_BASE>) {
+    if (json === undefined) return
+    const { data, id } = json
+    super.assertJsonTrue(json)
+    assertJsonType(data, "string")
+    assertJsonType(id, "number")
+  }
+
   public fromJSON(json: OmitType<D_ASSET_BASE>): void {
     super.fromJSON(json)
-    if (this.id === undefined) this.id = Date.now()
     this.assertAssetUniq()
     assetManage.addAsset(this)
   }

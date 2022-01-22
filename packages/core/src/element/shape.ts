@@ -1,21 +1,16 @@
-import { Element, RenderParam } from "./_element"
-import { D_PATH, D_SHAPE, OmitType } from "../type"
-import { genPath, Path, Path_Path } from "../path"
 import { Box } from "@canvas-2d/shared"
 
-/**
- * Shape Element class.
- */
+import { Element, RenderParam } from "./_element"
+import { D_PATH, D_SHAPE, OmitType } from "../type"
+import { genPath, Path, Path_Path, assetPath } from "../path"
+
 export class Shape extends Element implements D_SHAPE {
   public ATTRIBUTE_NAMES: (keyof D_SHAPE)[] = ["d_path"]
-  /**
-   * Shape type
-   */
   public readonly type = "shape"
 
   d_path!: D_PATH
 
-  path!: Path
+  path?: Path
 
   constructor() {
     super()
@@ -34,6 +29,7 @@ export class Shape extends Element implements D_SHAPE {
 
   public renderBefore(ctx: CanvasRenderingContext2D): void {
     const { origin } = this
+    if (!this.path) return
     super.renderBefore(ctx)
     this.path.takeEffect(ctx, {
       origin
@@ -41,10 +37,12 @@ export class Shape extends Element implements D_SHAPE {
   }
 
   public countElementBox(ctx: CanvasRenderingContext2D): void {
+    if (!this.path) return
     this.elementBox = this.path.pathBox
   }
 
   public updateElementBox(box: Partial<Box>): void {
+    if (!this.path) return
     const { origin } = this
     this.path.updatePathBox(box, { origin })
   }
@@ -83,9 +81,22 @@ export class Shape extends Element implements D_SHAPE {
     }
   }
 
+  static assertJsonTrue(json?: OmitType<D_SHAPE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { d_path } = json
+    assetPath(d_path)
+  }
+
   fromJSON(json: OmitType<D_SHAPE>): void {
     super.fromJSON(json)
     const { d_path } = json
-    this.path = genPath(d_path)
+    if (d_path) {
+      if (!this.path) {
+        this.path = genPath(d_path)
+      } else {
+        this.path.fromJSON(d_path)
+      }
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Box } from "@canvas-2d/shared"
+import { Box, assertJsonType } from "@canvas-2d/shared"
 import { D_PATH_RECTANGLE, OmitType } from "../type"
 import { Path, PathParam } from "./_path"
 
@@ -10,14 +10,8 @@ export class Rect extends Path implements D_PATH_RECTANGLE {
 
   ATTRIBUTE_NAMES: (keyof D_PATH_RECTANGLE)[] = ["rx", "ry", "width", "height", "x", "y"]
 
-  /**
-   * Horizontal border radius
-   */
   rx = 0
 
-  /**
-   * Vertical border radius
-   */
   ry = 0
 
   width = 0
@@ -25,6 +19,7 @@ export class Rect extends Path implements D_PATH_RECTANGLE {
   height = 0
 
   x = 0
+
   y = 0
 
   genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void {
@@ -69,6 +64,18 @@ export class Rect extends Path implements D_PATH_RECTANGLE {
     this.y = boxY - origin.y
     this.width = boxWidth
     this.height = boxHeight
+  }
+
+  static assertJsonTrue(json?: OmitType<D_PATH_RECTANGLE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { rx, ry, width, height, x, y } = json
+    assertJsonType(rx, "number")
+    assertJsonType(ry, "number")
+    assertJsonType(width, "number")
+    assertJsonType(height, "number")
+    assertJsonType(x, "number")
+    assertJsonType(y, "number")
   }
 
   fromJSON(json: OmitType<D_PATH_RECTANGLE>): void {

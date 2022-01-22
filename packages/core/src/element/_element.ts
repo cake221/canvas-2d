@@ -1,4 +1,4 @@
-import { Box } from "@canvas-2d/shared"
+import { Box, assertJsonType, assetValueRange } from "@canvas-2d/shared"
 import { Base } from "../base"
 import { Attribute, Origin, Rotate, Clip } from "../attr"
 import {
@@ -9,7 +9,8 @@ import {
   D_STROKE_PARAM,
   D_GRADIENT,
   D_ASSET_IMAGE,
-  OmitType
+  OmitType,
+  DATA
 } from "../type"
 import { assetManage, AssetImage } from "../asset"
 
@@ -39,21 +40,23 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   stroke: string | Gradient | Pattern = "rgba(0, 0, 0, 0)"
 
-  strokeParam?: StrokeParam
+  strokeParam: StrokeParam = new StrokeParam()
 
-  fillRule?: CanvasFillRule
+  static fillRule = ["evenodd", "nonzero"]
 
-  shadow?: Shadow
+  fillRule: CanvasFillRule = "evenodd"
+
+  shadow: Shadow = new Shadow()
 
   rotate: Rotate = new Rotate()
 
   coordStroke: string = ""
 
-  filter?: string
+  filter: string = ""
 
   origin: Origin = new Origin()
 
-  clip?: Clip
+  clip: Clip = new Clip()
 
   elementBox = new Box()
 
@@ -147,12 +150,58 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     this.clip?.takeEffect(ctx, { fillRule, origin })
   }
 
+  static assertJsonTrue(json?: OmitType<D_ELEMENT_BASE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { strokeParam, shadow, rotate, fill, stroke, clip, origin, fillRule, filter } = json
+    // "origin"
+    assertJsonType(origin?.x, "number")
+    assertJsonType(origin?.y, "number")
+
+    // "fill" "stroke"
+
+    if (!!fill && typeof fill !== "string") {
+      if ((fill as D_GRADIENT).gradientShape) {
+        Gradient.assertJsonTrue(fill as D_GRADIENT)
+      } else if ((fill as D_PATTER).asset !== undefined) {
+        Pattern.assertJsonTrue(fill as D_PATTER)
+      }
+    }
+
+    if (!!stroke && typeof stroke !== "string") {
+      if ((stroke as D_GRADIENT).gradientShape) {
+        Gradient.assertJsonTrue(stroke as D_GRADIENT)
+      } else if ((stroke as D_PATTER).asset !== undefined) {
+        Pattern.assertJsonTrue(stroke as D_PATTER)
+      }
+    }
+
+    // "rotate"
+    Rotate.assertJsonTrue(rotate)
+
+    // "clip"
+    Clip.assertJsonTrue(clip)
+
+    // "fillRule"
+    assetValueRange(fillRule, Element.fillRule)
+
+    // "strokeParam"
+    StrokeParam.assertJsonTrue(strokeParam)
+
+    // "shadow"
+    Shadow.assertJsonTrue(shadow)
+
+    // "filter"
+    assertJsonType(filter, "string")
+  }
+
   fromJSON(json: OmitType<D_ELEMENT_BASE>): void {
     super.fromJSON(json)
     const { strokeParam, shadow, rotate, fill, stroke, clip } = json
 
-    this.origin = Origin.createObj(Origin, json.origin!)
+    json.origin && this.origin.fromJSON(json.origin)
 
+    // FIXME: 判断 fill 的类型
     if (!!fill && typeof fill !== "string") {
       if ((fill as D_GRADIENT).gradientShape) {
         this.fill = Gradient.createObj(Gradient, fill)
@@ -161,6 +210,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
       }
     }
 
+    // FIXME: 判断 stroke 的类型
     if (!!stroke && typeof stroke !== "string") {
       if ((stroke as D_GRADIENT).gradientShape) {
         this.stroke = Gradient.createObj(Gradient, stroke)
@@ -169,23 +219,13 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
       }
     }
 
-    if (strokeParam) {
-      this.strokeParam = StrokeParam.createObj(StrokeParam, strokeParam)
-    }
+    strokeParam && this.strokeParam.fromJSON(strokeParam)
 
-    if (shadow) {
-      this.shadow = Shadow.createObj(Shadow, shadow)
-    }
+    shadow && this.shadow.fromJSON(shadow)
 
-    if (rotate) {
-      this.rotate = Rotate.createObj(Rotate, rotate)
-    }
+    rotate && this.rotate.fromJSON(rotate)
 
-    if (clip) {
-      const clipObj = new Clip()
-      clipObj.fromJSON(clip, json)
-      this.clip = clipObj
-    }
+    clip && this.clip.fromJSON(clip)
   }
 }
 
@@ -212,10 +252,20 @@ export class Shadow extends Attribute implements D_SHADOW {
     "shadowOffsetY"
   ]
 
-  shadowBlur?: number
-  shadowColor?: string
-  shadowOffsetX?: number
-  shadowOffsetY?: number
+  shadowBlur: number = 0
+  shadowColor: string = "rgba(0, 0, 0, 0)"
+  shadowOffsetX: number = 0
+  shadowOffsetY: number = 0
+
+  static assertJsonTrue(json?: OmitType<D_SHADOW>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { shadowBlur, shadowColor, shadowOffsetX, shadowOffsetY } = json
+    assertJsonType(shadowBlur, "number")
+    assertJsonType(shadowColor, "string")
+    assertJsonType(shadowOffsetX, "number")
+    assertJsonType(shadowOffsetY, "number")
+  }
 
   fromJSON(json: OmitType<D_SHADOW>): void {
     super.fromJSON(json)
@@ -226,9 +276,9 @@ class Pattern extends Attribute implements D_PATTER {
   public type: string = "attr_pattern"
   public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["asset", "repetition", "transform"]
 
-  repetition?: string
+  repetition: string = ""
 
-  transform?: DOMMatrix2DInit
+  transform: DOMMatrix2DInit = {}
 
   asset!: number | D_ASSET_IMAGE
 
@@ -245,16 +295,29 @@ class Pattern extends Attribute implements D_PATTER {
     return pattern
   }
 
+  static assertJsonTrue(json?: OmitType<D_PATTER>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { asset, repetition, transform } = json
+    if (typeof asset !== "number") {
+      AssetImage.assertJsonTrue(asset)
+    }
+    assertJsonType(repetition, "string")
+    assertJsonType(transform, "array")
+  }
+
   fromJSON(json: OmitType<D_PATTER>): void {
     const { asset } = json
     super.fromJSON(json)
     const assetImage = new AssetImage()
-    if (typeof asset === "number") {
-      assetImage.id = asset
-      this.uniqueIdent = assetImage.uniqueIdent
-    } else {
-      assetImage.fromJSON(asset)
-      this.uniqueIdent = assetImage.uniqueIdent
+    if (asset !== undefined) {
+      if (typeof asset === "number") {
+        assetImage.id = asset
+        this.uniqueIdent = assetImage.uniqueIdent
+      } else {
+        assetImage.fromJSON(asset)
+        this.uniqueIdent = assetImage.uniqueIdent
+      }
     }
   }
 }
@@ -264,7 +327,7 @@ export class Gradient extends Attribute implements D_GRADIENT {
   public ATTRIBUTE_NAMES: (keyof D_GRADIENT)[] = ["gradientShape", "gradientColors"]
 
   gradientColors: D_GRADIENT["gradientColors"] = []
-  gradientShape!: D_GRADIENT["gradientShape"]
+  gradientShape: D_GRADIENT["gradientShape"] = [0, 0, 0, 0]
 
   genGradient(ctx: CanvasRenderingContext2D) {
     const { gradientShape, gradientColors } = this
@@ -278,6 +341,14 @@ export class Gradient extends Attribute implements D_GRADIENT {
       gradient.addColorStop(...colorStop)
     }
     return gradient
+  }
+
+  static assertJsonTrue(json?: OmitType<D_GRADIENT>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { gradientShape, gradientColors } = json
+    assertJsonType(gradientShape, "array")
+    assertJsonType(gradientColors, "array")
   }
 
   fromJSON(json: OmitType<D_GRADIENT>): void {
@@ -296,12 +367,15 @@ export class StrokeParam extends Attribute implements D_STROKE_PARAM {
     "lineWidth"
   ]
 
-  lineWidth?: number
-  lineDash?: number[]
-  lineDashOffset?: number
-  lineCap?: CanvasLineCap
-  lineJoin?: CanvasLineJoin
-  miterLimit?: number
+  static lineJoin = ["bevel", "miter", "round"]
+  static lineCap = ["butt", "round", "square"]
+
+  lineWidth: number = 2
+  lineDash: number[] = []
+  lineDashOffset: number = 0
+  lineCap: CanvasLineCap = "butt"
+  lineJoin: CanvasLineJoin = "bevel"
+  miterLimit: number = 0
 
   takeEffect(ctx: CanvasRenderingContext2D): void {
     super.takeEffect(ctx)
@@ -319,6 +393,18 @@ export class StrokeParam extends Attribute implements D_STROKE_PARAM {
       dashArray.push(...dashArray)
     }
     ctx.setLineDash(dashArray)
+  }
+
+  static assertJsonTrue(json?: OmitType<D_STROKE_PARAM>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { lineDash, lineDashOffset, lineCap, lineJoin, miterLimit, lineWidth } = json
+    assertJsonType(lineDash, "array")
+    assertJsonType(lineDashOffset, "number")
+    assetValueRange(lineCap, StrokeParam.lineCap)
+    assetValueRange(lineJoin, StrokeParam.lineJoin)
+    assertJsonType(miterLimit, "number")
+    assertJsonType(lineWidth, "number")
   }
 
   fromJSON(json: OmitType<D_STROKE_PARAM>): void {

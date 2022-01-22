@@ -1,4 +1,4 @@
-import { Point, Rotate as RotateType, Box } from "@canvas-2d/shared"
+import { Point, Rotate as RotateType, Box, assertJsonType } from "@canvas-2d/shared"
 
 import { Attribute } from "./_attr"
 import { D_ROTATE, OmitType } from "../type"
@@ -39,6 +39,13 @@ export class Rotate extends Attribute implements D_ROTATE, RotateType {
       p = p.translatePoint(angleCenter.x, angleCenter.y)
     }
     return p
+  }
+
+  static assertJsonTrue(json?: OmitType<D_ROTATE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { angle } = json
+    assertJsonType(angle, "number")
   }
 
   fromJSON(json: OmitType<D_ROTATE>): void {

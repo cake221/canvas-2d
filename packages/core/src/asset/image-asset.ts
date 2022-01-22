@@ -5,11 +5,7 @@ import { Asset } from "./_asset"
 export class AssetImage extends Asset implements D_ASSET_IMAGE {
   public readonly type = "asset_image"
 
-  ATTRIBUTE_NAMES: (keyof D_ASSET_IMAGE)[] = ["data", "id"]
-
-  public height?: number
-
-  public width?: number
+  ATTRIBUTE_NAMES: (keyof D_ASSET_IMAGE)[] = [...this.ASSET_ATTRIBUTE]
 
   public element: HTMLImageElement | null = null
 
@@ -20,6 +16,11 @@ export class AssetImage extends Asset implements D_ASSET_IMAGE {
       onImageLoad(data, resolve, reject)
     )
     this.element = img
+  }
+
+  static assertJsonTrue(json?: OmitType<D_ASSET_IMAGE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
   }
 
   fromJSON(json: OmitType<D_ASSET_IMAGE>): void {

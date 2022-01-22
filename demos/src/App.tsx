@@ -36,7 +36,14 @@ export default function App() {
   }
 
   return (
-    <div style={{ background: "antiquewhite", height: "100vh" }}>
+    <div
+      style={{
+        background: "antiquewhite",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column"
+      }}
+    >
       <Menu onClick={handleClick} selectedKeys={[module]} mode="horizontal">
         <SubMenu key="canvas-json" title="加载JSON">
           <Menu.Item key="canvas-json:text">文本</Menu.Item>
@@ -56,9 +63,9 @@ export default function App() {
       </Menu>
       <div
         style={{
-          marginTop: "50px",
           display: "flex",
-          justifyContent: "center"
+          justifyContent: "center",
+          height: "100%"
         }}
       >
         {renderModule()}

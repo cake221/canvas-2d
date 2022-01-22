@@ -106,6 +106,7 @@ export class CanvasTransform extends CanvasBase {
     this.firstP = p
     this.firstPBaseTrans = this.pBaseTrans
     this.countControlAction(ev)
+    this.render()
   }
 
   countControlAction(ev: PointerEvent) {
