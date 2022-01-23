@@ -23,7 +23,7 @@ export function genElement(layer: D_ELEMENT): Element {
   }
 }
 
-export function assetElement(layer: D_ELEMENT) {
+export function assertElement(layer: D_ELEMENT) {
   switch (layer.type) {
     case "shape":
       return Shape.assertJsonTrue(layer)

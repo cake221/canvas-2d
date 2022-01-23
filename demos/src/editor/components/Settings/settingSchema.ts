@@ -1,45 +1,12 @@
-import { D_ELEMENT, Element } from "@canvas-2d/core/src"
-
-export function parseSchemaValue(value: any, type: Element["type"]): D_ELEMENT {
-  // @ts-ignore
-  const eleData: D_ELEMENT = {}
-
-  eleData.type = type
-
-  eleData.origin = value.origin
-
-  eleData.stroke = value[value.strokeType]
-
-  eleData.fill = value[value.fillType]
-
-  eleData.fillRule = value.fillRule
-
-  return eleData
-}
-
-export function fillSchemaValue(ele: Element) {
-  const { origin, fill, stroke, fillRule } = ele
-  const eleFromData: any = {}
-  eleFromData.origin = {
-    x: origin.x,
-    y: origin.y
-  }
-  if (typeof stroke === "string") {
-    eleFromData.strokeType = "strokeColor"
-    eleFromData.strokeColor = stroke
-  }
-  if (typeof fill === "string") {
-    eleFromData.fillType = "fillColor"
-    eleFromData.fillColor = fill
-  }
-
-  fillRule && (eleFromData.fillRule = fillRule)
-  return eleFromData
-}
+import { Element } from "@canvas-2d/core/src"
 
 export const settingSchema = {
   type: "object",
   properties: {
+    type: {
+      type: "string",
+      readonly: true
+    },
     origin: {
       title: "Origin",
       type: "object",
@@ -118,6 +85,12 @@ export const settingSchema = {
       enumNames: ["奇偶规则", "非零规则"],
       widget: "select",
       labelWidth: 160
+    },
+    imageData: {
+      title: "图片",
+      type: "string",
+      hidden: "{{formData.type !== 'image'}}",
+      widget: "imageUpload"
     }
   },
   labelWidth: 120,
