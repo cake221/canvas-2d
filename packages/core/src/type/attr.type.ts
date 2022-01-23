@@ -27,11 +27,13 @@ type RadialGradient = [number, number, number, number, number, number] // [x0: n
 type ColorStop = [number, string] // [offset: number, color: string]
 
 export interface D_GRADIENT extends D_ATTR_BASE {
+  type: "attr_gradient"
   gradientShape: LinerGradient | RadialGradient
   gradientColors: ColorStop[]
 }
 
 export interface D_PATTER extends D_ATTR_BASE {
+  type: "attr_pattern"
   repetition?: string
   transform?: DOMMatrix2DInit
   asset: Asset_ID | D_ASSET_IMAGE

@@ -28,10 +28,6 @@ export interface D_ELEMENT_BASE {
   clip?: D_CLIP
 }
 
-export interface D_FALSE_ELEMENT extends D_ELEMENT_BASE {
-  type: "element_false"
-}
-
 export interface D_SHAPE extends D_ELEMENT_BASE {
   type: "shape"
   d_path: D_PATH
@@ -64,7 +60,7 @@ export interface D_TEXT_BOX extends D_TEXT_BASE {
   height: number
 }
 
-export type D_ELEMENT = D_SHAPE | D_IMAGE | D_TEXT | D_TEXT_BOX | D_FALSE_ELEMENT
+export type D_ELEMENT = D_SHAPE | D_IMAGE | D_TEXT | D_TEXT_BOX
 export type ImageType = D_IMAGE["type"]
 export type TextType = D_TEXT_BASE["type"]
 export type ElementType = D_ELEMENT["type"]

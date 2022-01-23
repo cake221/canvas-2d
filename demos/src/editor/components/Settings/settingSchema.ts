@@ -1,5 +1,7 @@
 import { Element, StrokeParam } from "@canvas-2d/core/src"
 
+const gradientSchema = {}
+
 const strokeSchema = {
   strokeType: {
     title: "描边类型",
@@ -97,9 +99,11 @@ const fillSchema = {
   },
   fillGradient: {
     title: "填充渐变",
-    type: "string",
+    type: "object",
     hidden: "{{formData.fillType !== 'fillGradient'}}",
-    props: {}
+    properties: {
+      ...gradientSchema
+    }
   },
   fillPattern: {
     title: "填充模式",
