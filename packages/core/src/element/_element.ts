@@ -388,10 +388,6 @@ export class StrokeParam extends Attribute implements D_STROKE_PARAM {
     if (!dashArray || dashArray.length === 0) {
       return
     }
-    // Spec requires the concatenation of two copies the dash list when the number of elements is odd
-    if (1 & dashArray.length) {
-      dashArray.push(...dashArray)
-    }
     ctx.setLineDash(dashArray)
   }
 
@@ -409,5 +405,7 @@ export class StrokeParam extends Attribute implements D_STROKE_PARAM {
 
   fromJSON(json: OmitType<D_STROKE_PARAM>): void {
     super.fromJSON(json)
+    const { lineDash } = json
+    lineDash && (this.lineDash = lineDash)
   }
 }

@@ -11,8 +11,8 @@ const data: JSON_DATA = {
       type: "shape",
       d_path: {
         type: "rect",
-        rx: 5,
-        ry: 10,
+        // rx: 5,
+        // ry: 10,
         width: 100,
         height: 80
       },
