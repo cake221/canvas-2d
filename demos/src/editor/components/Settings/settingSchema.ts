@@ -1,6 +1,17 @@
 import { Element, StrokeParam } from "@canvas-2d/core/src"
 
-const gradientSchema = {}
+const gradientSchema = {
+  gradientColors: {
+    title: "gradientColors",
+    type: "array",
+    widget: "gradientInput"
+  },
+  gradientShape: {
+    title: "gradientShape",
+    type: "array",
+    widget: "gradientInput"
+  }
+}
 
 const strokeSchema = {
   strokeType: {
@@ -21,9 +32,11 @@ const strokeSchema = {
   },
   strokeGradient: {
     title: "描边渐变",
-    type: "string",
+    type: "object",
     hidden: "{{formData.strokeType !== 'strokeGradient'}}",
-    props: {}
+    properties: {
+      ...gradientSchema
+    }
   },
   strokePattern: {
     title: "描边模式",

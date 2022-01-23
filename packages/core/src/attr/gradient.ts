@@ -1,4 +1,4 @@
-import { assertJsonType } from "@canvas-2d/shared"
+import { assertJsonType, invariant } from "@canvas-2d/shared"
 import { Attribute } from "./_attr"
 import { D_GRADIENT, OmitType } from "../type"
 
@@ -36,6 +36,11 @@ export class Gradient extends Attribute implements D_GRADIENT {
     super.assertJsonTrue(json)
     const { gradientShape, gradientColors } = json
     assertJsonType(gradientShape, "array")
+    gradientShape &&
+      invariant(
+        gradientShape.length === 4 || gradientShape.length === 6,
+        "gradientShape 数组不符合规范"
+      )
     assertJsonType(gradientColors, "array")
   }
 

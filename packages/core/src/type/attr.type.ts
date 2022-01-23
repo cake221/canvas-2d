@@ -22,13 +22,14 @@ export type D_SHADOW = Partial<CanvasShadowStyles>
 
 export type D_ORIGIN = Partial<Point>
 
-type LinerGradient = [number, number, number, number] // [x0: number, y0: number, x1: number, y1: number]
-type RadialGradient = [number, number, number, number, number, number] // [x0: number, y0: number, r0: number, x1: number, y1: number, r1: number]
-type ColorStop = [number, string] // [offset: number, color: string]
+export type LinerGradient = [number, number, number, number] // [x0: number, y0: number, x1: number, y1: number]
+export type RadialGradient = [number, number, number, number, number, number] // [x0: number, y0: number, r0: number, x1: number, y1: number, r1: number]
+export type ColorStop = [number, string] // [offset: number, color: string]
+export type GradientShape = LinerGradient | RadialGradient
 
 export interface D_GRADIENT extends D_ATTR_BASE {
   type: "attr_gradient"
-  gradientShape: LinerGradient | RadialGradient
+  gradientShape: GradientShape
   gradientColors: ColorStop[]
 }
 

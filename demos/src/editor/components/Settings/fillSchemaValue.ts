@@ -1,4 +1,4 @@
-import { Element, Image, assetManage } from "@canvas-2d/core/src"
+import { Element, Image, assetManage, Gradient } from "@canvas-2d/core/src"
 
 export function fillSchemaValue(ele: Element) {
   const { origin, fill, stroke, fillRule, strokeParam } = ele
@@ -15,6 +15,14 @@ export function fillSchemaValue(ele: Element) {
     if (typeof stroke === "string") {
       eleFromData.strokeType = "strokeColor"
       eleFromData.strokeColor = stroke
+    } else if (Gradient.isGradient(stroke)) {
+      eleFromData.strokeType = "strokeGradient"
+      eleFromData.strokeGradient = {
+        gradientColors: Array.from(stroke.gradientColors),
+        gradientShape: Array.from(stroke.gradientShape)
+      }
+    } else {
+      throw new Error("暂不支持")
     }
 
     if (strokeParam) {
@@ -42,6 +50,14 @@ export function fillSchemaValue(ele: Element) {
     if (typeof fill === "string") {
       eleFromData.fillType = "fillColor"
       eleFromData.fillColor = fill
+    } else if (Gradient.isGradient(fill)) {
+      eleFromData.fillType = "fillGradient"
+      eleFromData.fillGradient = {
+        gradientColors: Array.from(fill.gradientColors),
+        gradientShape: Array.from(fill.gradientShape)
+      }
+    } else {
+      throw new Error("暂不支持")
     }
 
     fillRule && (eleFromData.fillRule = fillRule)

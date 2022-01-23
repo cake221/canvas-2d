@@ -15,8 +15,6 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
 
   eleData.origin = value.origin
 
-  eleData.stroke = value[value.strokeType]
-
   if (value.strokeParam) {
     const { lineDash, lineDashOffset, lineCap, lineJoin, miterLimit, lineWidth } = value.strokeParam
     const strokeParam: D_STROKE_PARAM = (eleData.strokeParam = {})
@@ -34,7 +32,35 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
     lineWidth !== undefined && (strokeParam.lineWidth = lineWidth)
   }
 
-  eleData.fill = value[value.fillType]
+  {
+    if (value.strokeType === "strokeColor") {
+      eleData.stroke = value[value.strokeType] ?? ""
+    } else if (value.strokeType === "strokeGradient") {
+      const { gradientColors, gradientShape } = value[value.strokeType]
+      eleData.stroke = {
+        type: "attr_gradient",
+        gradientColors,
+        gradientShape
+      }
+    } else {
+      throw new Error("暂不支持")
+    }
+  }
+
+  {
+    if (value.fillType === "fillColor") {
+      eleData.fill = value[value.fillType] ?? ""
+    } else if (value.fillType === "fillGradient") {
+      const { gradientColors, gradientShape } = value[value.fillType]
+      eleData.fill = {
+        type: "attr_gradient",
+        gradientColors,
+        gradientShape
+      }
+    } else {
+      throw new Error("暂不支持")
+    }
+  }
 
   eleData.fillRule = value.fillRule
 

@@ -23,7 +23,6 @@ export function ImageUpload(props: Props) {
       return
     }
     if (info.file.status === "done") {
-      // Get this url from response in real world.
       getBase64(info.file.originFileObj, (value: string) => {
         changeLoading(false)
         onChange(value)

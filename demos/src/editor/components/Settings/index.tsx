@@ -6,7 +6,7 @@ import { cloneJson } from "@canvas-2d/shared"
 import { settingSchema } from "./settingSchema"
 import { fillSchemaValue } from "./fillSchemaValue"
 import { parseSchemaValue } from "./parseSchemaValue"
-import { ImageUpload } from "./uploadImage"
+import { ImageUpload, gradientInput } from "./widget"
 
 interface SettingsProps {
   ele: Element
@@ -41,7 +41,8 @@ export function Settings(props: SettingsProps) {
       form={form}
       schema={settingSchema}
       widgets={{
-        imageUpload: ImageUpload
+        imageUpload: ImageUpload,
+        gradientInput
       }}
       watch={{
         "#": {
