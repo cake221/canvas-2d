@@ -1,4 +1,4 @@
-import { Box, Point } from "@canvas-2d/shared"
+import { Box, Point, assertJsonType } from "@canvas-2d/shared"
 
 import { Origin } from "../attr"
 import { D_PATH_POLYGON, OmitType } from "../type"
@@ -15,11 +15,11 @@ export class Polygon extends Path implements D_PATH_POLYGON {
     "startAngle"
   ]
 
-  centerX!: number
-  centerY!: number
-  radius!: number
-  sides!: number
-  startAngle?: number
+  centerX: number = 0
+  centerY: number = 0
+  radius: number = 0
+  sides: number = 0
+  startAngle: number = 0
 
   genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void {
     const points = this.getPoints(pathParam.origin)
@@ -54,6 +54,17 @@ export class Polygon extends Path implements D_PATH_POLYGON {
 
   public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
     throw new Error("Method not implemented.")
+  }
+
+  static assertJsonTrue(json?: OmitType<D_PATH_POLYGON>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { radius, startAngle, centerX, centerY, sides } = json
+    assertJsonType(centerX, "number")
+    assertJsonType(centerY, "number")
+    assertJsonType(radius, "number")
+    assertJsonType(startAngle, "number")
+    assertJsonType(sides, "number")
   }
 
   fromJSON(json: OmitType<D_PATH_POLYGON>): void {

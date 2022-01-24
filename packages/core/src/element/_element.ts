@@ -1,17 +1,7 @@
-import { Box } from "@canvas-2d/shared"
+import { Box, assertJsonType, assetValueRange } from "@canvas-2d/shared"
 import { Base } from "../base"
-import { Attribute, Origin, Rotate, Clip } from "../attr"
-import {
-  D_ELEMENT_BASE,
-  ElementType,
-  D_SHADOW,
-  D_PATTER,
-  D_STROKE_PARAM,
-  D_GRADIENT,
-  D_ASSET_IMAGE,
-  OmitType
-} from "../type"
-import { assetManage, AssetImage } from "../asset"
+import { Origin, Rotate, Clip, Gradient, Pattern, StrokeParam, Shadow } from "../attr"
+import { D_ELEMENT_BASE, ElementType, D_PATTER, D_GRADIENT, OmitType } from "../type"
 
 export interface RenderParam {}
 
@@ -39,21 +29,23 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   stroke: string | Gradient | Pattern = "rgba(0, 0, 0, 0)"
 
-  strokeParam?: StrokeParam
+  strokeParam: StrokeParam = new StrokeParam()
 
-  fillRule?: CanvasFillRule
+  static fillRule = ["evenodd", "nonzero"]
 
-  shadow?: Shadow
+  fillRule: CanvasFillRule = "evenodd"
+
+  shadow: Shadow = new Shadow()
 
   rotate: Rotate = new Rotate()
 
   coordStroke: string = ""
 
-  filter?: string
+  filter: string = ""
 
   origin: Origin = new Origin()
 
-  clip?: Clip
+  clip: Clip = new Clip()
 
   elementBox = new Box()
 
@@ -114,13 +106,13 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
     if (typeof stroke === "string") {
       ctx.strokeStyle = stroke
-    } else if (stroke instanceof Gradient) {
+    } else if (Gradient.isGradient(stroke)) {
       ctx.strokeStyle = stroke.genGradient(ctx)
-    } else if (stroke instanceof Pattern) {
+    } else if (Pattern.isPattern(stroke)) {
       ctx.strokeStyle = stroke.genPattern(ctx) || ""
     }
 
-    this.strokeParam?.takeEffect(ctx)
+    this.strokeParam.takeEffect(ctx)
   }
 
   setFill(ctx: CanvasRenderingContext2D) {
@@ -128,9 +120,9 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     if (!fill) return
     if (typeof fill === "string") {
       ctx.fillStyle = fill
-    } else if (fill instanceof Gradient) {
+    } else if (Gradient.isGradient(fill)) {
       ctx.fillStyle = fill.genGradient(ctx)
-    } else if (fill instanceof Pattern) {
+    } else if (Pattern.isPattern(fill)) {
       ctx.fillStyle = fill.genPattern(ctx) || ""
     }
   }
@@ -147,181 +139,103 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
     this.clip?.takeEffect(ctx, { fillRule, origin })
   }
 
-  fromJSON(json: OmitType<D_ELEMENT_BASE>): void {
-    super.fromJSON(json)
-    const { strokeParam, shadow, rotate, fill, stroke, clip } = json
+  static assertJsonTrue(json?: OmitType<D_ELEMENT_BASE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { strokeParam, shadow, rotate, fill, stroke, clip, origin, fillRule, filter } = json
+    // "origin"
+    assertJsonType(origin?.x, "number")
+    assertJsonType(origin?.y, "number")
 
-    this.origin = Origin.createObj(Origin, json.origin!)
+    // "fill" "stroke"
 
     if (!!fill && typeof fill !== "string") {
       if ((fill as D_GRADIENT).gradientShape) {
-        this.fill = Gradient.createObj(Gradient, fill)
+        Gradient.assertJsonTrue(fill as D_GRADIENT)
       } else if ((fill as D_PATTER).asset !== undefined) {
-        this.fill = Pattern.createObj(Pattern, fill)
+        Pattern.assertJsonTrue(fill as D_PATTER)
       }
     }
 
     if (!!stroke && typeof stroke !== "string") {
       if ((stroke as D_GRADIENT).gradientShape) {
-        this.stroke = Gradient.createObj(Gradient, stroke)
+        Gradient.assertJsonTrue(stroke as D_GRADIENT)
       } else if ((stroke as D_PATTER).asset !== undefined) {
-        this.stroke = Pattern.createObj(Pattern, stroke)
+        Pattern.assertJsonTrue(stroke as D_PATTER)
       }
     }
 
-    if (strokeParam) {
-      this.strokeParam = StrokeParam.createObj(StrokeParam, strokeParam)
-    }
+    // "rotate"
+    Rotate.assertJsonTrue(rotate)
 
-    if (shadow) {
-      this.shadow = Shadow.createObj(Shadow, shadow)
-    }
+    // "clip"
+    Clip.assertJsonTrue(clip)
 
-    if (rotate) {
-      this.rotate = Rotate.createObj(Rotate, rotate)
-    }
+    // "fillRule"
+    assetValueRange(fillRule, Element.fillRule)
 
-    if (clip) {
-      const clipObj = new Clip()
-      clipObj.fromJSON(clip, json)
-      this.clip = clipObj
-    }
+    // "strokeParam"
+    StrokeParam.assertJsonTrue(strokeParam)
+
+    // "shadow"
+    Shadow.assertJsonTrue(shadow)
+
+    // "filter"
+    assertJsonType(filter, "string")
   }
-}
 
-export class FalseElement extends Element {
-  public updateElementBox(box: Partial<Box>): void {
-    throw new Error("Method not implemented.")
-  }
-  public countElementBox(ctx: CanvasRenderingContext2D): void {
-    throw new Error("Method not implemented.")
-  }
-  public ATTRIBUTE_NAMES: any[] = Element.ELEMENT_ATTRIBUTES
-  public readonly type = "element_false"
-  public render(): void {
-    throw new Error("Method not implemented.")
-  }
-}
-
-export class Shadow extends Attribute implements D_SHADOW {
-  public type: string = "attr_shadow"
-  public ATTRIBUTE_NAMES: (keyof D_SHADOW)[] = [
-    "shadowBlur",
-    "shadowColor",
-    "shadowOffsetX",
-    "shadowOffsetY"
-  ]
-
-  shadowBlur?: number
-  shadowColor?: string
-  shadowOffsetX?: number
-  shadowOffsetY?: number
-
-  fromJSON(json: OmitType<D_SHADOW>): void {
+  fromJSON(json: OmitType<D_ELEMENT_BASE>): void {
     super.fromJSON(json)
-  }
-}
+    const { strokeParam, shadow, rotate, fill, stroke, clip } = json
 
-class Pattern extends Attribute implements D_PATTER {
-  public type: string = "attr_pattern"
-  public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["asset", "repetition", "transform"]
+    json.origin && this.origin.fromJSON(json.origin)
 
-  repetition?: string
+    if (!!fill && typeof fill !== "string") {
+      if (Gradient.isGradientData(fill)) {
+        if (Gradient.isGradient(this.fill)) {
+          this.fill.fromJSON(fill)
+        } else {
+          this.fill = new Gradient()
+          this.fill.fromJSON(fill)
+        }
+      }
 
-  transform?: DOMMatrix2DInit
-
-  asset!: number | D_ASSET_IMAGE
-
-  uniqueIdent: string = ""
-
-  genPattern(ctx: CanvasRenderingContext2D) {
-    const { repetition, transform, uniqueIdent } = this
-    const asset = assetManage.getAsset(uniqueIdent) as AssetImage
-    if (!asset || !asset.element) {
-      throw new Error("没有图片资源填充")
+      if (Pattern.isPatternData(fill)) {
+        if (Pattern.isPattern(this.fill)) {
+          this.fill.fromJSON(fill)
+        } else {
+          this.fill = new Pattern()
+          this.fill.fromJSON(fill)
+        }
+      }
     }
-    const pattern = ctx.createPattern(asset.element, repetition ?? null)
-    pattern?.setTransform(transform)
-    return pattern
-  }
 
-  fromJSON(json: OmitType<D_PATTER>): void {
-    const { asset } = json
-    super.fromJSON(json)
-    const assetImage = new AssetImage()
-    if (typeof asset === "number") {
-      assetImage.id = asset
-      this.uniqueIdent = assetImage.uniqueIdent
-    } else {
-      assetImage.fromJSON(asset)
-      this.uniqueIdent = assetImage.uniqueIdent
+    if (!!stroke && typeof stroke !== "string") {
+      if (Gradient.isGradientData(stroke)) {
+        if (Gradient.isGradient(this.stroke)) {
+          this.stroke.fromJSON(stroke)
+        } else {
+          this.stroke = new Gradient()
+          this.stroke.fromJSON(stroke)
+        }
+      }
+
+      if (Pattern.isPatternData(stroke)) {
+        if (Pattern.isPattern(this.stroke)) {
+          this.stroke.fromJSON(stroke)
+        } else {
+          this.stroke = new Pattern()
+          this.stroke.fromJSON(stroke)
+        }
+      }
     }
-  }
-}
 
-export class Gradient extends Attribute implements D_GRADIENT {
-  public type: string = "attr_gradient"
-  public ATTRIBUTE_NAMES: (keyof D_GRADIENT)[] = ["gradientShape", "gradientColors"]
+    strokeParam && this.strokeParam.fromJSON(strokeParam)
 
-  gradientColors: D_GRADIENT["gradientColors"] = []
-  gradientShape!: D_GRADIENT["gradientShape"]
+    shadow && this.shadow.fromJSON(shadow)
 
-  genGradient(ctx: CanvasRenderingContext2D) {
-    const { gradientShape, gradientColors } = this
-    let gradient!: CanvasGradient
-    if (gradientShape.length === 4) {
-      gradient = ctx.createLinearGradient(...gradientShape)
-    } else {
-      gradient = ctx.createRadialGradient(...gradientShape)
-    }
-    for (const colorStop of gradientColors) {
-      gradient.addColorStop(...colorStop)
-    }
-    return gradient
-  }
+    rotate && this.rotate.fromJSON(rotate)
 
-  fromJSON(json: OmitType<D_GRADIENT>): void {
-    super.fromJSON(json)
-  }
-}
-
-export class StrokeParam extends Attribute implements D_STROKE_PARAM {
-  public type: string = "attr_stroke_styles"
-  public ATTRIBUTE_NAMES: (keyof D_STROKE_PARAM)[] = [
-    "lineDash",
-    "lineDashOffset",
-    "lineCap",
-    "lineJoin",
-    "miterLimit",
-    "lineWidth"
-  ]
-
-  lineWidth?: number
-  lineDash?: number[]
-  lineDashOffset?: number
-  lineCap?: CanvasLineCap
-  lineJoin?: CanvasLineJoin
-  miterLimit?: number
-
-  takeEffect(ctx: CanvasRenderingContext2D): void {
-    super.takeEffect(ctx)
-    if (this.lineDash !== undefined) {
-      this.setLineDash(ctx, this.lineDash)
-    }
-  }
-
-  setLineDash(ctx: CanvasRenderingContext2D, dashArray: number[]) {
-    if (!dashArray || dashArray.length === 0) {
-      return
-    }
-    // Spec requires the concatenation of two copies the dash list when the number of elements is odd
-    if (1 & dashArray.length) {
-      dashArray.push(...dashArray)
-    }
-    ctx.setLineDash(dashArray)
-  }
-
-  fromJSON(json: OmitType<D_STROKE_PARAM>): void {
-    super.fromJSON(json)
+    clip && this.clip.fromJSON(clip)
   }
 }

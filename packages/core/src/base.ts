@@ -4,6 +4,8 @@ export abstract class Base {
   public abstract readonly type: string
   public abstract ATTRIBUTE_NAMES: any[]
 
+  static assertJsonTrue(json?: any) {}
+
   public fromJSON(json: any) {
     parseJsonData(this, json, this.ATTRIBUTE_NAMES)
   }

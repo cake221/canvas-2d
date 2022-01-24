@@ -1,7 +1,8 @@
+import { Box, assertJsonType, assetValueRange } from "@canvas-2d/shared"
+
 import { Element } from "./_element"
 import { ImageType, D_IMAGE, D_ASSET_IMAGE, OmitType } from "../type"
 import { AssetImage, assetManage } from "../asset"
-import { Box } from "@canvas-2d/shared"
 
 export class Image extends Element implements D_IMAGE {
   public readonly type: ImageType = "image"
@@ -28,6 +29,8 @@ export class Image extends Element implements D_IMAGE {
   height: number = 0
 
   imageSmoothing: boolean = true
+
+  static imageSmoothingQuality = ["high", "low", "medium"]
 
   imageSmoothingQuality: ImageSmoothingQuality = "medium"
 
@@ -83,16 +86,32 @@ export class Image extends Element implements D_IMAGE {
     elementBox.boxHeight = height
   }
 
-  public fromJSON(json: OmitType<D_IMAGE>): void {
+  static assertJsonTrue(json?: OmitType<D_IMAGE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { asset, width, height, imageSmoothing, imageSmoothingQuality } = json
+
+    if (typeof asset !== "number") {
+      AssetImage.assertJsonTrue(asset)
+    }
+    assertJsonType(width, "number")
+    assertJsonType(height, "number")
+    assertJsonType(imageSmoothing, "boolean")
+    assetValueRange(imageSmoothingQuality, Image.imageSmoothingQuality)
+  }
+
+  fromJSON(json: OmitType<D_IMAGE>): void {
     const { asset } = json
     super.fromJSON(json)
     const assetImage = new AssetImage()
-    if (typeof asset === "number") {
-      assetImage.id = asset
-      this.uniqueIdent = assetImage.uniqueIdent
-    } else {
-      assetImage.fromJSON(asset)
-      this.uniqueIdent = assetImage.uniqueIdent
+    if (asset !== undefined) {
+      if (typeof asset === "number") {
+        assetImage.id = asset
+        this.uniqueIdent = assetImage.uniqueIdent
+      } else {
+        assetImage.fromJSON(asset)
+        this.uniqueIdent = assetImage.uniqueIdent
+      }
     }
   }
 }

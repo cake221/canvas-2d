@@ -5,12 +5,14 @@ import {
   addTextLineBox,
   updateText,
   Point,
-  Box
+  Box,
+  assertJsonType,
+  assetValueRange
 } from "@canvas-2d/shared"
 
 import { Element } from "./_element"
-import { TextType, D_TEXT, D_FONT, D_TEXT_BOX, D_TEXT_BASE, OmitType } from "../type"
-import { Attribute } from "../attr"
+import { Font } from "../attr"
+import { TextType, D_TEXT, D_TEXT_BOX, D_TEXT_BASE, OmitType } from "../type"
 import { D_SHAPE } from "../type"
 import { Shape } from "./shape"
 
@@ -29,21 +31,30 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
 
   constructor() {
     super()
+    // TODO: 将它拆分，独立在每个父子类。不要混合在一起
     this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
   }
 
   textBox: TextBox = new TextBox()
 
-  font!: Font
+  font: Font = new Font()
 
   text: string = ""
 
-  border?: string
+  border: string = "rgba(0, 0, 0, 0)"
 
-  background?: string
+  background: string = "rgba(0, 0, 0, 0)"
+
+  static textAlign = ["center", "end", "left", "right", "start"]
 
   textAlign: CanvasTextAlign = "left"
+
+  static textBaseline = ["alphabetic", "bottom", "hanging", "ideographic", "middle", "top"]
+
   textBaseline: CanvasTextBaseline = "top"
+
+  static direction = ["inherit", "ltr", "rtl"]
+
   direction: CanvasDirection = "inherit"
 
   abstract renderText(ctx: CanvasRenderingContext2D): void
@@ -98,6 +109,19 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
   public countElementBox(ctx: CanvasRenderingContext2D): void {
     this.elementBox = this.textBox
   }
+
+  static assertJsonTrue(json?: OmitType<D_TEXT_BASE>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { font, text, textAlign, textBaseline, direction, border, background } = json
+    Font.assertJsonTrue(font)
+    assertJsonType(text, "string")
+    assertJsonType(background, "string")
+    assertJsonType(border, "string")
+    assetValueRange(textBaseline, TextBase.textBaseline)
+    assetValueRange(textAlign, TextBase.textAlign)
+    assetValueRange(direction, TextBase.direction)
+  }
 }
 
 export class Text extends TextBase implements D_TEXT {
@@ -134,10 +158,15 @@ export class Text extends TextBase implements D_TEXT {
     ctx.fillText(this.text, this.origin.x, this.origin.y)
   }
 
+  static assertJsonTrue(json?: OmitType<D_TEXT>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+  }
+
   fromJSON(json: OmitType<D_TEXT>): void {
     super.fromJSON(json)
     const { font } = json
-    this.font = Font.createObj(Font, font || {})
+    font && this.font.fromJSON(font)
   }
 }
 
@@ -233,50 +262,17 @@ export class Paragraph extends TextBase implements D_TEXT_BOX {
     elementBox.boxHeight = height
   }
 
+  static assertJsonTrue(json?: OmitType<D_TEXT_BOX>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { width, height } = json
+    assertJsonType(width, "number")
+    assertJsonType(height, "number")
+  }
+
   fromJSON(json: OmitType<D_TEXT_BOX>): void {
     super.fromJSON(json)
     const { font } = json
-    this.font = Font.createObj(Font, font || {})
-  }
-}
-
-export class Font extends Attribute implements D_FONT {
-  public type: string = "attr_font"
-
-  ATTRIBUTE_NAMES: (keyof D_FONT)[] = [
-    "fontFamily",
-    "fontStyle",
-    "fontVariant",
-    "fontWeight",
-    "fontSize",
-    "lineHeight"
-  ]
-
-  fontFamily: string = "sans-serif"
-  fontSize: number = 40
-  fontStyle: string = "normal"
-  fontVariant: string = "normal"
-  fontWeight: string = "normal"
-  lineHeight: number = 1.16
-
-  /**
-   * 字体样式
-   *
-   * font 构造规则:
-   * 1. 必须包含 font-size 和 font-family
-   * 2. font-family 必须最后指定
-   * 3. font-style, font-variant 和 font-weight 必须在 font-size 之前
-   * 4. 可以选择性包含 font-style font-variant font-weight line-height
-   * 5. line-height 必须跟在 font-size 后面，由 "/" 分隔，例如 "16px/3"
-   */
-  genFontValue() {
-    const { fontSize, fontFamily, fontStyle, fontVariant, fontWeight, lineHeight } = this
-    return `${fontStyle} ${fontVariant} ${fontWeight} ${fontSize}px${
-      lineHeight ? `/${lineHeight}` : ""
-    } ${fontFamily}`
-  }
-
-  fromJSON(json: OmitType<D_FONT>): void {
-    super.fromJSON(json)
+    font && this.font.fromJSON(font)
   }
 }

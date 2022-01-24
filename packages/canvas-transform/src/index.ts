@@ -8,7 +8,6 @@ export interface BoxElement {
   elementBox: Box
   updateElementBox(box: BoxAttr): void
   render(ctx: CanvasRenderingContext2D): void
-  renderBefore?: (ctx: CanvasRenderingContext2D) => void
   rotate: Rotate
 }
 
@@ -106,6 +105,7 @@ export class CanvasTransform extends CanvasBase {
     this.firstP = p
     this.firstPBaseTrans = this.pBaseTrans
     this.countControlAction(ev)
+    this.render()
   }
 
   countControlAction(ev: PointerEvent) {
@@ -214,7 +214,7 @@ export class CanvasTransform extends CanvasBase {
     ctx.save()
     this.clear()
     boxElement.render(ctx)
-    boxElement.renderBefore && boxElement.renderBefore(ctx)
+    boxElement.rotate.takeEffect(ctx)
     controlFrame.render(ctx, boxElement.elementBox)
     this.renderCallBack()
     ctx.restore()

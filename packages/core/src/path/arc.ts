@@ -1,4 +1,4 @@
-import { Box } from "@canvas-2d/shared"
+import { Box, assertJsonType } from "@canvas-2d/shared"
 
 import { D_PATH_ARC, OmitType } from "../type"
 
@@ -19,17 +19,17 @@ export class Arc extends Path implements D_PATH_ARC {
     "anticlockwise"
   ]
 
-  x?: number
+  x: number = 0
 
-  y?: number
+  y: number = 0
 
-  radius!: number
+  radius: number = 0
 
-  startAngle?: number
+  startAngle: number = 0
 
-  endAngle?: number
+  endAngle: number = 0
 
-  anticlockwise?: boolean
+  anticlockwise: boolean = true
 
   genPath(ctx: CanvasRenderingContext2D, pathParam: PathParam): void {
     let { x = 0, y = 0, radius, startAngle, endAngle, anticlockwise } = this
@@ -46,6 +46,18 @@ export class Arc extends Path implements D_PATH_ARC {
 
   public updatePathBox(box: Partial<Box>, pathParam: PathParam): void {
     throw new Error("Method not implemented.")
+  }
+
+  static assertJsonTrue(json?: OmitType<D_PATH_ARC>) {
+    if (json === undefined) return
+    super.assertJsonTrue(json)
+    const { x, y, radius, startAngle, endAngle, anticlockwise } = json
+    assertJsonType(x, "number")
+    assertJsonType(y, "number")
+    assertJsonType(radius, "number")
+    assertJsonType(startAngle, "number")
+    assertJsonType(endAngle, "number")
+    assertJsonType(anticlockwise, "boolean")
   }
 
   fromJSON(json: OmitType<D_PATH_ARC>): void {
