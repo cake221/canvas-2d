@@ -87,6 +87,7 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
 }
 
 function parseParagraphSchemaValue(eleData: D_TEXT_BOX, value: any, paragraph: Paragraph) {
+  parseJsonData(eleData, value, paragraph.ATTRIBUTE_NAMES)
   if (value.font) {
     eleData.font = {}
     parseJsonData(eleData.font, value.font, paragraph.font.ATTRIBUTE_NAMES)

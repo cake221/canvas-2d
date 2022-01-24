@@ -31,6 +31,7 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
 
   constructor() {
     super()
+    // TODO: 将它拆分，独立在每个父子类。不要混合在一起
     this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
   }
 

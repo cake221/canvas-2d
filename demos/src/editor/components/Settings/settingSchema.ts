@@ -1,4 +1,4 @@
-import { Element, StrokeParam, Image } from "@canvas-2d/core/src"
+import { Element, StrokeParam, Image, Paragraph } from "@canvas-2d/core/src"
 
 const gradientSchema = {
   gradientColors: {
@@ -166,6 +166,48 @@ const ImageSchema = {
 }
 
 const ParagraphSchema = {
+  width: {
+    title: "width",
+    type: "number",
+    min: 0
+  },
+  height: {
+    title: "width",
+    type: "number",
+    min: 0
+  },
+  text: {
+    title: "text",
+    type: "string",
+    format: "textarea",
+    props: {
+      row: 4
+    }
+  },
+  textAlign: {
+    title: "textAlign",
+    type: "string",
+    enum: Paragraph.textAlign,
+    enumNames: Paragraph.textAlign,
+    widget: "select",
+    labelWidth: 160
+  },
+  textBaseline: {
+    title: "direction",
+    type: "string",
+    enum: Paragraph.textBaseline,
+    enumNames: Paragraph.textBaseline,
+    widget: "select",
+    labelWidth: 160
+  },
+  direction: {
+    title: "direction",
+    type: "string",
+    enum: Paragraph.direction,
+    enumNames: Paragraph.direction,
+    widget: "select",
+    labelWidth: 160
+  },
   font: {
     title: "字体",
     type: "object",

@@ -84,16 +84,17 @@ export function fillSchemaValue(ele: Element) {
 }
 
 function fillParagraphSchemaValue(paragraph: Paragraph, paragraphFromData: any) {
+  parseJsonData(paragraphFromData, paragraph, paragraph.ATTRIBUTE_NAMES)
   {
     paragraphFromData.font = {}
     parseJsonData(paragraphFromData.font, paragraph.font, paragraph.font.ATTRIBUTE_NAMES)
   }
 }
 
-function fillImageSchemaValue(ele: Image, imageFromData: any) {
-  parseJsonData(imageFromData, ele, ele.ATTRIBUTE_NAMES)
+function fillImageSchemaValue(image: Image, imageFromData: any) {
+  parseJsonData(imageFromData, image, image.ATTRIBUTE_NAMES)
   {
-    const asset = assetManage.getAsset(ele.uniqueIdent)
+    const asset = assetManage.getAsset(image.uniqueIdent)
     imageFromData.imageData = asset?.data
   }
 }
