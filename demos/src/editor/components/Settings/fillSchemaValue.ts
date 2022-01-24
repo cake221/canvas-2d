@@ -1,4 +1,5 @@
-import { Element, Image, assetManage, Gradient } from "@canvas-2d/core/src"
+import { Element, Image, assetManage, Gradient, Paragraph, Font } from "@canvas-2d/core/src"
+import { parseJsonData } from "@canvas-2d/shared"
 
 export function fillSchemaValue(ele: Element) {
   const { origin, fill, stroke, fillRule, strokeParam } = ele
@@ -27,7 +28,8 @@ export function fillSchemaValue(ele: Element) {
 
     if (strokeParam) {
       const eleFromStrokeParamData: any = {}
-      const { lineDash, lineDashOffset, lineCap, lineJoin, miterLimit, lineWidth } = strokeParam
+      parseJsonData(eleFromStrokeParamData, strokeParam, strokeParam.ATTRIBUTE_NAMES)
+      const { lineDash } = strokeParam
       if (lineDash !== undefined) {
         const dash = []
         for (const interval of lineDash) {
@@ -37,11 +39,6 @@ export function fillSchemaValue(ele: Element) {
         }
         eleFromStrokeParamData.lineDash = dash
       }
-      lineDashOffset !== undefined && (eleFromStrokeParamData.lineDashOffset = lineDashOffset)
-      lineCap !== undefined && (eleFromStrokeParamData.lineCap = lineCap)
-      lineJoin !== undefined && (eleFromStrokeParamData.lineJoin = lineJoin)
-      miterLimit !== undefined && (eleFromStrokeParamData.miterLimit = miterLimit)
-      lineWidth !== undefined && (eleFromStrokeParamData.lineWidth = lineWidth)
       eleFromData.strokeParam = eleFromStrokeParamData
     }
   }
@@ -64,12 +61,26 @@ export function fillSchemaValue(ele: Element) {
   }
 
   if (ele.type === "image") {
-    fillImageValue(ele as Image, eleFromData)
+    eleFromData.imageData = {}
+    fillImageSchemaValue(ele as Image, eleFromData.imageData)
+  }
+
+  if (ele.type === "paragraph") {
+    eleFromData.paragraphData = {}
+
+    fillParagraphSchemaValue(ele as Paragraph, eleFromData.paragraphData)
   }
   return eleFromData
 }
 
-function fillImageValue(ele: Image, imageFromData: any) {
+function fillParagraphSchemaValue(paragraph: Paragraph, paragraphFromData: any) {
+  {
+    paragraphFromData.font = {}
+    parseJsonData(paragraphFromData.font, paragraph.font, paragraph.font.ATTRIBUTE_NAMES)
+  }
+}
+
+function fillImageSchemaValue(ele: Image, imageFromData: any) {
   {
     const asset = assetManage.getAsset(ele.uniqueIdent)
     imageFromData.imageData = asset?.data

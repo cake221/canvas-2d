@@ -139,8 +139,40 @@ const ImageSchema = {
   imageData: {
     title: "图片",
     type: "string",
-    hidden: "{{formData.type !== 'image'}}",
     widget: "imageUpload"
+  }
+}
+
+const ParagraphSchema = {
+  font: {
+    title: "字体",
+    type: "object",
+    properties: {
+      fontSize: {
+        title: "fontSize",
+        type: "number"
+      },
+      fontFamily: {
+        title: "fontFamily",
+        type: "string"
+      },
+      fontStyle: {
+        title: "fontStyle",
+        type: "string"
+      },
+      fontVariant: {
+        title: "fontVariant",
+        type: "string"
+      },
+      fontWeight: {
+        title: "fontWeight",
+        type: "string"
+      },
+      lineHeight: {
+        title: "lineHeight",
+        type: "number"
+      }
+    }
   }
 }
 
@@ -167,7 +199,22 @@ export const settingSchema = {
     },
     ...strokeSchema,
     ...fillSchema,
-    ...ImageSchema
+    imageData: {
+      title: "图像配置",
+      type: "object",
+      hidden: "{{formData.type !== 'image'}}",
+      properties: {
+        ...ImageSchema
+      }
+    },
+    paragraphData: {
+      title: "文本配置",
+      type: "object",
+      hidden: "{{formData.type !== 'paragraph'}}",
+      properties: {
+        ...ParagraphSchema
+      }
+    }
   },
   labelWidth: 120,
   displayType: "row"

@@ -4,8 +4,12 @@ import {
   Element,
   Image,
   assetManage,
-  D_STROKE_PARAM
+  D_STROKE_PARAM,
+  D_TEXT_BOX,
+  Paragraph,
+  Font
 } from "@canvas-2d/core/src"
+import { parseJsonData } from "@canvas-2d/shared"
 
 export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
   // @ts-ignore
@@ -65,9 +69,20 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
   eleData.fillRule = value.fillRule
 
   if (eleData.type === "image") {
-    parseImageSchemaValue(eleData, value, ele as Image)
+    parseImageSchemaValue(eleData, value.imageData, ele as Image)
+  }
+
+  if (eleData.type === "paragraph") {
+    parseParagraphSchemaValue(eleData, value.paragraphData, ele as Paragraph)
   }
   return eleData
+}
+
+function parseParagraphSchemaValue(eleData: D_TEXT_BOX, value: any, paragraph: Paragraph) {
+  if (value.font) {
+    eleData.font = {}
+    parseJsonData(eleData.font, value.font)
+  }
 }
 
 function parseImageSchemaValue(eleData: D_IMAGE, value: any, image: Image) {
