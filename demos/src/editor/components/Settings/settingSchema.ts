@@ -240,6 +240,102 @@ const ParagraphSchema = {
   }
 }
 
+const pathSchema = {
+  d_path: {
+    title: "路径配置",
+    type: "object",
+    properties: {
+      type: {
+        title: "路径类型",
+        type: "string",
+        enum: ["ellipse", "rect"],
+        enumNames: ["椭圆", "四边形"],
+        widget: "select",
+        labelWidth: 160,
+        readOnly: "{{formData.type === 'shape'}}"
+      },
+      ellipseData: {
+        title: "椭圆配置",
+        type: "object",
+        hidden: "{{rootValue.type !== 'ellipse'}}",
+        properties: {
+          x: {
+            title: "x",
+            type: "number",
+            min: 0
+          },
+          y: {
+            title: "y",
+            type: "number",
+            min: 0
+          },
+          radiusX: {
+            title: "radiusX",
+            type: "number",
+            min: 0
+          },
+          radiusY: {
+            title: "radiusY",
+            type: "number",
+            min: 0
+          },
+          startAngle: {
+            title: "startAngle",
+            type: "number",
+            min: 0
+          },
+          endAngle: {
+            title: "endAngle",
+            type: "number",
+            min: 0
+          },
+          anticlockwise: {
+            title: "anticlockwise",
+            type: "boolean"
+          }
+        }
+      },
+      rectData: {
+        title: "四边形配置",
+        type: "object",
+        hidden: "{{rootValue.type !== 'rect'}}",
+        properties: {
+          x: {
+            title: "x",
+            type: "number",
+            min: 0
+          },
+          y: {
+            title: "y",
+            type: "number",
+            min: 0
+          },
+          width: {
+            title: "width",
+            type: "number",
+            min: 0
+          },
+          height: {
+            title: "height",
+            type: "number",
+            min: 0
+          },
+          rx: {
+            title: "rx",
+            type: "number",
+            min: 0
+          },
+          ry: {
+            title: "ry",
+            type: "number",
+            min: 0
+          }
+        }
+      }
+    }
+  }
+}
+
 export const settingSchema = {
   type: "object",
   properties: {
@@ -314,6 +410,14 @@ export const settingSchema = {
       hidden: "{{formData.type !== 'paragraph'}}",
       properties: {
         ...ParagraphSchema
+      }
+    },
+    shapeData: {
+      title: "图形配置",
+      type: "object",
+      hidden: "{{formData.type !== 'shape'}}",
+      properties: {
+        ...pathSchema
       }
     }
   },

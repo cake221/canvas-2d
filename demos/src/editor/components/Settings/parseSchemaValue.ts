@@ -7,7 +7,10 @@ import {
   D_STROKE_PARAM,
   D_TEXT_BOX,
   Paragraph,
-  Font
+  D_SHAPE,
+  Shape,
+  Path,
+  D_PATH
 } from "@canvas-2d/core/src"
 import { parseJsonData } from "@canvas-2d/shared"
 
@@ -83,26 +86,50 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
   if (eleData.type === "paragraph") {
     parseParagraphSchemaValue(eleData, value.paragraphData, ele as Paragraph)
   }
+
+  if (eleData.type === "shape") {
+    parseShapeSchemaValue(eleData, value.shapeData, ele as Shape)
+  }
   return eleData
 }
 
-function parseParagraphSchemaValue(eleData: D_TEXT_BOX, value: any, paragraph: Paragraph) {
-  parseJsonData(eleData, value, paragraph.ATTRIBUTE_NAMES)
+function parseParagraphSchemaValue(paragraphData: D_TEXT_BOX, value: any, paragraph: Paragraph) {
+  parseJsonData(paragraphData, value, paragraph.ATTRIBUTE_NAMES)
   if (value.font) {
-    eleData.font = {}
-    parseJsonData(eleData.font, value.font, paragraph.font.ATTRIBUTE_NAMES)
+    paragraphData.font = {}
+    parseJsonData(paragraphData.font, value.font, paragraph.font.ATTRIBUTE_NAMES)
   }
 }
 
-function parseImageSchemaValue(eleData: D_IMAGE, value: any, image: Image) {
-  parseJsonData(eleData, value, image.ATTRIBUTE_NAMES)
+function parseImageSchemaValue(imageData: D_IMAGE, value: any, image: Image) {
+  parseJsonData(imageData, value, image.ATTRIBUTE_NAMES)
   {
     const asset = assetManage.getAsset(image.uniqueIdent)
     if (value.imageData && asset?.data !== value.imageData) {
-      eleData.asset = {
+      imageData.asset = {
         type: "asset_image",
         data: value.imageData
       }
     }
+  }
+}
+
+function parseShapeSchemaValue(shapeData: D_SHAPE, value: any, shape: Shape) {
+  {
+    if (shape.path) {
+      // @ts-ignore
+      shapeData.d_path = {
+        type: value.d_path.type
+      }
+      parsePathSchemaValue(shape.path, value.d_path, shapeData.d_path)
+    }
+  }
+}
+
+function parsePathSchemaValue(path: Path, value: any, d_path: D_PATH) {
+  if (d_path.type === "ellipse") {
+    parseJsonData(d_path, value.ellipseData, path.ATTRIBUTE_NAMES)
+  } else if (d_path.type === "rect") {
+    parseJsonData(d_path, value.rectData, path.ATTRIBUTE_NAMES)
   }
 }

@@ -8,6 +8,7 @@ export class Shape extends Element implements D_SHAPE {
   public ATTRIBUTE_NAMES: (keyof D_SHAPE)[] = ["d_path"]
   public readonly type = "shape"
 
+  // FIXME: 删除 d_path
   d_path!: D_PATH
 
   path?: Path

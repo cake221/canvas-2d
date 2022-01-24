@@ -1,4 +1,13 @@
-import { Element, Image, assetManage, Gradient, Paragraph, Font } from "@canvas-2d/core/src"
+import {
+  Element,
+  Image,
+  assetManage,
+  Gradient,
+  Paragraph,
+  Font,
+  Shape,
+  Path
+} from "@canvas-2d/core/src"
 import { parseJsonData } from "@canvas-2d/shared"
 
 export function fillSchemaValue(ele: Element) {
@@ -80,6 +89,11 @@ export function fillSchemaValue(ele: Element) {
 
     fillParagraphSchemaValue(ele as Paragraph, eleFromData.paragraphData)
   }
+
+  if (ele.type === "shape") {
+    eleFromData.shapeData = {}
+    fillShapeSchemaValue(ele as Shape, eleFromData.shapeData)
+  }
   return eleFromData
 }
 
@@ -96,5 +110,27 @@ function fillImageSchemaValue(image: Image, imageFromData: any) {
   {
     const asset = assetManage.getAsset(image.uniqueIdent)
     imageFromData.imageData = asset?.data
+  }
+}
+
+function fillShapeSchemaValue(shape: Shape, shapeFormData: any) {
+  parseJsonData(shapeFormData, shape, shape.ATTRIBUTE_NAMES)
+
+  {
+    if (shape.path) {
+      const d_path: any = (shapeFormData.d_path = {})
+      fillPathSchemaValue(shape.path, d_path)
+    }
+  }
+}
+
+function fillPathSchemaValue(path: Path, d_path: any) {
+  d_path.type = path.type
+  if (path.type === "ellipse") {
+    d_path.ellipseData = {}
+    parseJsonData(d_path.ellipseData, path, path.ATTRIBUTE_NAMES)
+  } else if (path.type === "rect") {
+    d_path.rectData = {}
+    parseJsonData(d_path.rectData, path, path.ATTRIBUTE_NAMES)
   }
 }
