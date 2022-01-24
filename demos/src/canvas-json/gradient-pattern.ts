@@ -22,6 +22,7 @@ export const gradientPatternJson: JSON_DATA = {
         y: 100
       },
       fill: {
+        type: "attr_gradient",
         gradientShape: [0, 0, 500, 500],
         gradientColors: [
           [0, "blue"],
@@ -32,6 +33,7 @@ export const gradientPatternJson: JSON_DATA = {
         ]
       },
       stroke: {
+        type: "attr_pattern",
         asset: 1,
         repetition: "repeat"
       },
@@ -51,10 +53,12 @@ export const gradientPatternJson: JSON_DATA = {
         y: 300
       },
       fill: {
+        type: "attr_pattern",
         asset: 3,
         repetition: "repeat"
       },
       stroke: {
+        type: "attr_gradient",
         gradientShape: [100, 100, 500, 500],
         gradientColors: [
           [0, "yellow"],

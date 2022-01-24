@@ -1,15 +1,3 @@
-export function invariant(condition: any, message?: string): asserts condition {
-  if (condition) {
-    return
-  }
-
-  throw new Error("Invariant failed: " + (message || ""))
-}
-
-export function assertNever(x: never): never {
-  throw new Error("Unexpected object: " + x)
-}
-
 export function onImageLoad(
   imageData: string,
   onload: (value: HTMLImageElement | PromiseLike<HTMLImageElement>) => void,
@@ -39,10 +27,11 @@ export function cloneJson(json: any) {
   }
 }
 
-export function parseJsonData(obj: any, json: any, attrs?: any[]) {
+export function parseJsonData(obj: any, json: any, attrs?: any[], deep = false) {
   if (!json) return
   for (const [k, v] of Object.entries(json)) {
-    if (!attrs || attrs.includes(k)) {
+    if (v !== undefined && (!attrs || attrs.includes(k))) {
+      if (!deep && typeof v === "object") continue
       obj[k] = v
     }
   }

@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react"
-import { CanvasEditor, JSON_DATA } from "./editor"
+import React from "react"
+import { JSON_DATA, Editor } from "./editor"
 import { wrapStaticUrl } from "../shared"
 
 const data: JSON_DATA = {
@@ -11,8 +11,8 @@ const data: JSON_DATA = {
       type: "shape",
       d_path: {
         type: "rect",
-        rx: 5,
-        ry: 10,
+        // rx: 5,
+        // ry: 10,
         width: 100,
         height: 80
       },
@@ -67,33 +67,12 @@ const data: JSON_DATA = {
         data: wrapStaticUrl("images/logo.png")
       },
       width: 200,
-      height: 200
+      height: 200,
+      fill: "#ffffff00",
+      stroke: "#ffffff00"
     }
   ],
   dpr: 2
 }
 
-interface ReactProps {}
-
-export default function(props: ReactProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const editor = new CanvasEditor({
-      container: containerRef.current!,
-      ...data
-    })
-    editor.loadAssets().then(() => {
-      editor.render()
-    })
-  }, [])
-
-  return (
-    <div
-      ref={containerRef}
-      style={{
-        border: "1px solid red"
-      }}
-    />
-  )
-}
+export default () => <Editor data={data} />
