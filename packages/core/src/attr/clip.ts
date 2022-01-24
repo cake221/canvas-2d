@@ -54,7 +54,11 @@ export class Clip extends Attribute implements D_CLIP {
       if (this.path === undefined) {
         this.path = genPath(d_path)
       } else {
-        this.path.fromJSON(d_path)
+        if (d_path.type === this.path.type) {
+          this.path.fromJSON(d_path)
+        } else {
+          this.path = genPath(d_path)
+        }
       }
     }
   }

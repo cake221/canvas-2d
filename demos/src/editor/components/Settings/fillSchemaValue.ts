@@ -11,7 +11,7 @@ import {
 import { parseJsonData } from "@canvas-2d/shared"
 
 export function fillSchemaValue(ele: Element) {
-  const { origin, fill, stroke, fillRule, strokeParam } = ele
+  const { origin, fill, stroke, fillRule, strokeParam, clip } = ele
   const eleFromData: any = {}
 
   eleFromData.type = ele.type
@@ -19,6 +19,14 @@ export function fillSchemaValue(ele: Element) {
   eleFromData.origin = {
     x: origin.x,
     y: origin.y
+  }
+
+  {
+    if (clip.path) {
+      eleFromData.clip = {}
+      const d_path: any = (eleFromData.clip.d_path = {})
+      fillPathSchemaValue(clip.path, d_path)
+    }
   }
 
   {

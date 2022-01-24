@@ -15,12 +15,25 @@ import {
 import { parseJsonData } from "@canvas-2d/shared"
 
 export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
+  const { clip } = ele
   // @ts-ignore
   const eleData: D_ELEMENT = {}
 
   eleData.type = ele.type
 
   eleData.origin = value.origin
+
+  {
+    const { d_path } = value.clip
+    if (d_path && d_path.type) {
+      clip.fromJSON({
+        d_path: {
+          type: d_path.type,
+          ...d_path[d_path.type + "Data"]
+        }
+      })
+    }
+  }
 
   {
     eleData.rotate = {}

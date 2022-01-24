@@ -394,6 +394,14 @@ export const settingSchema = {
         }
       }
     },
+    clip: {
+      title: "剪切配置",
+      type: "object",
+      hidden: "{{formData.type === 'shape'}}",
+      properties: {
+        ...pathSchema
+      }
+    },
     ...strokeSchema,
     ...fillSchema,
     imageData: {
