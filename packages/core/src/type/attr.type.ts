@@ -33,9 +33,11 @@ export interface D_GRADIENT extends D_ATTR_BASE {
   gradientColors: ColorStop[]
 }
 
+export type PatternRepetition = "repeat" | "repeat-x" | "repeat-y" | "no-repeat"
+
 export interface D_PATTER extends D_ATTR_BASE {
   type: "attr_pattern"
-  repetition?: string
+  repetition?: PatternRepetition
   transform?: DOMMatrix2DInit
   asset: Asset_ID | D_ASSET_IMAGE
 }

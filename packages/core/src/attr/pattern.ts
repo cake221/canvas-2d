@@ -1,13 +1,15 @@
 import { assertJsonType } from "@canvas-2d/shared"
 import { Attribute } from "./_attr"
-import { D_PATTER, D_ASSET_IMAGE, OmitType } from "../type"
+import { D_PATTER, D_ASSET_IMAGE, OmitType, PatternRepetition } from "../type"
 import { assetManage, AssetImage } from "../asset"
 
 export class Pattern extends Attribute implements D_PATTER {
   public type: D_PATTER["type"] = "attr_pattern"
   public ATTRIBUTE_NAMES: (keyof D_PATTER)[] = ["asset", "repetition", "transform"]
 
-  repetition: string = "repeat"
+  static repetition: PatternRepetition[] = ["repeat", "repeat-x", "repeat-y", "no-repeat"]
+
+  repetition: PatternRepetition = "repeat"
 
   transform: DOMMatrix2DInit = {}
 

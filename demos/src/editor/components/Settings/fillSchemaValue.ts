@@ -4,9 +4,10 @@ import {
   assetManage,
   Gradient,
   Paragraph,
-  Font,
+  D_ASSET_IMAGE,
   Shape,
-  Path
+  Path,
+  Pattern
 } from "@canvas-2d/core/src"
 import { parseJsonData } from "@canvas-2d/shared"
 
@@ -49,6 +50,13 @@ export function fillSchemaValue(ele: Element) {
         gradientColors: Array.from(stroke.gradientColors),
         gradientShape: Array.from(stroke.gradientShape)
       }
+    } else if (Pattern.isPattern(stroke)) {
+      eleFromData.strokeType = "strokePattern"
+      const asset = assetManage.getAsset(stroke.uniqueIdent)
+      eleFromData.strokePattern = {
+        repetition: stroke.repetition,
+        imageData: asset?.data
+      }
     } else {
       throw new Error("暂不支持")
     }
@@ -79,6 +87,13 @@ export function fillSchemaValue(ele: Element) {
       eleFromData.fillGradient = {
         gradientColors: Array.from(fill.gradientColors),
         gradientShape: Array.from(fill.gradientShape)
+      }
+    } else if (Pattern.isPattern(fill)) {
+      eleFromData.fillType = "fillPattern"
+      const asset = assetManage.getAsset(fill.uniqueIdent)
+      eleFromData.fillPattern = {
+        repetition: fill.repetition,
+        imageData: asset?.data
       }
     } else {
       throw new Error("暂不支持")

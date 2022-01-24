@@ -10,7 +10,8 @@ import {
   D_SHAPE,
   Shape,
   Path,
-  D_PATH
+  D_PATH,
+  Pattern
 } from "@canvas-2d/core/src"
 import { parseJsonData } from "@canvas-2d/shared"
 
@@ -70,6 +71,16 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
         gradientColors,
         gradientShape
       }
+    } else if (value.strokeType === "strokePattern") {
+      const { imageData, repetition } = value[value.strokeType]
+      eleData.stroke = {
+        type: "attr_pattern",
+        repetition,
+        asset: {
+          type: "asset_image",
+          data: imageData
+        }
+      }
     } else {
       throw new Error("暂不支持")
     }
@@ -84,6 +95,16 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
         type: "attr_gradient",
         gradientColors,
         gradientShape
+      }
+    } else if (value.fillType === "fillPattern") {
+      const { imageData, repetition } = value[value.fillType]
+      eleData.fill = {
+        type: "attr_pattern",
+        repetition,
+        asset: {
+          type: "asset_image",
+          data: imageData
+        }
       }
     } else {
       throw new Error("暂不支持")

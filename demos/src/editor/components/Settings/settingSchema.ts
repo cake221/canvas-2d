@@ -1,4 +1,4 @@
-import { Element, StrokeParam, Image, Paragraph } from "@canvas-2d/core/src"
+import { Element, StrokeParam, Image, Paragraph, Pattern } from "@canvas-2d/core/src"
 
 const gradientSchema = {
   gradientColors: {
@@ -40,9 +40,24 @@ const strokeSchema = {
   },
   strokePattern: {
     title: "描边模式",
-    type: "string",
+    type: "object",
     hidden: "{{formData.strokeType !== 'strokePattern'}}",
-    props: {}
+    properties: {
+      imageData: {
+        title: "图片",
+        type: "string",
+        widget: "imageUpload"
+      },
+      repetition: {
+        title: "repetition",
+        description: "下拉单选",
+        type: "string",
+        enum: Pattern.repetition,
+        enumNames: Pattern.repetition,
+        widget: "select",
+        labelWidth: 160
+      }
+    }
   },
   strokeParam: {
     title: "strokeParam",
@@ -120,9 +135,24 @@ const fillSchema = {
   },
   fillPattern: {
     title: "填充模式",
-    type: "string",
+    type: "object",
     hidden: "{{formData.fillType !== 'fillPattern'}}",
-    props: {}
+    properties: {
+      imageData: {
+        title: "图片",
+        type: "string",
+        widget: "imageUpload"
+      },
+      repetition: {
+        title: "repetition",
+        description: "下拉单选",
+        type: "string",
+        enum: Pattern.repetition,
+        enumNames: Pattern.repetition,
+        widget: "select",
+        labelWidth: 160
+      }
+    }
   },
   fillRule: {
     title: "fillRule",
