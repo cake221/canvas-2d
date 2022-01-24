@@ -13,6 +13,11 @@ export function fillSchemaValue(ele: Element) {
   }
 
   {
+    eleFromData.rotate = {}
+    parseJsonData(eleFromData.rotate, ele.rotate, ele.rotate.ATTRIBUTE_NAMES)
+  }
+
+  {
     if (typeof stroke === "string") {
       eleFromData.strokeType = "strokeColor"
       eleFromData.strokeColor = stroke

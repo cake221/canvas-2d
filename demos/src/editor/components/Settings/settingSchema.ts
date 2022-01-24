@@ -197,6 +197,17 @@ export const settingSchema = {
         }
       }
     },
+    rotate: {
+      title: "rotate",
+      type: "object",
+      properties: {
+        angle: {
+          title: "渲染的角度",
+          type: "number",
+          min: 0
+        }
+      }
+    },
     ...strokeSchema,
     ...fillSchema,
     imageData: {

@@ -19,9 +19,17 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
 
   eleData.origin = value.origin
 
+  {
+    eleData.rotate = {}
+    parseJsonData(eleData.rotate, value.rotate, ele.rotate.ATTRIBUTE_NAMES)
+  }
+
   if (value.strokeParam) {
-    const { lineDash, lineDashOffset, lineCap, lineJoin, miterLimit, lineWidth } = value.strokeParam
+    const { lineDash } = value.strokeParam
     const strokeParam: D_STROKE_PARAM = (eleData.strokeParam = {})
+    parseJsonData(strokeParam, value.strokeParam, ele.strokeParam.ATTRIBUTE_NAMES)
+
+    // FIXME: 创建一个组件，处理特殊情况
     if (lineDash !== undefined) {
       const dash = []
       for (const item of lineDash) {
@@ -29,11 +37,6 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
       }
       strokeParam.lineDash = dash
     }
-    lineDashOffset !== undefined && (strokeParam.lineDashOffset = lineDashOffset)
-    lineCap !== undefined && (strokeParam.lineCap = lineCap)
-    lineJoin !== undefined && (strokeParam.lineJoin = lineJoin)
-    miterLimit !== undefined && (strokeParam.miterLimit = miterLimit)
-    lineWidth !== undefined && (strokeParam.lineWidth = lineWidth)
   }
 
   {
@@ -81,7 +84,7 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
 function parseParagraphSchemaValue(eleData: D_TEXT_BOX, value: any, paragraph: Paragraph) {
   if (value.font) {
     eleData.font = {}
-    parseJsonData(eleData.font, value.font)
+    parseJsonData(eleData.font, value.font, paragraph.font.ATTRIBUTE_NAMES)
   }
 }
 
