@@ -1,4 +1,4 @@
-import { Element, StrokeParam } from "@canvas-2d/core/src"
+import { Element, StrokeParam, Image } from "@canvas-2d/core/src"
 
 const gradientSchema = {
   gradientColors: {
@@ -140,6 +140,28 @@ const ImageSchema = {
     title: "图片",
     type: "string",
     widget: "imageUpload"
+  },
+  width: {
+    title: "width",
+    type: "number",
+    min: 0
+  },
+  height: {
+    title: "width",
+    type: "number",
+    min: 0
+  },
+  imageSmoothing: {
+    title: "imageSmoothing",
+    type: "boolean"
+  },
+  imageSmoothingQuality: {
+    title: "imageSmoothing",
+    type: "string",
+    enum: Image.imageSmoothingQuality,
+    enumNames: Image.imageSmoothingQuality,
+    widget: "select",
+    labelWidth: 160
   }
 }
 

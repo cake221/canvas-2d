@@ -94,6 +94,7 @@ function parseParagraphSchemaValue(eleData: D_TEXT_BOX, value: any, paragraph: P
 }
 
 function parseImageSchemaValue(eleData: D_IMAGE, value: any, image: Image) {
+  parseJsonData(eleData, value, image.ATTRIBUTE_NAMES)
   {
     const asset = assetManage.getAsset(image.uniqueIdent)
     if (value.imageData && asset?.data !== value.imageData) {

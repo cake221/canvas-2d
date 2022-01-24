@@ -91,6 +91,7 @@ function fillParagraphSchemaValue(paragraph: Paragraph, paragraphFromData: any) 
 }
 
 function fillImageSchemaValue(ele: Image, imageFromData: any) {
+  parseJsonData(imageFromData, ele, ele.ATTRIBUTE_NAMES)
   {
     const asset = assetManage.getAsset(ele.uniqueIdent)
     imageFromData.imageData = asset?.data
