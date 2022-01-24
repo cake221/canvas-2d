@@ -12,7 +12,7 @@ export class Shadow extends Attribute implements D_SHADOW {
   ]
 
   shadowBlur: number = 0
-  shadowColor: string = "rgba(0, 0, 0, 0)"
+  shadowColor: string = "#ffffff00"
   shadowOffsetX: number = 0
   shadowOffsetY: number = 0
 

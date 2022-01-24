@@ -194,7 +194,7 @@ export class Box {
 
   render(ctx: CanvasRenderingContext2D, params: BoxRenderParam = {}) {
     const [p1, p2, p3, p4] = this.boxPoints
-    const { fill = "rgba(0, 0, 0, 0)", stroke = "rgba(0, 0, 0, 0)" } = params
+    const { fill = "#ffffff00", stroke = "#ffffff00" } = params
     ctx.save()
     ctx.fillStyle = fill
     ctx.strokeStyle = stroke

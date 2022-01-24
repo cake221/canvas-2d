@@ -25,9 +25,9 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
 
   renderParam?: RenderParam
 
-  fill: string | Gradient | Pattern = "rgba(0, 0, 0, 0)"
+  fill: string | Gradient | Pattern = "#ffffff00"
 
-  stroke: string | Gradient | Pattern = "rgba(0, 0, 0, 0)"
+  stroke: string | Gradient | Pattern = "#ffffff00"
 
   strokeParam: StrokeParam = new StrokeParam()
 

@@ -41,9 +41,9 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
 
   text: string = ""
 
-  border: string = "rgba(0, 0, 0, 0)"
+  border: string = "#ffffff00"
 
-  background: string = "rgba(0, 0, 0, 0)"
+  background: string = "#ffffff00"
 
   static textAlign = ["center", "end", "left", "right", "start"]
 
@@ -92,8 +92,8 @@ export abstract class TextBase extends Element implements D_TEXT_BASE {
         x: boxX,
         y: boxY
       },
-      stroke: border || "rgba(0, 0, 0, 0)",
-      fill: background || "rgba(0, 0, 0, 0)",
+      stroke: border || "#ffffff00",
+      fill: background || "#ffffff00",
       strokeParam: {
         lineWidth: 1,
         lineCap: "square",
