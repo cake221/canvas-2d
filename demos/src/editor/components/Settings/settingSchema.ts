@@ -208,6 +208,32 @@ export const settingSchema = {
         }
       }
     },
+    shadow: {
+      title: "阴影",
+      type: "object",
+      properties: {
+        shadowBlur: {
+          title: "shadowBlur",
+          type: "number",
+          min: 0
+        },
+        shadowColor: {
+          title: "shadowColor",
+          type: "string",
+          format: "color"
+        },
+        shadowOffsetX: {
+          title: "shadowOffsetX",
+          type: "number",
+          min: 0
+        },
+        shadowOffsetY: {
+          title: "shadowOffsetY",
+          type: "number",
+          min: 0
+        }
+      }
+    },
     ...strokeSchema,
     ...fillSchema,
     imageData: {

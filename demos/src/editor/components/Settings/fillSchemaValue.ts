@@ -18,6 +18,11 @@ export function fillSchemaValue(ele: Element) {
   }
 
   {
+    eleFromData.shadow = {}
+    parseJsonData(eleFromData.shadow, ele.shadow, ele.shadow.ATTRIBUTE_NAMES)
+  }
+
+  {
     if (typeof stroke === "string") {
       eleFromData.strokeType = "strokeColor"
       eleFromData.strokeColor = stroke

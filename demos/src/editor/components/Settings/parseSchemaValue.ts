@@ -24,6 +24,11 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
     parseJsonData(eleData.rotate, value.rotate, ele.rotate.ATTRIBUTE_NAMES)
   }
 
+  {
+    eleData.shadow = {}
+    parseJsonData(eleData.shadow, value.shadow, ele.shadow.ATTRIBUTE_NAMES)
+  }
+
   if (value.strokeParam) {
     const { lineDash } = value.strokeParam
     const strokeParam: D_STROKE_PARAM = (eleData.strokeParam = {})
