@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useRef } from "react"
 import FormRender, { useForm } from "form-render"
 import { Element, assetManage, assertElement } from "@canvas-2d/core/src"
 import { cloneJson } from "@canvas-2d/shared"
@@ -17,13 +17,19 @@ interface SettingsProps {
 export function Settings(props: SettingsProps) {
   const { ele, update, eleIsUpdate } = props
   const form = useForm()
+  const formIsSetValueRef = useRef<boolean>(false)
 
   useEffect(() => {
     const formData = cloneJson(fillSchemaValue(ele))
     form.setValues(formData)
+    formIsSetValueRef.current = true
   }, [eleIsUpdate])
 
   const onDataChange = (value: any) => {
+    if (formIsSetValueRef.current) {
+      formIsSetValueRef.current = false
+      return
+    }
     try {
       const eleData = parseSchemaValue(value, ele)
       assertElement(eleData)

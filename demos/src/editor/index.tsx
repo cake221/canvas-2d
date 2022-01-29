@@ -17,9 +17,16 @@ export function Editor(props: ReactProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const editorRef = useRef<CanvasEditor | null>(null)
   const eleRef = useRef<Element | null>(null)
+  const canvasIsUpdateRef = useRef<boolean>(false)
   const [eleIsUpdate, eleUpdate] = useState<boolean>(true)
+
   const eleChange = useCallback<EleActiveCallback>(
     (ele) => {
+      if (canvasIsUpdateRef.current) {
+        // 防止 canvas/setting 循环渲染
+        canvasIsUpdateRef.current = false
+        return
+      }
       if (ele !== undefined) {
         eleRef.current = ele
       }
@@ -29,6 +36,7 @@ export function Editor(props: ReactProps) {
   )
 
   const update = useCallback(() => {
+    canvasIsUpdateRef.current = true
     editorRef.current?.update()
   }, [])
 
