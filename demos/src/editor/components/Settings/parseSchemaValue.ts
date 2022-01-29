@@ -23,7 +23,7 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
 
   eleData.origin = value.origin
 
-  {
+  if (value.clip !== undefined) {
     const { d_path } = value.clip
     if (d_path && d_path.type) {
       clip.fromJSON({
@@ -45,7 +45,7 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
     parseJsonData(eleData.shadow, value.shadow, ele.shadow.ATTRIBUTE_NAMES)
   }
 
-  if (value.strokeParam) {
+  if (value.strokeParam !== undefined) {
     const { lineDash } = value.strokeParam
     const strokeParam: D_STROKE_PARAM = (eleData.strokeParam = {})
     parseJsonData(strokeParam, value.strokeParam, ele.strokeParam.ATTRIBUTE_NAMES)
@@ -60,7 +60,7 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
     }
   }
 
-  {
+  if (value.strokeType !== undefined) {
     if (value.strokeType === "strokeColor") {
       eleData.stroke = value[value.strokeType] ?? ""
     } else if (value.strokeType === "strokeGradient") {
@@ -85,7 +85,7 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
     }
   }
 
-  {
+  if (value.fillType !== undefined) {
     if (value.fillType === "fillColor") {
       eleData.fill = value[value.fillType] ?? ""
     } else if (value.fillType === "fillGradient") {
@@ -112,15 +112,15 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
 
   eleData.fillRule = value.fillRule
 
-  if (eleData.type === "image") {
+  if (eleData.type === "image" && value.imageData !== undefined) {
     parseImageSchemaValue(eleData, value.imageData, ele as Image)
   }
 
-  if (eleData.type === "paragraph") {
+  if (eleData.type === "paragraph" && value.paragraphData !== undefined) {
     parseParagraphSchemaValue(eleData, value.paragraphData, ele as Paragraph)
   }
 
-  if (eleData.type === "shape") {
+  if (eleData.type === "shape" && value.shapeData !== undefined) {
     parseShapeSchemaValue(eleData, value.shapeData, ele as Shape)
   }
   return eleData
@@ -128,7 +128,7 @@ export function parseSchemaValue(value: any, ele: Element): D_ELEMENT {
 
 function parseParagraphSchemaValue(paragraphData: D_TEXT_BOX, value: any, paragraph: Paragraph) {
   parseJsonData(paragraphData, value, paragraph.ATTRIBUTE_NAMES)
-  if (value.font) {
+  if (value.font !== undefined) {
     paragraphData.font = {}
     parseJsonData(paragraphData.font, value.font, paragraph.font.ATTRIBUTE_NAMES)
   }
@@ -136,7 +136,7 @@ function parseParagraphSchemaValue(paragraphData: D_TEXT_BOX, value: any, paragr
 
 function parseImageSchemaValue(imageData: D_IMAGE, value: any, image: Image) {
   parseJsonData(imageData, value, image.ATTRIBUTE_NAMES)
-  {
+  if (value.imageData !== undefined) {
     const asset = assetManage.getAsset(image.asset)
     if (value.imageData && asset?.data !== value.imageData) {
       imageData.asset = {
@@ -148,7 +148,7 @@ function parseImageSchemaValue(imageData: D_IMAGE, value: any, image: Image) {
 }
 
 function parseShapeSchemaValue(shapeData: D_SHAPE, value: any, shape: Shape) {
-  {
+  if (value.d_path !== undefined) {
     if (shape.path) {
       // @ts-ignore
       shapeData.d_path = {
