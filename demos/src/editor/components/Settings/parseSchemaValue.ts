@@ -10,8 +10,7 @@ import {
   D_SHAPE,
   Shape,
   Path,
-  D_PATH,
-  Pattern
+  D_PATH
 } from "@canvas-2d/core/src"
 import { parseJsonData } from "@canvas-2d/shared"
 
@@ -138,7 +137,7 @@ function parseParagraphSchemaValue(paragraphData: D_TEXT_BOX, value: any, paragr
 function parseImageSchemaValue(imageData: D_IMAGE, value: any, image: Image) {
   parseJsonData(imageData, value, image.ATTRIBUTE_NAMES)
   {
-    const asset = assetManage.getAsset(image.uniqueIdent)
+    const asset = assetManage.getAsset(image.asset)
     if (value.imageData && asset?.data !== value.imageData) {
       imageData.asset = {
         type: "asset_image",

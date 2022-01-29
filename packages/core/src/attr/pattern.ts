@@ -1,6 +1,6 @@
 import { assertJsonType } from "@canvas-2d/shared"
 import { Attribute } from "./_attr"
-import { D_PATTER, D_ASSET_IMAGE, OmitType, PatternRepetition } from "../type"
+import { D_PATTER, OmitType, PatternRepetition } from "../type"
 import { assetManage, AssetImage } from "../asset"
 
 export class Pattern extends Attribute implements D_PATTER {
@@ -13,13 +13,10 @@ export class Pattern extends Attribute implements D_PATTER {
 
   transform: DOMMatrix2DInit = {}
 
-  asset!: number | D_ASSET_IMAGE
-
-  uniqueIdent: string = ""
+  asset!: AssetImage
 
   genPattern(ctx: CanvasRenderingContext2D) {
-    const { repetition, transform, uniqueIdent } = this
-    const asset = assetManage.getAsset(uniqueIdent) as AssetImage
+    const { repetition, transform, asset } = this
     if (!asset || !asset.element) {
       throw new Error("没有图片资源填充")
     }
@@ -40,9 +37,7 @@ export class Pattern extends Attribute implements D_PATTER {
     if (json === undefined) return
     super.assertJsonTrue(json)
     const { asset, repetition, transform } = json
-    if (typeof asset !== "number") {
-      AssetImage.assertJsonTrue(asset)
-    }
+    AssetImage.assertJsonTrue(asset)
     assertJsonType(repetition, "string")
     assertJsonType(transform, "array")
   }
@@ -50,15 +45,8 @@ export class Pattern extends Attribute implements D_PATTER {
   fromJSON(json: OmitType<D_PATTER>): void {
     const { asset, transform } = json
     super.fromJSON(json)
-    const assetImage = new AssetImage()
     if (asset !== undefined) {
-      if (typeof asset === "number") {
-        assetImage.id = asset
-        this.uniqueIdent = assetImage.uniqueIdent
-      } else {
-        assetImage.fromJSON(asset)
-        this.uniqueIdent = assetImage.uniqueIdent
-      }
+      this.asset = assetManage.getAsset(asset) as AssetImage
     }
     transform && (this.transform = transform)
   }

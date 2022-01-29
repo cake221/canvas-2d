@@ -1,4 +1,6 @@
 import { Asset } from "./_asset"
+import { D_ASSET, Asset_Data } from "../type"
+import { genAsset } from "."
 
 class AssetManage {
   private static _instance: AssetManage
@@ -11,20 +13,18 @@ class AssetManage {
     return allAsset
   }
 
-  assetMap: Map<string, Asset> = new Map()
+  assetMap: Map<Asset_Data, Asset> = new Map()
 
-  countUniqueIdent(asset: Asset) {
-    const { type, id } = asset
-    return `__${type}__${id}`
-  }
-
-  getAsset(uniqueIdent: string): Asset | null {
-    return this.assetMap.get(uniqueIdent) ?? null
+  getAsset(d_asset: D_ASSET): Asset {
+    let asset = this.assetMap.get(d_asset.data)
+    if (!asset) {
+      asset = genAsset(d_asset)
+    }
+    return asset
   }
 
   addAsset(asset: Asset) {
-    const uniqueIdent = this.countUniqueIdent(asset)
-    this.assetMap.set(uniqueIdent, asset)
+    this.assetMap.set(asset.data, asset)
   }
 
   async loadAllAsset() {

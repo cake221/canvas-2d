@@ -2,13 +2,6 @@ import { JSON_DATA } from "@canvas-2d/canvas-json"
 import { wrapStaticUrl } from "../../shared"
 
 export const clipJson: JSON_DATA = {
-  assets: [
-    {
-      type: "asset_image",
-      data: wrapStaticUrl("images/logo.png"),
-      id: 0
-    }
-  ],
   layers: [
     {
       type: "image",
@@ -20,7 +13,10 @@ export const clipJson: JSON_DATA = {
       height: 200,
       fill: "yellow",
       stroke: "red",
-      asset: 0,
+      asset: {
+        type: "asset_image",
+        data: wrapStaticUrl("images/logo.png")
+      },
       clip: {
         d_path: {
           type: "arc",

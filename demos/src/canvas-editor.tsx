@@ -5,7 +5,6 @@ import { wrapStaticUrl } from "../shared"
 const data: JSON_DATA = {
   width: 600,
   height: 600,
-  assets: [],
   layers: [
     {
       type: "shape",

@@ -2,18 +2,6 @@ import { JSON_DATA } from "@canvas-2d/canvas-json"
 import { wrapStaticUrl } from "../../shared"
 
 export const gradientPatternJson: JSON_DATA = {
-  assets: [
-    {
-      data: wrapStaticUrl("images/redball.png"),
-      id: 3,
-      type: "asset_image"
-    },
-    {
-      data: wrapStaticUrl("images/cloth.png"),
-      id: 1,
-      type: "asset_image"
-    }
-  ],
   layers: [
     {
       type: "text",
@@ -34,7 +22,10 @@ export const gradientPatternJson: JSON_DATA = {
       },
       stroke: {
         type: "attr_pattern",
-        asset: 1,
+        asset: {
+          data: wrapStaticUrl("images/cloth.png"),
+          type: "asset_image"
+        },
         repetition: "repeat"
       },
       text: "你好fillStyle.genGradient(ctx)",
@@ -54,7 +45,10 @@ export const gradientPatternJson: JSON_DATA = {
       },
       fill: {
         type: "attr_pattern",
-        asset: 3,
+        asset: {
+          data: wrapStaticUrl("images/redball.png"),
+          type: "asset_image"
+        },
         repetition: "repeat"
       },
       stroke: {

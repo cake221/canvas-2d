@@ -2,13 +2,6 @@ import { JSON_DATA } from "@canvas-2d/canvas-json"
 import { wrapStaticUrl } from "../../shared"
 
 export const imageJson: JSON_DATA = {
-  assets: [
-    {
-      type: "asset_image",
-      data: wrapStaticUrl("images/logo.png"),
-      id: 4
-    }
-  ],
   layers: [
     {
       type: "image",
@@ -20,7 +13,10 @@ export const imageJson: JSON_DATA = {
       height: 200,
       fill: "yellow",
       stroke: "red",
-      asset: 4
+      asset: {
+        type: "asset_image",
+        data: wrapStaticUrl("images/logo.png")
+      }
     }
   ],
   dpr: 3,

@@ -32,8 +32,7 @@ const imageData: D_IMAGE = {
   type: "image",
   asset: {
     type: "asset_image",
-    data: wrapStaticUrl("images/logo.png"),
-    id: 1
+    data: wrapStaticUrl("images/logo.png")
   },
   width: 200,
   height: 200

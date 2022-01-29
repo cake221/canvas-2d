@@ -4,7 +4,6 @@ import {
   assetManage,
   Gradient,
   Paragraph,
-  D_ASSET_IMAGE,
   Shape,
   Path,
   Pattern
@@ -52,7 +51,7 @@ export function fillSchemaValue(ele: Element) {
       }
     } else if (Pattern.isPattern(stroke)) {
       eleFromData.strokeType = "strokePattern"
-      const asset = assetManage.getAsset(stroke.uniqueIdent)
+      const asset = assetManage.getAsset(stroke.asset)
       eleFromData.strokePattern = {
         repetition: stroke.repetition,
         imageData: asset?.data
@@ -90,7 +89,7 @@ export function fillSchemaValue(ele: Element) {
       }
     } else if (Pattern.isPattern(fill)) {
       eleFromData.fillType = "fillPattern"
-      const asset = assetManage.getAsset(fill.uniqueIdent)
+      const asset = assetManage.getAsset(fill.asset)
       eleFromData.fillPattern = {
         repetition: fill.repetition,
         imageData: asset?.data
@@ -131,7 +130,7 @@ function fillParagraphSchemaValue(paragraph: Paragraph, paragraphFromData: any) 
 function fillImageSchemaValue(image: Image, imageFromData: any) {
   parseJsonData(imageFromData, image, image.ATTRIBUTE_NAMES)
   {
-    const asset = assetManage.getAsset(image.uniqueIdent)
+    const asset = assetManage.getAsset(image.asset)
     imageFromData.imageData = asset?.data
   }
 }

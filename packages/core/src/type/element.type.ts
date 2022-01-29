@@ -37,7 +37,7 @@ export interface D_IMAGE extends D_ELEMENT_BASE {
   type: "image"
   width: Number
   height: number
-  asset: Asset_ID | D_ASSET_IMAGE
+  asset: D_ASSET_IMAGE
   imageSmoothing?: boolean
   imageSmoothingQuality?: ImageSmoothingQuality
 }

@@ -1,7 +1,7 @@
 import { Box, assertJsonType, assetValueRange } from "@canvas-2d/shared"
 
 import { Element } from "./_element"
-import { ImageType, D_IMAGE, D_ASSET_IMAGE, OmitType } from "../type"
+import { ImageType, D_IMAGE, OmitType } from "../type"
 import { AssetImage, assetManage } from "../asset"
 
 export class Image extends Element implements D_IMAGE {
@@ -20,9 +20,7 @@ export class Image extends Element implements D_IMAGE {
     this.ATTRIBUTE_NAMES.push(...Element.ELEMENT_ATTRIBUTES)
   }
 
-  asset!: number | D_ASSET_IMAGE
-
-  uniqueIdent: string = ""
+  asset!: AssetImage
 
   width: number = 0
 
@@ -40,9 +38,8 @@ export class Image extends Element implements D_IMAGE {
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
-    const { width, height, uniqueIdent } = this
+    const { width, height, asset } = this
 
-    const asset = assetManage.getAsset(uniqueIdent) as AssetImage
     if (!asset || !asset.element) {
       throw new Error("没有图片资源填充")
     }
@@ -91,9 +88,7 @@ export class Image extends Element implements D_IMAGE {
     super.assertJsonTrue(json)
     const { asset, width, height, imageSmoothing, imageSmoothingQuality } = json
 
-    if (typeof asset !== "number") {
-      AssetImage.assertJsonTrue(asset)
-    }
+    AssetImage.assertJsonTrue(asset)
     assertJsonType(width, "number")
     assertJsonType(height, "number")
     assertJsonType(imageSmoothing, "boolean")
@@ -103,15 +98,8 @@ export class Image extends Element implements D_IMAGE {
   fromJSON(json: OmitType<D_IMAGE>): void {
     const { asset } = json
     super.fromJSON(json)
-    const assetImage = new AssetImage()
     if (asset !== undefined) {
-      if (typeof asset === "number") {
-        assetImage.id = asset
-        this.uniqueIdent = assetImage.uniqueIdent
-      } else {
-        assetImage.fromJSON(asset)
-        this.uniqueIdent = assetImage.uniqueIdent
-      }
+      this.asset = assetManage.getAsset(asset) as AssetImage
     }
   }
 }

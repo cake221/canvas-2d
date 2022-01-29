@@ -12,7 +12,7 @@
 
 `Attr`是渲染会用到的相关属性。内部的`takeEffect`方法用于将该属性生效。`Attr`衍生出了很多属性，包括了 `Transform`、`Origin`、`Font`、`Gradient`、`Shadow`、`strokeParam`、`Clip`和`Pattern`。`Path` 是一个特殊的属性，内部的`genPath`用于生成具体的路径。`Path`衍生出了`Rect`、`ellipse`、`arc`生成长方形、椭圆和圆；衍生出了`path-path`生成更为一般的路径，可以通过 svg 路径属性的设置方法来设置该属性。
 
-`Asset`是渲染时需要的资源。内部的`load`方法用于加载资源，资源通过`uniqueIdent`来标记。`Asset`衍生出了`AssetImage`来加载图片资源。
+`Asset`是渲染时需要的资源。内部的`load`方法用于加载资源，资源通过`data`来标记。`Asset`衍生出了`AssetImage`来加载图片资源。
 
 ### 功能
 

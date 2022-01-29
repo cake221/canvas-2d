@@ -1,8 +1,7 @@
 import { CanvasBase, cloneJson } from "@canvas-2d/shared"
-import { D_ASSET, D_ELEMENT, Element, genElement, genAsset, assetManage } from "@canvas-2d/core"
+import { D_ELEMENT, Element, genElement, assetManage } from "@canvas-2d/core"
 
 export type JSON_DATA = {
-  assets?: D_ASSET[]
   layers?: D_ELEMENT[]
   width?: number
   height?: number
@@ -11,19 +10,16 @@ export type JSON_DATA = {
 }
 
 export class CanvasJSON extends CanvasBase {
-  assetsData: D_ASSET[] = []
-
   layersData: D_ELEMENT[] = []
 
   public elements: Element[] = []
 
   constructor(public json: JSON_DATA) {
     super(json)
-    const { assets, layers, dpr } = json
+    const { layers, dpr } = json
     if (!this.ctx) {
       throw new Error("绘制有问题")
     }
-    assets && (this.assetsData = assets)
     layers && (this.layersData = layers)
 
     dpr && (this.dpr = dpr)
@@ -91,8 +87,6 @@ export class CanvasJSON extends CanvasBase {
   }
 
   async loadAssets() {
-    const { assetsData } = this
-    assetsData.map(genAsset)
     return assetManage.loadAllAsset()
   }
 
@@ -105,14 +99,13 @@ export class CanvasJSON extends CanvasBase {
   }
 
   genData(): JSON_DATA {
-    const { elements, assetsData, width, height, dpr } = this
+    const { elements, width, height, dpr } = this
     const layers = elements.map((ele) => ele.toJSON() as D_ELEMENT)
 
     return {
       width,
       height,
       layers,
-      assets: assetsData,
       dpr: dpr ? dpr : 1
     }
   }

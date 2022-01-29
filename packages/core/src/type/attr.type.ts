@@ -39,7 +39,7 @@ export interface D_PATTER extends D_ATTR_BASE {
   type: "attr_pattern"
   repetition?: PatternRepetition
   transform?: DOMMatrix2DInit
-  asset: Asset_ID | D_ASSET_IMAGE
+  asset: D_ASSET_IMAGE
 }
 
 export interface D_FONT extends D_ATTR_BASE {
