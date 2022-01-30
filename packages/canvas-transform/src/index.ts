@@ -142,7 +142,7 @@ export class CanvasTransform extends CanvasBase {
 
   onPointermove(ev: PointerEvent) {
     super.onPointermove(ev)
-    const { controlAction, p, controlElement, angleCenterDragEnable } = this
+    const { controlAction, p, controlElement, angleCenterDragEnable, pBaseTrans } = this
     if (this.controlAction === CONTROL_ACTION.None || !controlElement) return
     const { controlFrame, boxElement } = controlElement
     const { rotate, elementBox } = boxElement
@@ -150,8 +150,8 @@ export class CanvasTransform extends CanvasBase {
 
     const nextPoint = this.dom2CanvasPoint(ev.x, ev.y)
     const nextPointOnTrans = nextPoint.countPointBaseRotate(rotate)
-    const xGap = nextPoint.x - p.x
-    const yGap = nextPoint.y - p.y
+    const xGap = angleCenterDragEnable ? nextPointOnTrans.x - pBaseTrans.x : nextPoint.x - p.x
+    const yGap = angleCenterDragEnable ? nextPointOnTrans.y - pBaseTrans.y : nextPoint.y - p.y
     if (controlAction === CONTROL_ACTION.Drag) {
       boxElement.updateElementBox({
         ...elementBox,

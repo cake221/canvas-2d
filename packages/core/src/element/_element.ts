@@ -64,7 +64,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
   }
 
   setRotate(ctx: CanvasRenderingContext2D) {
-    this.rotate?.takeEffect(ctx)
+    this.rotate.takeEffect(ctx)
   }
 
   renderBefore(ctx: CanvasRenderingContext2D) {

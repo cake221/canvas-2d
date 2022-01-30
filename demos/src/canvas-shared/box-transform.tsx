@@ -19,8 +19,10 @@ class Element implements BoxElement {
   }
   render = (ctx: CanvasRenderingContext2D) => {
     const { elementBox, rotate } = this
+    ctx.save()
     rotate.takeEffect(ctx)
     elementBox.render(ctx, { fill: "yellow", stroke: "red" })
+    ctx.restore()
   }
 }
 
