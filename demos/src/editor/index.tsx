@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import { Element } from "@canvas-2d/core/src"
 import { JSON_DATA } from "@canvas-2d/canvas-json"
 import { throttleBySTO } from "@canvas-2d/shared"
@@ -6,7 +6,7 @@ import { throttleBySTO } from "@canvas-2d/shared"
 import "./index.less"
 
 import { EditorCanvas, EleActiveCallback } from "./components/Canvas"
-import { Settings } from "./components/Settings"
+import { Settings, SettingsRef } from "./components/Settings"
 import { Sidebar } from "./components/Sidebar"
 
 interface ReactProps {
@@ -17,16 +17,13 @@ export function Editor(props: ReactProps) {
   const { data } = props
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<EditorCanvas | null>(null)
-  const settingsRef = useRef(null)
+  const settingsRef = useRef<SettingsRef | null>(null)
   const eleRef = useRef<Element | null>(null)
   const canvasIsUpdateRef = useRef<boolean>(false)
-  const [_, eleUpdate] = useState<boolean>(true)
 
   const settingUpdate = useCallback(
     throttleBySTO(() => {
-      // @ts-ignore
       settingsRef.current?.settingUpdate()
-      eleUpdate((bool) => !bool)
     }, 300),
     []
   )
@@ -72,9 +69,7 @@ export function Editor(props: ReactProps) {
       </div>
 
       <div className="settings">
-        {eleRef.current && (
-          <Settings ref={settingsRef} ele={eleRef.current} update={canvasUpdate} />
-        )}
+        <Settings ref={settingsRef} eleRef={eleRef} update={canvasUpdate} />
       </div>
     </div>
   )

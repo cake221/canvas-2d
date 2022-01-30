@@ -91,7 +91,7 @@ const strokeSchema = {
         title: "lineDashOffset",
         type: "number",
         hidden:
-          "{{formData.strokeParam.lineDash.length === 0 || !formData.strokeParam.lineDash[0].interval || formData.strokeParam.lineDash[0].interval < 0}}"
+          "{{!formData.strokeParam.lineDash || formData.strokeParam.lineDash.length === 0 || !formData.strokeParam.lineDash[0].interval || formData.strokeParam.lineDash[0].interval < 0}}"
       },
       lineCap: {
         title: "lineCap",
@@ -102,7 +102,7 @@ const strokeSchema = {
         widget: "select",
         labelWidth: 160,
         hidden:
-          "{{formData.strokeParam.lineDash.length === 0 || !formData.strokeParam.lineDash[0].interval || formData.strokeParam.lineDash[0].interval < 0}}"
+          "{{!formData.strokeParam.lineDash || formData.strokeParam.lineDash.length === 0 || !formData.strokeParam.lineDash[0].interval || formData.strokeParam.lineDash[0].interval < 0}}"
       }
     }
   }

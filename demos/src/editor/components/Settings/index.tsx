@@ -1,6 +1,6 @@
 import React, { useRef, useImperativeHandle, forwardRef } from "react"
 import FormRender, { useForm } from "form-render"
-import { Element, assetManage, assertElement } from "@canvas-2d/core/src"
+import { Element, assertElement } from "@canvas-2d/core/src"
 import { cloneJson } from "@canvas-2d/shared"
 
 import { settingSchema } from "./settingSchema"
@@ -9,42 +9,48 @@ import { parseSchemaValue } from "./parseSchemaValue"
 import { ImageUpload, gradientInput } from "./widget"
 
 interface SettingsProps {
-  ele: Element
+  eleRef: React.MutableRefObject<Element | null>
   update: () => void
 }
 
-interface SettingsRef {
+export interface SettingsRef {
   settingUpdate: () => void
 }
-// (props: SettingsProps, ref: React.MutableRefObject<SettingsRef>) => {
-export const Settings = forwardRef((props: SettingsProps, ref: any) => {
-  const { ele, update } = props
+
+export const Settings = forwardRef((props: SettingsProps, ref: React.ForwardedRef<SettingsRef>) => {
+  const { eleRef, update } = props
   const form = useForm()
   const formIsSetValueRef = useRef<boolean>(false)
 
   useImperativeHandle(ref, () => ({
     settingUpdate: () => {
-      const formData = cloneJson(fillSchemaValue(ele))
-      form.setValues(formData)
-
+      if (!eleRef.current) return
       formIsSetValueRef.current = true
-    }
+      const formData = cloneJson(fillSchemaValue(eleRef.current))
+      form.setValues(formData)
+    },
+    AA: () => {}
   }))
 
   const onSettingChange = (value: any) => {
-    if (formIsSetValueRef.current) {
-      formIsSetValueRef.current = false
-      return
-    }
+    if (!eleRef.current) return
+    // FIXME: settingUpdate 不一定会触发 onSettingChange
+    // if (formIsSetValueRef.current) {
+    //   formIsSetValueRef.current = false
+    //   return
+    // }
+
     try {
-      const eleData = parseSchemaValue(value, ele)
+      const eleData = parseSchemaValue(value, eleRef.current)
       assertElement(eleData)
-      ele.fromJSON(eleData)
+      eleRef.current.fromJSON(eleData)
       update()
     } catch (error) {
       console.log("catch", error)
     }
   }
+
+  if (!eleRef.current) return <div />
 
   return (
     <FormRender
