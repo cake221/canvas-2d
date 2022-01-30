@@ -1,5 +1,5 @@
 import { Point } from "./point"
-import { throttle } from "./utils"
+import { throttleByRAF } from "./utils"
 
 export interface CanvasBaseParam {
   width?: number
@@ -73,9 +73,9 @@ export class CanvasBase {
     document.addEventListener("pointermove", this.documentOnPointermove)
   }
 
-  baseOnPointerup = throttle((ev: PointerEvent) => this.onPointerup(ev))
-  baseOnPointerdown = throttle((ev: PointerEvent) => this.onPointerdown(ev))
-  baseOnPointermove = throttle((ev: PointerEvent) => this.onPointermove(ev))
+  baseOnPointerup = throttleByRAF((ev: PointerEvent) => this.onPointerup(ev))
+  baseOnPointerdown = throttleByRAF((ev: PointerEvent) => this.onPointerdown(ev))
+  baseOnPointermove = throttleByRAF((ev: PointerEvent) => this.onPointermove(ev))
 
   destroy() {
     const { canvas } = this

@@ -11,7 +11,7 @@ interface CanvasEditorParams extends Omit<JSON_DATA, "canvas"> {
   eleChange: EleActiveCallback
 }
 
-export class CanvasEditor extends CanvasJSON {
+export class EditorCanvas extends CanvasJSON {
   dynamicCanvas = document.createElement("canvas")
 
   canvasTransform!: CanvasTransform

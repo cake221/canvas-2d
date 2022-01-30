@@ -1,4 +1,4 @@
-import { throttle } from "@canvas-2d/shared"
+import { throttleByRAF } from "@canvas-2d/shared"
 import { OnValueHandle } from "./index"
 
 const ctrlChars = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"]
@@ -18,14 +18,14 @@ export class HiddenInput {
   onNewValueCallBack!: (...args: any) => void
 
   onNewValue(listener: OnValueHandle) {
-    this.onNewValueCallBack = throttle(() => listener(this.hiddenInput.value))
+    this.onNewValueCallBack = throttleByRAF(() => listener(this.hiddenInput.value))
     this.hiddenInput.addEventListener("input", this.onNewValueCallBack)
   }
 
   onKeydownCallBack!: (...args: any) => void
 
   onKeydown(listener: OnValueHandle) {
-    this.onKeydownCallBack = throttle((ev: any) => {
+    this.onKeydownCallBack = throttleByRAF((ev: any) => {
       listener(ev.code)
     })
     this.hiddenInput.addEventListener("keydown", this.onKeydownCallBack)

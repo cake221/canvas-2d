@@ -49,7 +49,7 @@ export function toJsonData(obj: any, attrs: string[]): any {
   return json
 }
 
-export function throttle(fun: Function) {
+export function throttleByRAF(fun: Function) {
   let flag = false
   return function(...args: any) {
     if (flag) return
@@ -61,12 +61,34 @@ export function throttle(fun: Function) {
   }
 }
 
-export function debounce(fun: Function) {
+export function throttleBySTO(fun: Function, delay: number = 0) {
+  let flag = false
+  return function(...args: any) {
+    if (flag) return
+    setTimeout(() => {
+      flag = false
+      fun(...args)
+    }, delay)
+    flag = true
+  }
+}
+
+export function debounceByRAF(fun: Function) {
   let timer: number
   return function(...args: any) {
     if (timer) {
       cancelAnimationFrame(timer)
     }
     timer = requestAnimationFrame(() => fun(args))
+  }
+}
+
+export function debounceBySTO(fun: Function, delay: number = 0) {
+  let timer: NodeJS.Timeout
+  return function(...args: any) {
+    if (timer) {
+      clearTimeout(timer)
+    }
+    timer = setTimeout(() => fun(args), delay)
   }
 }

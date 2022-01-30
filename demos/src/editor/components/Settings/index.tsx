@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react"
+import React, { useRef, useImperativeHandle, forwardRef } from "react"
 import FormRender, { useForm } from "form-render"
 import { Element, assetManage, assertElement } from "@canvas-2d/core/src"
 import { cloneJson } from "@canvas-2d/shared"
@@ -11,21 +11,27 @@ import { ImageUpload, gradientInput } from "./widget"
 interface SettingsProps {
   ele: Element
   update: () => void
-  eleIsUpdate: boolean
 }
 
-export function Settings(props: SettingsProps) {
-  const { ele, update, eleIsUpdate } = props
+interface SettingsRef {
+  settingUpdate: () => void
+}
+// (props: SettingsProps, ref: React.MutableRefObject<SettingsRef>) => {
+export const Settings = forwardRef((props: SettingsProps, ref: any) => {
+  const { ele, update } = props
   const form = useForm()
   const formIsSetValueRef = useRef<boolean>(false)
 
-  useEffect(() => {
-    const formData = cloneJson(fillSchemaValue(ele))
-    form.setValues(formData)
-    formIsSetValueRef.current = true
-  }, [eleIsUpdate])
+  useImperativeHandle(ref, () => ({
+    settingUpdate: () => {
+      const formData = cloneJson(fillSchemaValue(ele))
+      form.setValues(formData)
 
-  const onDataChange = (value: any) => {
+      formIsSetValueRef.current = true
+    }
+  }))
+
+  const onSettingChange = (value: any) => {
     if (formIsSetValueRef.current) {
       formIsSetValueRef.current = false
       return
@@ -34,9 +40,7 @@ export function Settings(props: SettingsProps) {
       const eleData = parseSchemaValue(value, ele)
       assertElement(eleData)
       ele.fromJSON(eleData)
-      assetManage.loadAllAsset().then(() => {
-        update()
-      })
+      update()
     } catch (error) {
       console.log("catch", error)
     }
@@ -53,9 +57,9 @@ export function Settings(props: SettingsProps) {
       watch={{
         "#": {
           immediate: false,
-          handler: (v) => onDataChange(v)
+          handler: (v) => onSettingChange(v)
         }
       }}
     />
   )
-}
+})

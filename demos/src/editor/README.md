@@ -13,16 +13,16 @@
 3. dpr
 4. 统一解析资源，初始时加载
 
-### 架构
+## 架构
 
 - 事件监听/更新
-- canvas: canvas.eleChange/canvas.update
-- settings: form.onDataChange/form.setValues
+- canvas: onCanvasChange/canvasUpdate
+- settings: onSettingChange/settingUpdate
 
-settings -> canvas: form.onDataChange -> canvas.update
-canvas -> settings: canvas.eleChange -> eleIsUpdate -> form.setValues
+settings -> canvas: onSettingChange -> canvasUpdate
+canvas -> settings: onCanvasChange -> 节流 -> eleIsUpdate -> settingUpdate
 
 防止循环渲染：
 
-1. canvas.update !-> canvas.eleChange
-2. form.setValues !-> form.onDataChange
+1. canvasUpdate !-> onCanvasChange
+2. settingUpdate !-> onSettingChange
