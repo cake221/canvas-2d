@@ -85,6 +85,7 @@ export abstract class Element extends Base implements D_ELEMENT_BASE {
   }
 
   renderAfter(ctx: CanvasRenderingContext2D) {
+    // FIXME: rotate 得在渲染前设置
     this.countElementBox(ctx)
     this.rotate.elementBox = this.elementBox
     this.renderCoord(ctx)
